@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
+    <ClInclude Include="Inc\DxgiFactory.h">
+      <Filter>DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\SwapChain.h">
+      <Filter>DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\GraphicsDevice.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\CommandQueue.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\GraphicsCommandList.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\DescriptorHeap.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
+    <ClCompile Include="Source\DxgiFactory.cpp">
+      <Filter>DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SwapChain.cpp">
+      <Filter>DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsDevice.cpp">
+      <Filter>Direct3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CommandQueue.cpp">
+      <Filter>Direct3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommandList.cpp">
+      <Filter>Direct3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DescriptorHeap.cpp">
+      <Filter>Direct3D12</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Direct3D12">
+      <UniqueIdentifier>{b5fdfe99-dcd1-4ec2-920f-28aa9100690c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DXGI">
+      <UniqueIdentifier>{44b19db6-7e93-42ce-9d6e-1f1c65b645ca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
