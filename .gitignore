@@ -4,3 +4,8 @@ ArgentGraphicsLibrary/x64/
 ArgentPlatformLibrary/x64/
 x64/
 ArgentPlatformLibrary/Bin/
+dxcompiler.dll
+dxil.dll
+ArgentGraphicsLibrary/External/DXC/Lib/
+ArgentGraphicsLibrary/Obj/
+ArgentPlatformLibrary/Obj/

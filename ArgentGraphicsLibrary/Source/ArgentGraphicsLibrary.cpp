@@ -2,6 +2,9 @@
 
 #include <windows.h>
 
+
+#include "../Inc/ShaderCompiler.h"
+
 #pragma comment(lib, "DXGI.lib")
 #pragma comment(lib, "D3D12.lib")
 
@@ -34,24 +37,20 @@ namespace argent::graphics
 			frame_resources_[i].Awake(graphics_device_, swap_chain_, i, rtv_heap_.PopDescriptor(), dsv_heap_.PopDescriptor());
 		}
 
-		//swap_chain_.GetBuffer(0u, render_target[0].ReleaseAndGetAddressOf());
-		//swap_chain_.GetBuffer(1u, render_target[1].ReleaseAndGetAddressOf());
-		//swap_chain_.GetBuffer(2u, render_target[2].ReleaseAndGetAddressOf());
-
-		//descriptor_[0] = rtv_heap_.PopDescriptor();
-		//descriptor_[1] = rtv_heap_.PopDescriptor();
-		//descriptor_[2] = rtv_heap_.PopDescriptor();
-
-		//graphics_device_.GetDevice()->CreateRenderTargetView(render_target[0].Get(), 
-		//	nullptr, descriptor_[0].cpu_handle_);
-		//graphics_device_.GetDevice()->CreateRenderTargetView(render_target[1].Get(), 
-		//	nullptr, descriptor_[1].cpu_handle_);
-		//graphics_device_.GetDevice()->CreateRenderTargetView(render_target[2].Get(), 
-		//	nullptr, descriptor_[2].cpu_handle_);
-
 		fence_.Awake(graphics_device_);
 
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
+
+
+		ShaderCompiler compiler;
+		compiler.Compile(L"./Assets/Shader/VertexShader.hlsl", L"vs_6_6", vertex_shader_.ReleaseAndGetAddressOf());
+		compiler.Compile(L"./Assets/Shader/PixelShader.hlsl", L"ps_6_6", pixel_shader_.ReleaseAndGetAddressOf());
+
+	}
+
+	void GraphicsLibrary::Shutdown()
+	{
+		fence_.WaitForGpu(back_buffer_index_);
 	}
 
 	void GraphicsLibrary::FrameBegin()
@@ -61,23 +60,12 @@ namespace argent::graphics
 
 		frame_resources_[back_buffer_index_].Activate(command_list);
 
-		//command_list.SetTransitionBarrier(render_target[back_buffer_index_].Get(), 
-		//	D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-		//float clear_color[4]{ 1, 1, 0, 1 };
-		//command_list.ClearRtv(descriptor_[back_buffer_index_].cpu_handle_, 
-		//	clear_color);
-
-		//const auto rtv_handle = descriptor_[back_buffer_index_].cpu_handle_;
-		//command_list.SetRenderTarget(&rtv_handle, nullptr);
+		OnRender();
 	}
 
 	void GraphicsLibrary::FrameEnd()
 	{
 		auto& command_list = graphics_command_list_[back_buffer_index_];
-
-		//command_list.SetTransitionBarrier(render_target[back_buffer_index_].Get(), 
-		//	 D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 		frame_resources_[back_buffer_index_].Deactivate(command_list);
 
@@ -95,6 +83,11 @@ namespace argent::graphics
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
 
 		fence_.WaitForGpu(back_buffer_index_);
+	}
+
+	void GraphicsLibrary::OnRender()
+	{
+
 	}
 
 	void GraphicsLibrary::OnDebugLayer() const

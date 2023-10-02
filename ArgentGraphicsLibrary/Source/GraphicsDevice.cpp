@@ -5,26 +5,25 @@ namespace argent::graphics
 {
 	void GraphicsDevice::Awake(IDXGIFactory6* idxgi_factory)
 	{
-		//アダプタの取得
-		//TODO アダプタって保持しておく必要はあるのか？？
+		//Get Adapter
+		//TODO Is it need to hold an adapter??
 		Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
 
 		HRESULT hr{};
 		UINT adapter_index{};
 		while (true)
 		{
-			//アダプターの列挙
-			//パフォーマンスの高いやつから取ってくる
+			//Enum adater from higth performance to low.
 			hr = idxgi_factory->EnumAdapterByGpuPreference(adapter_index, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf()));
 			_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Enum Gpu Adapter");
 
 			DXGI_ADAPTER_DESC1 adapter_desc;
 			adapter->GetDesc1(&adapter_desc);
 
-			// ソフトウェアアダプター
+			//software adapter
 			if (adapter_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 
-			// デバイスを生成できるかチェック	shader model 6_6に対応したもの
+			//To Cheack Create Device. Only Support Shader Model 6_6
 			hr = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_1, _uuidof(ID3D12Device), nullptr);
 
 			if(SUCCEEDED(hr))
@@ -40,7 +39,7 @@ namespace argent::graphics
 			D3D_FEATURE_LEVEL_12_1,
 		};
 
-		//フィーチャーレベルを下げながら作成
+		//Create Device from high feature level to low level
 		for(int i = 0; i < 2; ++i)
 		{
 			hr = D3D12CreateDevice(adapter.Get(), feature_levels[i], IID_PPV_ARGS(device_.ReleaseAndGetAddressOf()));

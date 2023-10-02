@@ -27,6 +27,9 @@
     <ClInclude Include="Inc\FrameResource.h">
       <Filter>Direct3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\ShaderCompiler.h">
+      <Filter>Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -54,6 +57,9 @@
     <ClCompile Include="Source\FrameResource.cpp">
       <Filter>Direct3D12</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ShaderCompiler.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Direct3D12">
@@ -61,6 +67,9 @@
     </Filter>
     <Filter Include="DXGI">
       <UniqueIdentifier>{44b19db6-7e93-42ce-9d6e-1f1c65b645ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{7d22f3f5-6b9a-4609-8760-6ab5b33c9275}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

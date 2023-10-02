@@ -18,6 +18,8 @@
 
 #include "FrameResource.h"
 
+#include "dxcapi.h"
+
 namespace argent::graphics
 {
 	class GraphicsLibrary
@@ -30,7 +32,13 @@ namespace argent::graphics
 
 		~GraphicsLibrary() = default;
 
+		GraphicsLibrary(GraphicsLibrary&) = delete;
+		GraphicsLibrary(GraphicsLibrary&&) = delete;
+		GraphicsLibrary& operator=(GraphicsLibrary&) = delete;
+		GraphicsLibrary& operator=(GraphicsLibrary&&) = delete;
+
 		void Awake(HWND hwnd);
+		void Shutdown();
 
 		[[nodiscard]] const GraphicsDevice& GetGraphicsDevice() const { return graphics_device_; }
 		[[nodiscard]] const CommandQueue& GetMainRenderingQueue() const { return main_rendering_queue_; }
@@ -38,6 +46,8 @@ namespace argent::graphics
 		void FrameBegin();
 		void FrameEnd();
 	private:
+
+		void OnRender();
 
 		void OnDebugLayer() const;
 
@@ -59,5 +69,8 @@ namespace argent::graphics
 		FrameResource frame_resources_[kNumBackBuffers];
 
 		UINT back_buffer_index_{};
+
+		Microsoft::WRL::ComPtr<IDxcBlob> vertex_shader_;
+		Microsoft::WRL::ComPtr<IDxcBlob> pixel_shader_;
 	};
 }

@@ -8,7 +8,7 @@
 int main()
 {
 #ifdef _DEBUG 
-	//ƒƒ‚ƒŠƒŠ[ƒN‚ÌŒŸo
+	//Detect memory leak.
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	_CrtSetBreakAlloc(0x00);
 #endif
@@ -24,7 +24,12 @@ int main()
 		platform.ProcessSystemEventQueue();
 		graphics_library.FrameBegin();
 
+
+
 		graphics_library.FrameEnd();
 	}
+
+	graphics_library.Shutdown();
+
 	return 0;
 }
