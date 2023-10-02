@@ -15,8 +15,10 @@ namespace argent::graphics
 
 		void Awake(HWND hwnd, IDXGIFactory6* dxgi_factory, ID3D12CommandQueue* command_queue, UINT num_back_buffers);
 
-		HRESULT GetBuffer(ID3D12Resource** pp_resource) const;
 
+		void Present() const;
+
+		HRESULT GetBuffer(UINT buffer_index, ID3D12Resource** pp_resource) const;
 		UINT GetCurrentBackBufferIndex() const;
 	private:
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> swap_chain_object_;

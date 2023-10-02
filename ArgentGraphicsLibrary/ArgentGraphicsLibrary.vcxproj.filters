@@ -20,6 +20,13 @@
     <ClInclude Include="Inc\DescriptorHeap.h">
       <Filter>Direct3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Fence.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\GraphicsCommon.h" />
+    <ClInclude Include="Inc\FrameResource.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -39,6 +46,12 @@
       <Filter>Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\DescriptorHeap.cpp">
+      <Filter>Direct3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Fence.cpp">
+      <Filter>Direct3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FrameResource.cpp">
       <Filter>Direct3D12</Filter>
     </ClCompile>
   </ItemGroup>

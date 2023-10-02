@@ -11,13 +11,27 @@ namespace argent::graphics
 		GraphicsCommandList() = default;
 		~GraphicsCommandList() = default;
 
+		GraphicsCommandList(GraphicsCommandList&) = delete;
+		GraphicsCommandList(GraphicsCommandList&&) = delete;
+		GraphicsCommandList& operator=(GraphicsCommandList&) = delete;
+		GraphicsCommandList& operator=(GraphicsCommandList&&) = delete;
+
 		void OnAwake(ID3D12Device* device);
+
+		void Activate();
+		void Deactivate();
 		void Reset();
 		void Close();
 
+		void ClearRtv(D3D12_CPU_DESCRIPTOR_HANDLE rtv_cpu_handle, 
+		float clear_color[4], UINT num_rects = 0, const RECT* p_rects = nullptr) const;
+		void SetTransitionBarrier(ID3D12Resource* p_resource, D3D12_RESOURCE_STATES state_before, D3D12_RESOURCE_STATES state_after) const;
 		void SetRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE* p_rtv_handles, const D3D12_CPU_DESCRIPTOR_HANDLE* p_dsv_handle) const;
 		void SetRenderTargets(UINT num_render_targets,
 		const D3D12_CPU_DESCRIPTOR_HANDLE* p_rtv_handles, bool in_a_row_handle, const D3D12_CPU_DESCRIPTOR_HANDLE* p_dsv_handle) const;
+
+
+		ID3D12GraphicsCommandList* GetCommandList() const { return command_list_.Get(); }
 	private:
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> command_list_;
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> command_allocator_;

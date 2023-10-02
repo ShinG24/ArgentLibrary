@@ -21,15 +21,20 @@
   <ItemGroup>
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
     <ClInclude Include="Inc\DescriptorHeap.h" />
+    <ClInclude Include="Inc\Fence.h" />
+    <ClInclude Include="Inc\FrameResource.h" />
     <ClInclude Include="Inc\GraphicsCommandList.h" />
     <ClInclude Include="Inc\CommandQueue.h" />
     <ClInclude Include="Inc\DxgiFactory.h" />
+    <ClInclude Include="Inc\GraphicsCommon.h" />
     <ClInclude Include="Inc\GraphicsDevice.h" />
     <ClInclude Include="Inc\SwapChain.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
+    <ClCompile Include="Source\Fence.cpp" />
+    <ClCompile Include="Source\FrameResource.cpp" />
     <ClCompile Include="Source\GraphicsCommandList.cpp" />
     <ClCompile Include="Source\CommandQueue.cpp" />
     <ClCompile Include="Source\DxgiFactory.cpp" />
@@ -90,9 +95,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)\Bin\$(Configuration)\</OutDir>
+    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)\Bin\$(Configuration)\</OutDir>
+    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

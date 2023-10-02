@@ -32,6 +32,7 @@ namespace argent::graphics
 
 		//TODO
 		HRESULT CreateRenderTarget();
+		HRESULT CreateFence(ID3D12Fence** pp_fence, UINT64 initial_fence_value = 0, D3D12_FENCE_FLAGS fence_flags = D3D12_FENCE_FLAG_NONE) const;
 
 		void CreateRTV(ID3D12Resource* p_resource, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
 

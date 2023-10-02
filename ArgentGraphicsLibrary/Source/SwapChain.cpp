@@ -36,9 +36,15 @@ namespace argent::graphics
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Query Interface SwapChain1 to SwapChain4");
 	}
 
-	HRESULT SwapChain::GetBuffer(ID3D12Resource** pp_resource) const
+	void SwapChain::Present() const
 	{
-		const HRESULT hr = swap_chain_object_->GetBuffer(0u, IID_PPV_ARGS(pp_resource));
+		const HRESULT hr = swap_chain_object_->Present(0u, 0u);
+		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Swap BackBuffer");
+	}
+
+	HRESULT SwapChain::GetBuffer(UINT buffer_index, ID3D12Resource** pp_resource) const
+	{
+		const HRESULT hr = swap_chain_object_->GetBuffer(buffer_index, IID_PPV_ARGS(pp_resource));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Get SwapChainBuffer");
 		return hr;
 	}

@@ -21,6 +21,17 @@ namespace argent::graphics
 		Reset();
 	}
 
+	void GraphicsCommandList::Activate()
+	{
+		Reset();
+	}
+
+	void GraphicsCommandList::Deactivate()
+	{
+		Close();
+	}
+
+
 	void GraphicsCommandList::Reset()
 	{
 		if(is_close_ && !is_reset_)
@@ -38,11 +49,29 @@ namespace argent::graphics
 		{
 			command_list_->Close();
 			is_close_ = true;
+			is_reset_ = false;
 		}
 	}
 
+	void GraphicsCommandList::ClearRtv(D3D12_CPU_DESCRIPTOR_HANDLE rtv_cpu_handle, 
+		float clear_color[4], UINT num_rects, const RECT* p_rects) const
+	{
+		command_list_->ClearRenderTargetView(rtv_cpu_handle, clear_color, num_rects, p_rects);
+	}
+
+	void GraphicsCommandList::SetTransitionBarrier(ID3D12Resource* p_resource, D3D12_RESOURCE_STATES state_before, D3D12_RESOURCE_STATES state_after) const
+	{
+		D3D12_RESOURCE_BARRIER barrier{};
+		barrier.Flags =D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Transition.StateBefore = state_before;
+		barrier.Transition.StateAfter = state_after;
+		barrier.Transition.pResource = p_resource;
+		command_list_->ResourceBarrier(1u, &barrier);
+	}
+
 	void GraphicsCommandList::SetRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE* p_rtv_handles,
-		const D3D12_CPU_DESCRIPTOR_HANDLE* p_dsv_handle) const
+	                                          const D3D12_CPU_DESCRIPTOR_HANDLE* p_dsv_handle) const
 	{
 		command_list_->OMSetRenderTargets(1, p_rtv_handles, false, p_dsv_handle);
 	}
