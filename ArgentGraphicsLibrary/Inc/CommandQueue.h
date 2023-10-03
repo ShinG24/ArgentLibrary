@@ -49,8 +49,6 @@ namespace argent::graphics
 		void Signal(const Fence& fence) const;
 
 		ID3D12CommandQueue* GetCommandQueue() const { return command_queue_object_.Get(); }
-
-	private:
 	private:
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> command_queue_object_;
 	};

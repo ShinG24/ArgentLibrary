@@ -73,6 +73,13 @@ namespace argent::graphics
 		D3D12_VIEWPORT viewport_;
 		D3D12_RECT scissor_rect_{};
 
+
+
+	private:
+		void CreateVertexBuffer();
+		void CreateRootSignature();
+		void CreatePipelineState();
+
 		//TODO
 		struct float2
 		{

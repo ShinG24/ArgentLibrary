@@ -20,29 +20,13 @@ namespace argent::graphics
 
 	void Fence::WaitForGpu(UINT back_buffer_index)
 	{
+		++current_fence_value_;
 		if(GetCompletedValue() < fence_values_[back_buffer_index])
 		{
 			fence_object_->SetEventOnCompletion(fence_values_[back_buffer_index], event_handle_);
 			WaitForSingleObject(event_handle_, INFINITE);
 		}
-		fence_values_[back_buffer_index] = ++current_fence_value_;
+		next_fence_value_ = current_fence_value_ + 1;
+		fence_values_[back_buffer_index] = next_fence_value_;
 	}
 }
-
-
-    //// Schedule a Signal command in the queue.
-    //const UINT64 currentFenceValue = m_fenceValues[m_backBufferIndex];
-    //ThrowIfFailed(m_commandQueue->Signal(m_fence.Get(), currentFenceValue));
-
-    //// Update the back buffer index.
-    //m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-    //// If the next frame is not ready to be rendered yet, wait until it is ready.
-    //if (m_fence->GetCompletedValue() < m_fenceValues[m_backBufferIndex])
-    //{
-    //    ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_backBufferIndex], m_fenceEvent.Get()));
-    //    WaitForSingleObjectEx(m_fenceEvent.Get(), INFINITE, FALSE);
-    //}
-
-    //// Set the fence value for the next frame.
-    //m_fenceValues[m_backBufferIndex] = currentFenceValue + 1;
