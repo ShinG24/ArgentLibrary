@@ -106,17 +106,11 @@ namespace argent::graphics
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create RootSignature");
 
 
-		/*D3D12_INPUT_ELEMENT_DESC input_desc[]
+		D3D12_INPUT_ELEMENT_DESC input_desc[]
 		{
 			{"POSITION", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
 			{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
-		};*/
-
-		/*		D3D12_INPUT_ELEMENT_DESC input_desc[]
-		{
-			{"POSITION", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
-			{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
-		};*/
+		};
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipeline_desc{};
 		pipeline_desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
@@ -146,8 +140,8 @@ namespace argent::graphics
 		pipeline_desc.DepthStencilState.StencilEnable = false;
 
 
-		pipeline_desc.InputLayout.NumElements = 0u;
-		pipeline_desc.InputLayout.pInputElementDescs = nullptr;
+		pipeline_desc.InputLayout.NumElements = 2u;
+		pipeline_desc.InputLayout.pInputElementDescs = input_desc;
 		pipeline_desc.NumRenderTargets = 1u;
 		pipeline_desc.PS.pShaderBytecode = pixel_shader_.Get()->GetBufferPointer();
 		pipeline_desc.PS.BytecodeLength = pixel_shader_->GetBufferSize();
@@ -231,7 +225,7 @@ namespace argent::graphics
 	void GraphicsLibrary::OnRender()
 	{
 		auto command_list = graphics_command_list_[back_buffer_index_].GetCommandList();
-		//command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
+		command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
 		command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		command_list->SetGraphicsRootSignature(root_signature_.Get());
