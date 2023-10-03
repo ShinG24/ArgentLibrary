@@ -2,8 +2,10 @@
 
 #include <windows.h>
 
+#include "../External/d3dx12.h"
 
 #include "../Inc/ShaderCompiler.h"
+
 
 #pragma comment(lib, "DXGI.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -117,6 +119,10 @@ namespace argent::graphics
 		}
 
 		fence_.Awake(graphics_device_);
+
+
+		//Create Raytracing Objects
+		CreateRaytracingObject();
 	}
 
 	void GraphicsLibrary::OnDebugLayer() const
@@ -258,5 +264,51 @@ namespace argent::graphics
 		hr = graphics_device_.GetDevice()->CreateGraphicsPipelineState(&pipeline_desc, IID_PPV_ARGS(pipeline_state_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Graphics Pipeline");
 
+	}
+
+	void GraphicsLibrary::CreateRaytracingObject()
+	{
+		//In truth I need to create command list and device which support raytracing,
+		//But in here I skipped.
+
+		//Create Root Signature for the Shaders.
+		CreateRaytracingRootSignature();
+	}
+
+	void GraphicsLibrary::CreateRaytracingRootSignature()
+	{
+		//Global Root Signature
+		//Shared across all raytracing shaders invoked during a DispatchRays() call.
+		{
+			D3D12_DESCRIPTOR_RANGE uav_descriptor_range;
+			uav_descriptor_range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			uav_descriptor_range.NumDescriptors = 1;
+			uav_descriptor_range.BaseShaderRegister = 0;
+			uav_descriptor_range.RegisterSpace = 0;
+			uav_descriptor_range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+			D3D12_ROOT_PARAMETER root_parameters[2];
+			root_parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			root_parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			root_parameters[0].DescriptorTable.NumDescriptorRanges = 1;
+			root_parameters[0].DescriptorTable.pDescriptorRanges = &uav_descriptor_range;
+
+			root_parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			root_parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			root_parameters[1].Descriptor.ShaderRegister = 0u;
+			root_parameters[1].Descriptor.RegisterSpace = 0u;
+
+			CD3DX12_ROOT_SIGNATURE_DESC global_root_signature_desc(
+				ARRAYSIZE(root_parameters), root_parameters);
+
+			graphics_device_.SerializeAndCreateRootSignature(global_root_signature_desc,
+				raytracing_global_root_signature_.ReleaseAndGetAddressOf());
+		}
+
+		//Local Root Signature
+		//enables a shader to have unique arguments that come from shader table
+		{
+			
+		}
 	}
 }

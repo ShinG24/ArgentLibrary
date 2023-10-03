@@ -100,6 +100,21 @@ namespace argent::graphics
 		return device_->GetDescriptorHandleIncrementSize(heap_type);
 	}
 
+	HRESULT GraphicsDevice::SerializeAndCreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& root_signature_desc,
+		ID3D12RootSignature** pp_root_signature, D3D_ROOT_SIGNATURE_VERSION root_signature_version) const
+	{
+		Microsoft::WRL::ComPtr<ID3DBlob> blob;
+		Microsoft::WRL::ComPtr<ID3DBlob> error;
+		HRESULT hr = D3D12SerializeRootSignature(&root_signature_desc, root_signature_version,
+			blob.ReleaseAndGetAddressOf(), error.ReleaseAndGetAddressOf());
+		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Serialize the RootSignature");
+
+		hr = device_->CreateRootSignature(0u, blob->GetBufferPointer(),
+			blob->GetBufferSize(), IID_PPV_ARGS(pp_root_signature));
+		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create ID3D12RootSignature");
+		return hr;
+	}
+
 	bool GraphicsDevice::IsDirectXRaytracingSupported() const
 	{
 		D3D12_FEATURE_DATA_D3D12_OPTIONS5 feature_support_data{};

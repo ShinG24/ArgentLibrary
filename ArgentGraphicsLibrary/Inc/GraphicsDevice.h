@@ -55,6 +55,10 @@ namespace argent::graphics
 
 		UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const;
 
+		HRESULT SerializeAndCreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& root_signature_desc,
+			ID3D12RootSignature** pp_root_signature, 
+			D3D_ROOT_SIGNATURE_VERSION root_signature_version = D3D_ROOT_SIGNATURE_VERSION_1) const;
+
 		/**
 		 * \brief Check is This computer or Gpu supported DXR.
 		 * \return bool 

@@ -81,6 +81,10 @@ namespace argent::graphics
 		void CreateRootSignature();
 		void CreatePipelineState();
 
+
+		void CreateRaytracingObject();
+		void CreateRaytracingRootSignature();
+
 		//TODO
 		struct float2
 		{
@@ -98,5 +102,9 @@ namespace argent::graphics
 		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> root_signature_;
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipeline_state_;
+
+
+		//Raytracing Object
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> raytracing_global_root_signature_;
 	};
 }
