@@ -30,6 +30,9 @@
     <ClInclude Include="Inc\ShaderCompiler.h">
       <Filter>Shader</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\RootSignature.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -59,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="Source\ShaderCompiler.cpp">
       <Filter>Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RootSignature.cpp">
+      <Filter>Direct3D12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

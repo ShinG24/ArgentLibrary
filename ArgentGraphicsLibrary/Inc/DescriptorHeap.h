@@ -17,7 +17,8 @@ namespace argent::graphics
 		DescriptorHeap* p_descriptor_heap_;
 	};
 
-	//TODO DescriptorHeap
+	//Wrap class of ID3D12DescriptorHeap Object
+	//
 	class DescriptorHeap
 	{
 	public:
@@ -46,6 +47,7 @@ namespace argent::graphics
 
 		Descriptor PopDescriptor();
 
+		ID3D12DescriptorHeap* GetDescriptorHeapObject() const { return descriptor_heap_object_.Get(); }
 	private:
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptor_heap_object_;
 		HeapType heap_type_;

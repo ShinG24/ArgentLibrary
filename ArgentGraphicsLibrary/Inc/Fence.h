@@ -9,6 +9,7 @@ namespace argent::graphics
 {
 	class GraphicsDevice;
 
+	//Wraped class of ID3D12Fence.
 	class Fence
 	{
 	public:

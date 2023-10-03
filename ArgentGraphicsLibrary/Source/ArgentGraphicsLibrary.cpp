@@ -41,6 +41,13 @@ namespace argent::graphics
 
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
 
+		RECT rect{};
+		GetWindowRect(hwnd_, &rect);
+		viewport_ = D3D12_VIEWPORT(0.0f, 0.0f, static_cast<FLOAT>(rect.right - rect.left), 
+			static_cast<FLOAT>(rect.bottom - rect.top), 0.0f, 1.0f);
+		scissor_rect_ = D3D12_RECT(rect);
+
+
 
 		const ShaderCompiler compiler;
 		compiler.Compile(L"./Assets/Shader/VertexShader.hlsl", L"vs_6_6", vertex_shader_.ReleaseAndGetAddressOf());
@@ -85,7 +92,6 @@ namespace argent::graphics
 		v[1] = vertices[1];
 		v[2] = vertices[2];
 		v[3] = vertices[3];
-
 
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
@@ -181,21 +187,8 @@ namespace argent::graphics
 
 		frame_resources_[back_buffer_index_].Activate(command_list);
 
-		D3D12_VIEWPORT viewport{};
-		D3D12_RECT rect{};
-		viewport.Width = 1280;
-		viewport.Height = 720;
-		viewport.TopLeftX = 0u;
-		viewport.TopLeftY = 0u;
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-
-		rect.left = rect.top = 0u;
-		rect.right = 1280;
-		rect.bottom = 720;
-
-		command_list.GetCommandList()->RSSetViewports(1u, &viewport);
-		command_list.GetCommandList()->RSSetScissorRects(1u, &rect);
+		command_list.GetCommandList()->RSSetViewports(1u, &viewport_);
+		command_list.GetCommandList()->RSSetScissorRects(1u, &scissor_rect_);
 
 		OnRender();
 	}

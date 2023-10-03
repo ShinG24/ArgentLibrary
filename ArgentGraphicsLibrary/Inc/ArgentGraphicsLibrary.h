@@ -70,6 +70,9 @@ namespace argent::graphics
 
 		UINT back_buffer_index_{};
 
+		D3D12_VIEWPORT viewport_;
+		D3D12_RECT scissor_rect_{};
+
 		//TODO
 		struct float2
 		{

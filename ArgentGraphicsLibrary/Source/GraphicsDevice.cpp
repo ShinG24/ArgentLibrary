@@ -5,6 +5,11 @@ namespace argent::graphics
 {
 	void GraphicsDevice::Awake(IDXGIFactory6* idxgi_factory)
 	{
+		if(device_)
+		{
+			_ASSERT_EXPR(FALSE, L"Invalied Call of GraphicsDevice::Awake(...) funcion : only be called once");
+		}
+
 		//Get Adapter
 		//TODO Is it need to hold an adapter??
 		Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
