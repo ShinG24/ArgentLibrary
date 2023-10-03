@@ -28,6 +28,7 @@ namespace argent::graphics
 		void Deactivate(const GraphicsCommandList& command_list) const;
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource_object_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> depth_buffer_;
 		Descriptor rtv_descriptor_;
 		Descriptor dsv_descriptor_;
 		UINT back_buffer_index_;

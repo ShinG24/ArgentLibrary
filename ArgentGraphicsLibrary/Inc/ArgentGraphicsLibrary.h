@@ -70,7 +70,22 @@ namespace argent::graphics
 
 		UINT back_buffer_index_{};
 
+		//TODO
+		struct float2
+		{
+			float x_;
+			float y_;
+		};
+		struct Vertex
+		{
+			float2 position_;
+			float2 texcoord_;
+		};
 		Microsoft::WRL::ComPtr<IDxcBlob> vertex_shader_;
 		Microsoft::WRL::ComPtr<IDxcBlob> pixel_shader_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer_;
+		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view_;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> root_signature_;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipeline_state_;
 	};
 }

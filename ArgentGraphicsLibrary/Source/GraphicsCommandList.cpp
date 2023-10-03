@@ -59,6 +59,13 @@ namespace argent::graphics
 		command_list_->ClearRenderTargetView(rtv_cpu_handle, clear_color, num_rects, p_rects);
 	}
 
+	void GraphicsCommandList::ClearDsv(D3D12_CPU_DESCRIPTOR_HANDLE dsv_cpu_handle,
+		D3D12_CLEAR_FLAGS clear_flags, float depth, UINT8 stencil, UINT num_rects, 
+		const D3D12_RECT* p_rects) const
+	{
+		command_list_->ClearDepthStencilView(dsv_cpu_handle, clear_flags, depth, stencil, num_rects, p_rects);
+	}
+
 	void GraphicsCommandList::SetTransitionBarrier(ID3D12Resource* p_resource, D3D12_RESOURCE_STATES state_before, D3D12_RESOURCE_STATES state_after) const
 	{
 		D3D12_RESOURCE_BARRIER barrier{};
