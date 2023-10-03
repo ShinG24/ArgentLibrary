@@ -55,6 +55,11 @@ namespace argent::graphics
 
 		UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const;
 
+		/**
+		 * \brief Check is This computer or Gpu supported DXR.
+		 * \return bool 
+		 */
+		bool IsDirectXRaytracingSupported() const;
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Device8> latest_device_;
 		Microsoft::WRL::ComPtr<ID3D12Device> device_;

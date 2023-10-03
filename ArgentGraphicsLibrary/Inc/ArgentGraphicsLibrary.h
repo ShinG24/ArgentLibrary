@@ -46,20 +46,21 @@ namespace argent::graphics
 		void FrameBegin();
 		void FrameEnd();
 	private:
-
 		void OnRender();
+
+		void CreateDeviceDependencyObjects();
 
 		void OnDebugLayer() const;
 
 	private:
-		HWND hwnd_;
+		HWND hwnd_;	//Window handle
 
-		GraphicsDevice graphics_device_;
-		DxgiFactory dxgi_factory_;
-		SwapChain swap_chain_;
-		CommandQueue main_rendering_queue_;
-		GraphicsCommandList graphics_command_list_[kNumBackBuffers];
-		DescriptorHeap cbv_srv_uav_heap_;
+		GraphicsDevice graphics_device_;	//Wraped device object
+		DxgiFactory dxgi_factory_;			//Wraped factory
+		SwapChain swap_chain_;				//Wraped SwapChain object
+		CommandQueue main_rendering_queue_;	//Wraped Command Queue for the screen 
+		GraphicsCommandList graphics_command_list_[kNumBackBuffers];	//Wraped Command List for rendering
+		DescriptorHeap cbv_srv_uav_heap_;	//Wraped DescriptorHeap for CBV, SRV and UAV.
 		DescriptorHeap rtv_heap_;
 		DescriptorHeap dsv_heap_;
 		DescriptorHeap smp_heap_;

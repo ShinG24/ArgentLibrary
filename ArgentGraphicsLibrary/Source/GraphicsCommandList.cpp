@@ -2,7 +2,7 @@
 
 namespace argent::graphics
 {
-	void GraphicsCommandList::OnAwake(ID3D12Device* device)
+	void GraphicsCommandList::Awake(ID3D12Device* device)
 	{
 		is_close_ = is_reset_ = false;
 

@@ -16,7 +16,7 @@ namespace argent::graphics
 		GraphicsCommandList& operator=(GraphicsCommandList&) = delete;
 		GraphicsCommandList& operator=(GraphicsCommandList&&) = delete;
 
-		void OnAwake(ID3D12Device* device);
+		void Awake(ID3D12Device* device);
 
 		void Activate();
 		void Deactivate();

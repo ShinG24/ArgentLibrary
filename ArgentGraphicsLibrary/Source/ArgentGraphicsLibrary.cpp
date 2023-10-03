@@ -23,21 +23,11 @@ namespace argent::graphics
 		main_rendering_queue_.Awake(graphics_device_.GetLatestDevice(), L"Main Rendering Queue");
 		swap_chain_.Awake(hwnd, dxgi_factory_.GetIDxgiFactory(), main_rendering_queue_.GetCommandQueue(), kNumBackBuffers);
 
-		cbv_srv_uav_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::CbvSrvUav, 10000);
-		rtv_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Rtv, 100);
-		dsv_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Dsv, 100);
-		smp_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Smp, 50);
+		//Check Raytracing tier supported
+		const bool raytracing_supported = graphics_device_.IsDirectXRaytracingSupported();
+		_ASSERT_EXPR(raytracing_supported, L"DXR not Supported");
 
-		graphics_command_list_[0].OnAwake(graphics_device_.GetDevice());
-		graphics_command_list_[1].OnAwake(graphics_device_.GetDevice());
-		graphics_command_list_[2].OnAwake(graphics_device_.GetDevice());
-
-		for(int i = 0; i < kNumBackBuffers; ++i)
-		{
-			frame_resources_[i].Awake(graphics_device_, swap_chain_, i, rtv_heap_.PopDescriptor(), dsv_heap_.PopDescriptor());
-		}
-
-		fence_.Awake(graphics_device_);
+		CreateDeviceDependencyObjects();
 
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
 
@@ -47,8 +37,6 @@ namespace argent::graphics
 			static_cast<FLOAT>(rect.bottom - rect.top), 0.0f, 1.0f);
 		scissor_rect_ = D3D12_RECT(rect);
 
-
-
 		const ShaderCompiler compiler;
 		compiler.Compile(L"./Assets/Shader/VertexShader.hlsl", L"vs_6_6", vertex_shader_.ReleaseAndGetAddressOf());
 		compiler.Compile(L"./Assets/Shader/PixelShader.hlsl", L"ps_6_6", pixel_shader_.ReleaseAndGetAddressOf());
@@ -56,7 +44,6 @@ namespace argent::graphics
 		CreateVertexBuffer();
 		CreateRootSignature();
 		CreatePipelineState();
-
 	}
 
 	void GraphicsLibrary::Shutdown()
@@ -103,7 +90,7 @@ namespace argent::graphics
 
 	void GraphicsLibrary::OnRender()
 	{
-		auto command_list = graphics_command_list_[back_buffer_index_].GetCommandList();
+		const auto command_list = graphics_command_list_[back_buffer_index_].GetCommandList();
 		command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
 		command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
@@ -111,6 +98,25 @@ namespace argent::graphics
 		command_list->SetPipelineState(pipeline_state_.Get());
 
 		command_list->DrawInstanced(4u, 1u, 0u, 0u);
+	}
+
+	void GraphicsLibrary::CreateDeviceDependencyObjects()
+	{
+		cbv_srv_uav_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::CbvSrvUav, 10000);
+		rtv_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Rtv, 100);
+		dsv_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Dsv, 100);
+		smp_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Smp, 50);
+
+		graphics_command_list_[0].Awake(graphics_device_.GetDevice());
+		graphics_command_list_[1].Awake(graphics_device_.GetDevice());
+		graphics_command_list_[2].Awake(graphics_device_.GetDevice());
+
+		for(int i = 0; i < kNumBackBuffers; ++i)
+		{
+			frame_resources_[i].Awake(graphics_device_, swap_chain_, i, rtv_heap_.PopDescriptor(), dsv_heap_.PopDescriptor());
+		}
+
+		fence_.Awake(graphics_device_);
 	}
 
 	void GraphicsLibrary::OnDebugLayer() const

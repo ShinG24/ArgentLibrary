@@ -99,4 +99,14 @@ namespace argent::graphics
 	{
 		return device_->GetDescriptorHandleIncrementSize(heap_type);
 	}
+
+	bool GraphicsDevice::IsDirectXRaytracingSupported() const
+	{
+		D3D12_FEATURE_DATA_D3D12_OPTIONS5 feature_support_data{};
+		HRESULT hr = device_->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &feature_support_data, sizeof(feature_support_data));
+		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Call ID3D12Device::CheckFeatureSupport()");
+
+		return feature_support_data.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
+
+	}
 }
