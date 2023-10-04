@@ -33,6 +33,8 @@
     <ClInclude Include="Inc\RootSignature.h">
       <Filter>Direct3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Raytracer.h" />
+    <ClInclude Include="Inc\RasterRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -66,6 +68,8 @@
     <ClCompile Include="Source\RootSignature.cpp">
       <Filter>Direct3D12</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Raytracer.cpp" />
+    <ClCompile Include="Source\RasterRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Direct3D12">

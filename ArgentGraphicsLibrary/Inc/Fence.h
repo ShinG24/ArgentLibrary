@@ -8,6 +8,7 @@
 namespace argent::graphics
 {
 	class GraphicsDevice;
+	class CommandQueue;
 
 	//Wraped class of ID3D12Fence.
 	class Fence
@@ -23,6 +24,7 @@ namespace argent::graphics
 
 		void Awake(const GraphicsDevice& graphics_device);
 
+		void PutUpFence(const CommandQueue& command_queue);
 		UINT64 GetFenceValue() const { return next_fence_value_; }
 		UINT64 GetCompletedValue() const;
 		void WaitForGpu(UINT back_buffer_index);

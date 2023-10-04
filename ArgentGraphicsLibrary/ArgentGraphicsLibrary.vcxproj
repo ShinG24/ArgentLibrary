@@ -28,6 +28,8 @@
     <ClInclude Include="Inc\DxgiFactory.h" />
     <ClInclude Include="Inc\GraphicsCommon.h" />
     <ClInclude Include="Inc\GraphicsDevice.h" />
+    <ClInclude Include="Inc\RasterRenderer.h" />
+    <ClInclude Include="Inc\Raytracer.h" />
     <ClInclude Include="Inc\RootSignature.h" />
     <ClInclude Include="Inc\ShaderCompiler.h" />
     <ClInclude Include="Inc\SwapChain.h" />
@@ -41,6 +43,8 @@
     <ClCompile Include="Source\CommandQueue.cpp" />
     <ClCompile Include="Source\DxgiFactory.cpp" />
     <ClCompile Include="Source\GraphicsDevice.cpp" />
+    <ClCompile Include="Source\RasterRenderer.cpp" />
+    <ClCompile Include="Source\Raytracer.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\ShaderCompiler.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />

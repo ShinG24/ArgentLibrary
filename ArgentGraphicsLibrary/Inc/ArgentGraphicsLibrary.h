@@ -20,6 +20,9 @@
 
 #include "dxcapi.h"
 
+#include "RasterRenderer.h"
+#include "Raytracer.h"
+
 namespace argent::graphics
 {
 	class GraphicsLibrary
@@ -77,41 +80,10 @@ namespace argent::graphics
 
 
 	private:
-		void CreateVertexBuffer();
-		void CreateRootSignature();
-		void CreatePipelineState();
 
-
-		void CreateRaytracingObject();
 		void CreateRaytracingRootSignature();
-		void CreateRaytracingPipelineState();
 
-		//TODO
-		struct float2
-		{
-			float x_;
-			float y_;
-		};
-		struct Vertex
-		{
-			float2 position_;
-			float2 texcoord_;
-		};
-		Microsoft::WRL::ComPtr<IDxcBlob> vertex_shader_;
-		Microsoft::WRL::ComPtr<IDxcBlob> pixel_shader_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer_;
-		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> root_signature_;
-		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipeline_state_;
-
-
-		//Raytracing Object
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> raytracing_global_root_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> raytracing_local_root_signature_;
-
-		//Shader
-		Microsoft::WRL::ComPtr<IDxcBlob> ray_gen_library_;
-		Microsoft::WRL::ComPtr<IDxcBlob> miss_library_;
-		Microsoft::WRL::ComPtr<IDxcBlob> hit_library_;
+		RasterRenderer raster_renderer_;
+		Raytracer raytracer_;
 	};
 }
