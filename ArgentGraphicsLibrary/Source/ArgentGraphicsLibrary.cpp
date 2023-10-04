@@ -308,7 +308,19 @@ namespace argent::graphics
 		//Local Root Signature
 		//enables a shader to have unique arguments that come from shader table
 		{
-			
+			D3D12_ROOT_PARAMETER root_parameters[1];
+			root_parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+			root_parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			root_parameters[0].Constants.Num32BitValues = 8u;
+			root_parameters[0].Constants.RegisterSpace = 0;
+			root_parameters[0].Constants.ShaderRegister = 0;
+
+			D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
+			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+			root_signature_desc.NumParameters = 1;
+			root_signature_desc.pParameters = root_parameters;
+			graphics_device_.SerializeAndCreateRootSignature(root_signature_desc, 
+				raytracing_local_root_signature_.ReleaseAndGetAddressOf());
 		}
 	}
 }

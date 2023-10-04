@@ -106,5 +106,6 @@ namespace argent::graphics
 
 		//Raytracing Object
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> raytracing_global_root_signature_;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> raytracing_local_root_signature_;
 	};
 }
