@@ -84,6 +84,7 @@ namespace argent::graphics
 
 		void CreateRaytracingObject();
 		void CreateRaytracingRootSignature();
+		void CreateRaytracingPipelineState();
 
 		//TODO
 		struct float2
@@ -107,5 +108,10 @@ namespace argent::graphics
 		//Raytracing Object
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> raytracing_global_root_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> raytracing_local_root_signature_;
+
+		//Shader
+		Microsoft::WRL::ComPtr<IDxcBlob> ray_gen_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> miss_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> hit_library_;
 	};
 }

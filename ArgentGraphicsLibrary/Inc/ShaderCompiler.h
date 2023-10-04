@@ -20,6 +20,8 @@ namespace argent::graphics
 		void Compile(const wchar_t* filename, LPCWSTR target_profile, 
 		IDxcBlob** pp_blob) const;
 
+		void CompileShaderLibrary(LPCWSTR filename, IDxcBlob** pp_blob);
+
 	private:
 		Microsoft::WRL::ComPtr<IDxcCompiler3> dxc_compiler{};
 		Microsoft::WRL::ComPtr<IDxcIncludeHandler> dxc_include_handler{};

@@ -273,6 +273,9 @@ namespace argent::graphics
 
 		//Create Root Signature for the Shaders.
 		CreateRaytracingRootSignature();
+
+		//Create raytracing pipeline state object
+		CreateRaytracingPipelineState();
 	}
 
 	void GraphicsLibrary::CreateRaytracingRootSignature()
@@ -322,5 +325,20 @@ namespace argent::graphics
 			graphics_device_.SerializeAndCreateRootSignature(root_signature_desc, 
 				raytracing_local_root_signature_.ReleaseAndGetAddressOf());
 		}
+	}
+
+
+	void GraphicsLibrary::CreateRaytracingPipelineState()
+	{
+		ShaderCompiler shader_compiler;
+		shader_compiler.CompileShaderLibrary(L"RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
+
+		//First use d3dx12.h helper
+
+		CD3DX12_STATE_OBJECT_DESC raytracing_pipeline{ D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE };
+
+
 	}
 }
