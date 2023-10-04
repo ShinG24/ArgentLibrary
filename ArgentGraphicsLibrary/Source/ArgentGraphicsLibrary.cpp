@@ -23,6 +23,7 @@ namespace argent::graphics
 		dxgi_factory_.Awake();
 		graphics_device_.Awake(dxgi_factory_.GetIDxgiFactory());
 		main_rendering_queue_.Awake(graphics_device_.GetLatestDevice(), L"Main Rendering Queue");
+		resource_upload_queue_.Awake(graphics_device_.GetLatestDevice(), L"Resource Upload Queue");
 		swap_chain_.Awake(hwnd, dxgi_factory_.GetIDxgiFactory(), main_rendering_queue_.GetCommandQueue(), kNumBackBuffers);
 
 		//Check Raytracing tier supported
@@ -40,7 +41,10 @@ namespace argent::graphics
 		scissor_rect_ = D3D12_RECT(rect);
 
 		raster_renderer_.Awake(graphics_device_);
-		raytracer_.Awake(graphics_device_);
+
+		resource_upload_command_list_.Activate();
+		raytracer_.Awake(graphics_device_, resource_upload_command_list_,
+			resource_upload_queue_, fence_);
 	}
 
 	void GraphicsLibrary::Shutdown()
@@ -77,7 +81,7 @@ namespace argent::graphics
 		};
 		main_rendering_queue_.Execute(1u, command_lists);
 		fence_.PutUpFence(main_rendering_queue_);
-	//	main_rendering_queue_.Signal(fence_);
+		//	main_rendering_queue_.Signal(fence_);
 
 		swap_chain_.Present();
 
@@ -102,6 +106,7 @@ namespace argent::graphics
 		graphics_command_list_[0].Awake(graphics_device_.GetDevice());
 		graphics_command_list_[1].Awake(graphics_device_.GetDevice());
 		graphics_command_list_[2].Awake(graphics_device_.GetDevice());
+		resource_upload_command_list_.Awake(graphics_device_.GetDevice());
 
 		for(int i = 0; i < kNumBackBuffers; ++i)
 		{

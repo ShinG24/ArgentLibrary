@@ -28,6 +28,7 @@ namespace argent::graphics
 		UINT64 GetFenceValue() const { return next_fence_value_; }
 		UINT64 GetCompletedValue() const;
 		void WaitForGpu(UINT back_buffer_index);
+		void WaitForGpuInCurrentFrame() const;
 
 		ID3D12Fence* GetFence() const { return fence_object_.Get(); }
 	private:

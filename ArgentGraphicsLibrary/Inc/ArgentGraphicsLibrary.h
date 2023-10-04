@@ -62,7 +62,9 @@ namespace argent::graphics
 		DxgiFactory dxgi_factory_;			//Wraped factory
 		SwapChain swap_chain_;				//Wraped SwapChain object
 		CommandQueue main_rendering_queue_;	//Wraped Command Queue for the screen 
+		CommandQueue resource_upload_queue_;	//Wraped Command Queue for resource upload for gpu 
 		GraphicsCommandList graphics_command_list_[kNumBackBuffers];	//Wraped Command List for rendering
+		GraphicsCommandList resource_upload_command_list_;	//Wraped Command List for upload resource
 		DescriptorHeap cbv_srv_uav_heap_;	//Wraped DescriptorHeap for CBV, SRV and UAV.
 		DescriptorHeap rtv_heap_;
 		DescriptorHeap dsv_heap_;
@@ -76,8 +78,6 @@ namespace argent::graphics
 
 		D3D12_VIEWPORT viewport_;
 		D3D12_RECT scissor_rect_{};
-
-
 
 	private:
 

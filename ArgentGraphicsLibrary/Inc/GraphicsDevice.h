@@ -53,6 +53,9 @@ namespace argent::graphics
 
 		void CreateRTV(ID3D12Resource* p_resource, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
 
+		void CreateVertexBufferAndView(UINT size_of_data_type, UINT num_data, 
+			ID3D12Resource** pp_vertex_buffer, D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const;
+
 		UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const;
 
 		HRESULT SerializeAndCreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& root_signature_desc,

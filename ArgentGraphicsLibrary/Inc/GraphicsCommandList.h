@@ -36,6 +36,7 @@ namespace argent::graphics
 
 
 		ID3D12GraphicsCommandList* GetCommandList() const { return command_list_.Get(); }
+		ID3D12GraphicsCommandList4* GetCommandList4() const { return command_list_.Get(); }
 	private:
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> command_list_;
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> command_allocator_;

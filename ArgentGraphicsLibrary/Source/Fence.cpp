@@ -27,7 +27,7 @@ namespace argent::graphics
 
 	void Fence::WaitForGpu(UINT back_buffer_index)
 	{
-	//	++current_fence_value_;
+		//	++current_fence_value_;
 		if(GetCompletedValue() < fence_values_[back_buffer_index])
 		{
 			fence_object_->SetEventOnCompletion(fence_values_[back_buffer_index], event_handle_);
@@ -35,5 +35,14 @@ namespace argent::graphics
 		}
 		next_fence_value_ = current_fence_value_ + 1;
 		fence_values_[back_buffer_index] = next_fence_value_;
+	}
+
+	void Fence::WaitForGpuInCurrentFrame() const
+	{
+		if(GetCompletedValue() < current_fence_value_)
+		{
+			fence_object_->SetEventOnCompletion(current_fence_value_, event_handle_);
+			WaitForSingleObject(event_handle_, INFINITE);
+		}
 	}
 }
