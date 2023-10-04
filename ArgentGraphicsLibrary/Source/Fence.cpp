@@ -17,6 +17,7 @@ namespace argent::graphics
 	void Fence::PutUpFence(const CommandQueue& command_queue)
 	{
 		++current_fence_value_;
+		next_fence_value_ = current_fence_value_;
 		command_queue.Signal(*this);
 	}
 

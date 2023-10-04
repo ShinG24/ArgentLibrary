@@ -146,7 +146,8 @@ namespace argent::graphics
 			desc.Width = result_size_in_bytes;
 
 			HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&heap_prop,
-				D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON, 
+				D3D12_HEAP_FLAG_NONE, &desc, 
+				D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, 
 				nullptr, IID_PPV_ARGS(blas_result_buffer_.ReleaseAndGetAddressOf()));
 			_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Scrach Buffer");
 		}
@@ -172,6 +173,9 @@ namespace argent::graphics
 			resource_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			command_list->ResourceBarrier(1u, &resource_barrier);
 		}
+
+		blas_scratch_buffer_->SetName(L"BLAS Scratch");
+		blas_result_buffer_->SetName(L"BLAS Result");
 	}
 
 	void Raytracer::CreateTLAS(const GraphicsDevice& graphics_device, ID3D12GraphicsCommandList4* command_list)
@@ -220,7 +224,7 @@ namespace argent::graphics
 				D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 		}
 
-
+		HRESULT hr{};
 		//Create scratch buffer
 		D3D12_HEAP_PROPERTIES heap_prop{};
 		D3D12_RESOURCE_DESC res_desc{};
@@ -242,37 +246,44 @@ namespace argent::graphics
 			res_desc.SampleDesc.Count = 1u;
 			res_desc.SampleDesc.Quality = 0u;
 			res_desc.Width = scratch_size;
-			graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, 
+			hr = graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, 
 				D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, 
 				nullptr, IID_PPV_ARGS(tlas_scratch_buffer_.ReleaseAndGetAddressOf()));
+			_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create TLAS scratch bufer");
 		}
 
 		//Create result buffer
 		{
 			res_desc.Width = result_size;
-			graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, 
+			hr = graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, 
 				D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, 
 				nullptr	, IID_PPV_ARGS(tlas_result_buffer_.ReleaseAndGetAddressOf()));
+			_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create TLAS result bufer");
 		}
 
 		//Create instance desc
 		{
 			heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
 			res_desc.Width = instance_desc_size;
-			graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, 
+			res_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+			hr = graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, 
 				D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, 
 				nullptr, IID_PPV_ARGS(tlas_instance_buffer_.ReleaseAndGetAddressOf()));
+			_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create TLAS instance bufer");
 		}
 
+		tlas_scratch_buffer_->SetName(L"TLAS Scratch");
+		tlas_result_buffer_->SetName(L"TLAS Result");
+		tlas_instance_buffer_->SetName(L"TLAS Instance");
 		//Generate
 		{
 			bool updateonly = false;
 			D3D12_RAYTRACING_INSTANCE_DESC* instance_desc{};
-			tlas_instance_buffer_->Map(0, nullptr, reinterpret_cast<void**>(instance_desc));
+			tlas_instance_buffer_->Map(0, nullptr, reinterpret_cast<void**>(&instance_desc));
 
 			if(!instance_desc)
 			{
-				_ASSERT_EXPR(FALSE, "Cannot map the instance descriptor buffer");
+				_ASSERT_EXPR(FALSE, L"Cannot map the instance descriptor buffer");
 			}
 
 			auto instance_count = 1u;
