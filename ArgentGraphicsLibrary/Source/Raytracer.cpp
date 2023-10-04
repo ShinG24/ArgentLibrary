@@ -5,6 +5,8 @@
 #include "../Inc/CommandQueue.h"
 #include "../Inc/Fence.h"
 
+#include "../Inc/ShaderCompiler.h"
+
 
 #define _ALIGNMENT_(value, alignment_size)	 (((value) + (alignment_size)-1) & ~((alignment_size)-1))
 namespace argent::graphics
@@ -13,11 +15,6 @@ namespace argent::graphics
 		const CommandQueue& command_queue, Fence& fence)
 	{
 		CreateAS(graphics_device, command_list, command_queue, fence);
-
-	}
-
-	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)
-	{
 
 	}
 
@@ -321,5 +318,16 @@ namespace argent::graphics
 			resource_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			command_list->ResourceBarrier(1, &resource_barrier);
 		}
+	}
+
+	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)
+	{
+		//Compile the shader library.
+		ShaderCompiler compiler;
+		compiler.CompileShaderLibrary(L"RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
+		compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
+		compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
+
+
 	}
 }

@@ -33,15 +33,14 @@ namespace argent::graphics
 			Fence& fence);
 
 	private:
-		void CreatePipeline(const GraphicsDevice& graphics_device);
 
 		void CreateAS(const GraphicsDevice& graphics_device, 
 		GraphicsCommandList& command_list, const CommandQueue& command_queue, 
 		Fence& fence);
-
 		void CreateBLAS(const GraphicsDevice& graphics_device, ID3D12GraphicsCommandList4* command_list);
-
 		void CreateTLAS(const GraphicsDevice& graphics_device, ID3D12GraphicsCommandList4* command_list);
+
+		void CreatePipeline(const GraphicsDevice& graphics_device);
 	private:
 		//Raytracing Object
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> raytracing_global_root_signature_;
