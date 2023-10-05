@@ -10,6 +10,8 @@ namespace argent::graphics
 
 		const UINT window_width = rect.right - rect.left;
 		const  UINT window_height = rect.bottom - rect.top;
+		buffer_width_ = window_width;
+		buffer_height_ = window_height;
 
 		//スワップチェーンの作成
 		DXGI_SWAP_CHAIN_DESC1 swap_chain_desc1{};

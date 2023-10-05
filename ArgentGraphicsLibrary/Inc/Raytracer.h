@@ -9,6 +9,9 @@
 #include <string>
 
 #include "../RaytracingPipelineGenerator.h"
+#include "../ShaderBindingTableGenerator.h"
+
+#include "DescriptorHeap.h"
 
 using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
@@ -50,8 +53,12 @@ namespace argent::graphics
 
 		void Awake(const GraphicsDevice& graphics_device, 
 			GraphicsCommandList& command_list, const CommandQueue& command_queue,
-			Fence& fence);
+			Fence& fence, UINT64 width, UINT height, 
+			DescriptorHeap& cbv_srv_uav_descriptor_heap);
 
+		void OnRender(const GraphicsCommandList& command_list);
+
+		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
 	private:
 
 		void CreateAS(const GraphicsDevice& graphics_device, 
@@ -68,6 +75,12 @@ namespace argent::graphics
 
 		void CreateStateObjectAndProperties(const GraphicsDevice& graphics_device);
 		void BuildShaderExportList(std::vector<std::wstring> exported_symbols);
+
+		void CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height);
+		void CreateShaderResourceHeap(const GraphicsDevice& graphics_device, 
+			DescriptorHeap& cbv_srv_uav_descriptor_heap);
+
+		void CreateShaderBindingTable(const GraphicsDevice& graphics_device);
 	private:
 		//Shader
 		Microsoft::WRL::ComPtr<IDxcBlob> ray_gen_library_;
@@ -109,6 +122,18 @@ namespace argent::graphics
 		//dummy local and global root signature
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> dummy_global_root_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> dummy_local_root_signature_;
+
+		//Output buffer
+		Microsoft::WRL::ComPtr<ID3D12Resource> output_buffer_;
+		Descriptor output_descriptor_;
+		Descriptor tlas_result_descriptor_;
+
+		nv_helpers_dx12::ShaderBindingTableGenerator sbt_generator_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> sbt_storage_;
+
+		UINT width_;
+		UINT height_;
+
 		struct Vertex
 		{
 			float3 position_;

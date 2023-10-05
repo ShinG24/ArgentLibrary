@@ -15,5 +15,14 @@
     <None Include="Assets\Shader\PixelShader.hlsl">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Hit.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Miss.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="RayGen.hlsl">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

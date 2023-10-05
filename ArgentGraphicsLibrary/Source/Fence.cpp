@@ -17,7 +17,6 @@ namespace argent::graphics
 	void Fence::PutUpFence(const CommandQueue& command_queue)
 	{
 		++current_fence_value_;
-		next_fence_value_ = current_fence_value_;
 		command_queue.Signal(*this);
 	}
 
@@ -34,8 +33,7 @@ namespace argent::graphics
 			fence_object_->SetEventOnCompletion(fence_values_[back_buffer_index], event_handle_);
 			WaitForSingleObject(event_handle_, INFINITE);
 		}
-		next_fence_value_ = current_fence_value_ + 1;
-		fence_values_[back_buffer_index] = next_fence_value_;
+		fence_values_[back_buffer_index] = current_fence_value_ + 1;
 	}
 
 	void Fence::WaitForGpuInCurrentFrame() const

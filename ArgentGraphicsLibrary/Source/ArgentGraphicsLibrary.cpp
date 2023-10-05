@@ -44,7 +44,8 @@ namespace argent::graphics
 
 		resource_upload_command_list_.Activate();
 		raytracer_.Awake(graphics_device_, resource_upload_command_list_,
-			resource_upload_queue_, fence_);
+			resource_upload_queue_, fence_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
+			cbv_srv_uav_heap_);
 	}
 
 	void GraphicsLibrary::Shutdown()
@@ -56,6 +57,12 @@ namespace argent::graphics
 
 	void GraphicsLibrary::FrameBegin()
 	{
+		HRESULT hr = graphics_device_.GetLatestDevice()->GetDeviceRemovedReason();
+		if(FAILED(hr))
+		{
+			_ASSERT_EXPR(FALSE, L"D3D12Device removed!!");
+		}
+
 		auto& command_list = graphics_command_list_[back_buffer_index_];
 		command_list.Activate();
 
@@ -63,6 +70,9 @@ namespace argent::graphics
 
 		command_list.GetCommandList()->RSSetViewports(1u, &viewport_);
 		command_list.GetCommandList()->RSSetScissorRects(1u, &scissor_rect_);
+
+		std::vector<ID3D12DescriptorHeap*> heaps = { cbv_srv_uav_heap_.GetDescriptorHeapObject() };
+		command_list.GetCommandList()->SetDescriptorHeaps(1u, heaps.data());
 
 		OnRender();
 	}
@@ -80,20 +90,55 @@ namespace argent::graphics
 			command_list.GetCommandList()
 		};
 		main_rendering_queue_.Execute(1u, command_lists);
-		fence_.PutUpFence(main_rendering_queue_);
-		//	main_rendering_queue_.Signal(fence_);
 
+		main_rendering_queue_.GetCommandQueue()->Signal(fence_.GetFence(), ++fence_value_);
+
+		if(fence_.GetFence()->GetCompletedValue() < fence_value_)
+		{
+			HANDLE event_handler{};
+			fence_.GetFence()->SetEventOnCompletion(fence_value_, event_handler);
+			WaitForSingleObject(event_handler, INFINITE);
+		}
 		swap_chain_.Present();
-
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
 
-		fence_.WaitForGpu(back_buffer_index_);
+		//fence_.PutUpFence(main_rendering_queue_);
+		////	main_rendering_queue_.Signal(fence_);
+
+		//fence_.WaitForGpuInCurrentFrame();
+		//swap_chain_.Present();
+
+		//back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
+
+	//	fence_.WaitForGpu(back_buffer_index_);
 	}
 
 	void GraphicsLibrary::OnRender()
 	{
 		const auto command_list = graphics_command_list_[back_buffer_index_].GetCommandList();
-		raster_renderer_.OnRender(command_list);
+		if(on_raster_mode_)
+		{
+			raster_renderer_.OnRender(command_list);
+		}
+		else
+		{
+			raytracer_.OnRender(graphics_command_list_[back_buffer_index_]);
+
+			D3D12_RESOURCE_BARRIER resource_barrier{};
+			resource_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			resource_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+			resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			resource_barrier.Transition.pResource = frame_resources_[back_buffer_index_].GetBackBuffer();
+			command_list->ResourceBarrier(1u, &resource_barrier);
+
+			command_list->CopyResource(frame_resources_[back_buffer_index_].GetBackBuffer(), 
+				raytracer_.GetOutputBuffer());
+
+			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+			command_list->ResourceBarrier(1u, &resource_barrier);
+		}
 	}
 
 	void GraphicsLibrary::CreateDeviceDependencyObjects()

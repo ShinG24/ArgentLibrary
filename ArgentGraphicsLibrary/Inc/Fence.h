@@ -25,7 +25,7 @@ namespace argent::graphics
 		void Awake(const GraphicsDevice& graphics_device);
 
 		void PutUpFence(const CommandQueue& command_queue);
-		UINT64 GetFenceValue() const { return next_fence_value_; }
+		UINT64 GetFenceValue() const { return current_fence_value_; }
 		UINT64 GetCompletedValue() const;
 		void WaitForGpu(UINT back_buffer_index);
 		void WaitForGpuInCurrentFrame() const;
@@ -36,6 +36,5 @@ namespace argent::graphics
 		UINT64 fence_values_[kNumBackBuffers];
 		HANDLE event_handle_;
 		UINT64 current_fence_value_;
-		UINT64 next_fence_value_;
 	};
 }

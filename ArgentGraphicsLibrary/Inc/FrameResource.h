@@ -26,6 +26,8 @@ namespace argent::graphics
 			const Descriptor& rtv_descriptor, const Descriptor& dsv_descriptor);
 		void Activate(const GraphicsCommandList& command_list) const;
 		void Deactivate(const GraphicsCommandList& command_list) const;
+
+		ID3D12Resource* GetBackBuffer() const { return resource_object_.Get(); }
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource_object_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> depth_buffer_;

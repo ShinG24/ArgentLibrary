@@ -71,6 +71,7 @@ namespace argent::graphics
 		DescriptorHeap smp_heap_;
 
 		Fence fence_;
+		UINT fence_value_ = 0;
 
 		FrameResource frame_resources_[kNumBackBuffers];
 
@@ -85,5 +86,6 @@ namespace argent::graphics
 
 		RasterRenderer raster_renderer_;
 		Raytracer raytracer_;
+		bool on_raster_mode_ = false;
 	};
 }

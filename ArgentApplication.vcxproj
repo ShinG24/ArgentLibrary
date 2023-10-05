@@ -153,6 +153,17 @@
     </None>
     <None Include="Assets\Shader\VertexShader.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Hit.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Miss.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="RayGen.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

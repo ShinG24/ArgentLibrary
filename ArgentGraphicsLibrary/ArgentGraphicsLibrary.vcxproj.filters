@@ -35,7 +35,12 @@
     </ClInclude>
     <ClInclude Include="Inc\Raytracer.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
-    <ClInclude Include="RaytracingPipelineGenerator.h" />
+    <ClInclude Include="RaytracingPipelineGenerator.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderBindingTableGenerator.h">
+      <Filter>External</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -71,7 +76,12 @@
     </ClCompile>
     <ClCompile Include="Source\Raytracer.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
-    <ClCompile Include="RaytracingPipelineGenerator.cpp" />
+    <ClCompile Include="RaytracingPipelineGenerator.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderBindingTableGenerator.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Direct3D12">
@@ -82,6 +92,9 @@
     </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{7d22f3f5-6b9a-4609-8760-6ab5b33c9275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{caeb2f6a-7793-4ced-8f16-5aadc96f97c0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
