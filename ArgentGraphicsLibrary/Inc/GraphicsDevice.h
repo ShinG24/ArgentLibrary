@@ -56,6 +56,9 @@ namespace argent::graphics
 		void CreateVertexBufferAndView(UINT size_of_data_type, UINT num_data, 
 			ID3D12Resource** pp_vertex_buffer, D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const;
 
+		HRESULT CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_FLAGS resource_flags, 
+		UINT size, D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const;
+
 		UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const;
 
 		HRESULT SerializeAndCreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& root_signature_desc,

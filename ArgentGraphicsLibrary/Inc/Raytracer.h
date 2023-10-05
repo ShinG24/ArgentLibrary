@@ -10,12 +10,26 @@
 
 #include "../RaytracingPipelineGenerator.h"
 #include "../ShaderBindingTableGenerator.h"
+#include "../RootSignatureGenerator.h"
+#include "../TopLevelASGenerator.h"
+#include "../BottomLevelASGenerator.h"
 
 #include "DescriptorHeap.h"
+
+using namespace DirectX;
 
 using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
 using float4 = DirectX::XMFLOAT4;
+
+using Microsoft::WRL::ComPtr;
+
+struct AccelerationStructureBuffers
+{
+    ComPtr<ID3D12Resource> pScratch;      // Scratch memory for AS builder
+    ComPtr<ID3D12Resource> pResult;       // Where the AS is
+    ComPtr<ID3D12Resource> pInstanceDesc; // Hold the matrices of the instances
+};
 
 struct Library
 {
@@ -59,6 +73,9 @@ namespace argent::graphics
 		void OnRender(const GraphicsCommandList& command_list);
 
 		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
+	private:
+
+
 	private:
 
 		void CreateAS(const GraphicsDevice& graphics_device, 
@@ -125,11 +142,14 @@ namespace argent::graphics
 
 		//Output buffer
 		Microsoft::WRL::ComPtr<ID3D12Resource> output_buffer_;
-		Descriptor output_descriptor_;
-		Descriptor tlas_result_descriptor_;
+		//Descriptor output_descriptor_;
+		//Descriptor tlas_result_descriptor_;
 
 		nv_helpers_dx12::ShaderBindingTableGenerator sbt_generator_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> sbt_storage_;
+
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptor_heap_;
+
 
 		UINT width_;
 		UINT height_;
@@ -139,5 +159,27 @@ namespace argent::graphics
 			float3 position_;
 			float4 color_;
 		};
+
+
+
+
+		//In Tutorial
+		ComPtr<ID3D12Resource> bottom_level_as_;
+		nv_helpers_dx12::TopLevelASGenerator top_level_as_generator_;
+		AccelerationStructureBuffers top_level_as_buffer_;
+		std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>> instances_;
+
+		AccelerationStructureBuffers CreateBottomLevelAs(
+			const GraphicsDevice& graphics_device,
+		ID3D12GraphicsCommandList4* command_list,
+		std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vertex_buffers);
+
+		void CreateTopLevelAs(const GraphicsDevice& graphics_device,
+		ID3D12GraphicsCommandList4* command_list,
+		const std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>>& instances);
+
+
+		D3D12_HEAP_PROPERTIES default_heap{D3D12_HEAP_TYPE_DEFAULT, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0u, 0u };
+		D3D12_HEAP_PROPERTIES upload_heap{D3D12_HEAP_TYPE_UPLOAD, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0u, 0u };
 	};
 }

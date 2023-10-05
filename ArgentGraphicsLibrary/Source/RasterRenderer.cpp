@@ -18,23 +18,23 @@ namespace argent::graphics
 
 	void RasterRenderer::OnRender(ID3D12GraphicsCommandList* command_list)
 	{
-		command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
+		//command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
 		command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		command_list->SetGraphicsRootSignature(root_signature_.Get());
 		command_list->SetPipelineState(pipeline_state_.Get());
 
-		command_list->DrawInstanced(4u, 1u, 0u, 0u);
+	//	command_list->DrawInstanced(4u, 1u, 0u, 0u);
 	}
 
 	void RasterRenderer::CreateVertexBuffer(const GraphicsDevice& graphics_device)
 	{
 		Vertex vertices[4]
 		{
-			Vertex(float2(-0.5f, 0.5f), float2( 0.0f, 0.0f )),
-			Vertex(float2(0.5f, 0.5f), float2( 0.0f, 0.0f )),
-			Vertex(float2(-0.5f, -0.6f), float2( 0.0f, 0.0f )),
-			Vertex(float2(0.5f, -0.6f), float2( 0.0f, 0.0f )),
+			Vertex(DirectX::XMFLOAT3(-0.5f, 0.5f, 0.0f), DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f )),
+			Vertex(DirectX::XMFLOAT3(0.5f, 0.5f, 0.0f), DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f )),
+			Vertex(DirectX::XMFLOAT3(-0.5f, -0.6f, 0.0f), DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f )),
+			Vertex(DirectX::XMFLOAT3(0.5f, -0.6f, 0.0f), DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f )),
 		};
 
 		D3D12_HEAP_PROPERTIES heap_prop{};
@@ -94,8 +94,8 @@ namespace argent::graphics
 
 		D3D12_INPUT_ELEMENT_DESC input_desc[]
 		{
-			{"POSITION", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
-			{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
+			{"POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
+			{"COLOR", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
 		};
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipeline_desc{};
@@ -144,7 +144,7 @@ namespace argent::graphics
 		pipeline_desc.RasterizerState.DepthClipEnable = false;
 		pipeline_desc.RasterizerState.MultisampleEnable = FALSE;
 		pipeline_desc.RasterizerState.AntialiasedLineEnable = FALSE;
-		pipeline_desc.RasterizerState.FrontCounterClockwise = true;
+		pipeline_desc.RasterizerState.FrontCounterClockwise = false;
 		pipeline_desc.RasterizerState.ForcedSampleCount = 0;
 		pipeline_desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 		pipeline_desc.pRootSignature = root_signature_.Get();

@@ -41,6 +41,15 @@
     <ClInclude Include="ShaderBindingTableGenerator.h">
       <Filter>External</Filter>
     </ClInclude>
+    <ClInclude Include="BottomLevelASGenerator.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="RootSignatureGenerator.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="TopLevelASGenerator.h">
+      <Filter>External</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -80,6 +89,15 @@
       <Filter>External</Filter>
     </ClCompile>
     <ClCompile Include="ShaderBindingTableGenerator.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="BottomLevelASGenerator.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="RootSignatureGenerator.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="TopLevelASGenerator.cpp">
       <Filter>External</Filter>
     </ClCompile>
   </ItemGroup>

@@ -72,7 +72,7 @@ namespace argent::graphics
 		command_list.GetCommandList()->RSSetScissorRects(1u, &scissor_rect_);
 
 		std::vector<ID3D12DescriptorHeap*> heaps = { cbv_srv_uav_heap_.GetDescriptorHeapObject() };
-		command_list.GetCommandList()->SetDescriptorHeaps(1u, heaps.data());
+	//	command_list.GetCommandList()->SetDescriptorHeaps(1u, heaps.data());
 
 		OnRender();
 	}
@@ -122,8 +122,11 @@ namespace argent::graphics
 		}
 		else
 		{
+			//raster_renderer_.OnRender(command_list);
 			raytracer_.OnRender(graphics_command_list_[back_buffer_index_]);
 
+
+			//return;
 			D3D12_RESOURCE_BARRIER resource_barrier{};
 			resource_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			resource_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

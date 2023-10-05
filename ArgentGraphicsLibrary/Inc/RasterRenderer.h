@@ -4,6 +4,8 @@
 #include "../External/DXC/Inc/dxcapi.h"
 #include <wrl.h>
 
+#include <DirectXMath.h>
+
 namespace argent::graphics
 {
 	class GraphicsDevice;
@@ -33,8 +35,8 @@ namespace argent::graphics
 		};
 		struct Vertex
 		{
-			float2 position_;
-			float2 texcoord_;
+			DirectX::XMFLOAT3 position_;
+			DirectX::XMFLOAT4 color_;
 		};
 		Microsoft::WRL::ComPtr<IDxcBlob> vertex_shader_;
 		Microsoft::WRL::ComPtr<IDxcBlob> pixel_shader_;

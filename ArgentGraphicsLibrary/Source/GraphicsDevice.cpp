@@ -126,6 +126,29 @@ namespace argent::graphics
 		vertex_buffer_view.StrideInBytes = size_of_data_type;
 	}
 
+	HRESULT GraphicsDevice::CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, 
+		D3D12_RESOURCE_FLAGS resource_flags, UINT size, 
+		D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const
+	{
+		D3D12_RESOURCE_DESC res_desc{};
+		res_desc.Alignment = 0u;
+		res_desc.DepthOrArraySize = 1u;
+		res_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		res_desc.Flags = resource_flags;
+		res_desc.Format = DXGI_FORMAT_UNKNOWN;
+		res_desc.Height = 1u;
+		res_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		res_desc.MipLevels = 1u;
+		res_desc.SampleDesc.Count = 1u;
+		res_desc.SampleDesc.Quality = 0u;
+		res_desc.Width = size;
+
+		const HRESULT hr = device_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &res_desc, 
+			initial_state, nullptr, IID_PPV_ARGS(pp_resource));
+		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Buffer");
+		return hr;
+	}
+
 	UINT GraphicsDevice::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const
 	{
 		return device_->GetDescriptorHandleIncrementSize(heap_type);

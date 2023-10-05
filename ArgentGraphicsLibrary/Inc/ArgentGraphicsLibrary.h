@@ -86,6 +86,6 @@ namespace argent::graphics
 
 		RasterRenderer raster_renderer_;
 		Raytracer raytracer_;
-		bool on_raster_mode_ = false;
+		bool on_raster_mode_ = true;
 	};
 }

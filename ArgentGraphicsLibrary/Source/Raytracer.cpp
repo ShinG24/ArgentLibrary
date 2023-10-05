@@ -22,16 +22,20 @@ namespace argent::graphics
 		width_ = width;
 		height_ = height;
 		CreateAS(graphics_device, command_list, command_queue, fence);
-		CreatePipeline(graphics_device);
-		CreateOutputBuffer(graphics_device, width, height);
-		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
-		CreateShaderBindingTable(graphics_device);
+		//CreatePipeline(graphics_device);
+		//CreateOutputBuffer(graphics_device, width, height);
+		//CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
+		//CreateShaderBindingTable(graphics_device);
 	}
 
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list)
 	{
 		auto command_list = graphics_command_list.GetCommandList4();
 
+		std::vector<ID3D12DescriptorHeap*> heaps{ descriptor_heap_.Get() };
+		command_list->SetDescriptorHeaps(1u, heaps.data());
+
+		//return;
 		D3D12_RESOURCE_BARRIER resource_barrier{};
 		resource_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		resource_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -73,8 +77,40 @@ namespace argent::graphics
 	                         GraphicsCommandList& command_list, const CommandQueue& command_queue, 
 	                         Fence& fence)
 	{
+#if 1
+
+				Vertex vertices[3]
+		{
+			 {{0.0f, 0.6, 0.0f}, {1.0f, 1.0f, 0.0f, 1.0f}},
+        {{0.25f, -0.6f, 0.0f}, {0.0f, 1.0f, 1.0f, 1.0f}},
+        {{-0.25f, -0.6f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}
+		};
+
+		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
+			vertex_buffer_.ReleaseAndGetAddressOf(), vertex_buffer_view_);
+
+		Vertex* map;
+		vertex_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+		map[0] = vertices[0];
+		map[1] = vertices[1];
+		map[2] = vertices[2];
+
+		vertex_buffer_->Unmap(0u, nullptr);
+
+
+		AccelerationStructureBuffers bottom_level_buffer = 
+		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
+			{{vertex_buffer_.Get(), 3}});
+
+		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }};
+		CreateTopLevelAs(graphics_device, command_list.GetCommandList4(), instances_);
+
+#else
 		CreateBLAS(graphics_device, command_list.GetCommandList4());
 		CreateTLAS(graphics_device, command_list.GetCommandList4());
+#endif
+
 
 		//Execute Commandlist
 		command_list.Deactivate();
@@ -100,6 +136,15 @@ namespace argent::graphics
 
 		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
 			vertex_buffer_.ReleaseAndGetAddressOf(), vertex_buffer_view_);
+
+		Vertex* map;
+		vertex_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+		map[0] = vertices[0];
+		map[1] = vertices[1];
+		map[2] = vertices[2];
+
+		vertex_buffer_->Unmap(0u, nullptr);
 
 		D3D12_RAYTRACING_GEOMETRY_DESC geometry_desc{};
 		geometry_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
@@ -892,14 +937,28 @@ namespace argent::graphics
 	void Raytracer::CreateShaderResourceHeap(const GraphicsDevice& graphics_device, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
-		output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
-		tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		graphics_device.CreateDescriptorHeap(descriptor_heap_.ReleaseAndGetAddressOf(), 
+			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 
+			10);
+
+
+
+		//output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		//tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+
+		D3D12_CPU_DESCRIPTOR_HANDLE srv_handle = descriptor_heap_->GetCPUDescriptorHandleForHeapStart();
+
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
 		uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
-			nullptr, &uav_desc, output_descriptor_.cpu_handle_);
+			nullptr, &uav_desc, srv_handle);
+		//D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
+		//uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		//graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
+		//	nullptr, &uav_desc, output_descriptor_.cpu_handle_);
 
+		srv_handle.ptr += graphics_device.GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
 		srv_desc.Format = DXGI_FORMAT_UNKNOWN;
@@ -907,14 +966,17 @@ namespace argent::graphics
 		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srv_desc.RaytracingAccelerationStructure.Location = tlas_result_buffer_->GetGPUVirtualAddress();
 		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
-			tlas_result_descriptor_.cpu_handle_);
+			srv_handle);
+		//graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
+		//	tlas_result_descriptor_.cpu_handle_);
 	}
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
 	{
 		sbt_generator_.Reset();
 
-		D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = output_descriptor_.gpu_handle_;
+		D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = descriptor_heap_->GetGPUDescriptorHandleForHeapStart();
+		//D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = output_descriptor_.gpu_handle_;
 
 		auto heap_pointer = reinterpret_cast<UINT64**>(srv_uav_heap_handle.ptr);
 
@@ -954,5 +1016,67 @@ namespace argent::graphics
 
 		sbt_generator_.Generate(sbt_storage_.Get(), raytracing_state_object_properties_.Get());
 
+	}
+
+	AccelerationStructureBuffers Raytracer::CreateBottomLevelAs(
+		const GraphicsDevice& graphics_device,
+		ID3D12GraphicsCommandList4* command_list,
+		std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vertex_buffers)
+	{
+		nv_helpers_dx12::BottomLevelASGenerator bottom_level_as;
+		for(const auto& buffer : vertex_buffers)
+		{
+			bottom_level_as.AddVertexBuffer(buffer.first.Get(), 0u, buffer.second,
+				sizeof(Vertex), 0, 0u);
+		}
+
+		UINT64 scratch_size_in_bytes = 0u;
+		UINT64 result_size_in_bytes = 0u;
+
+		bottom_level_as.ComputeASBufferSizes(graphics_device.GetLatestDevice(), 
+			false, &scratch_size_in_bytes, &result_size_in_bytes);
+
+		AccelerationStructureBuffers buffers;
+		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+			scratch_size_in_bytes, D3D12_RESOURCE_STATE_COMMON,buffers.pScratch.ReleaseAndGetAddressOf());
+		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
+			result_size_in_bytes, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, 
+			buffers.pResult.ReleaseAndGetAddressOf());
+
+		bottom_level_as.Generate(command_list, buffers.pScratch.Get(), 
+			buffers.pResult.Get(), false, nullptr);
+		return buffers;
+	}
+
+	void Raytracer::CreateTopLevelAs(const GraphicsDevice& graphics_device,
+		ID3D12GraphicsCommandList4* command_list,
+		const std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>>& instances)
+	{
+		for(size_t i = 0; i < instances.size(); ++i)
+		{
+			top_level_as_generator_.AddInstance(instances[i].first.Get(), 
+				instances[i].second, static_cast<UINT>(i), 0u);
+		}
+
+		UINT64 scratch_size, result_size, instance_desc_size;
+		top_level_as_generator_.ComputeASBufferSizes(graphics_device.GetLatestDevice(), 
+			true, &scratch_size, &result_size, &instance_desc_size);
+
+
+		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
+			scratch_size, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, top_level_as_buffer_.pScratch.ReleaseAndGetAddressOf());
+		
+		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
+			result_size, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+			top_level_as_buffer_.pResult.ReleaseAndGetAddressOf());
+		
+		graphics_device.CreateBuffer(upload_heap, D3D12_RESOURCE_FLAG_NONE, 
+			instance_desc_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
+			top_level_as_buffer_.pInstanceDesc.ReleaseAndGetAddressOf());
+
+		top_level_as_generator_.Generate(command_list, 
+			top_level_as_buffer_.pScratch.Get(), 
+			top_level_as_buffer_.pResult.Get(),
+			top_level_as_buffer_.pInstanceDesc.Get());
 	}
 }

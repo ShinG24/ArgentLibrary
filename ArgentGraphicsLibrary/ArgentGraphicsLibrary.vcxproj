@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BottomLevelASGenerator.h" />
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
     <ClInclude Include="Inc\DescriptorHeap.h" />
     <ClInclude Include="Inc\Fence.h" />
@@ -34,10 +35,14 @@
     <ClInclude Include="Inc\ShaderCompiler.h" />
     <ClInclude Include="Inc\SwapChain.h" />
     <ClInclude Include="RaytracingPipelineGenerator.h" />
+    <ClInclude Include="RootSignatureGenerator.h" />
     <ClInclude Include="ShaderBindingTableGenerator.h" />
+    <ClInclude Include="TopLevelASGenerator.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BottomLevelASGenerator.cpp" />
     <ClCompile Include="RaytracingPipelineGenerator.cpp" />
+    <ClCompile Include="RootSignatureGenerator.cpp" />
     <ClCompile Include="ShaderBindingTableGenerator.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
@@ -52,6 +57,7 @@
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\ShaderCompiler.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />
+    <ClCompile Include="TopLevelASGenerator.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
