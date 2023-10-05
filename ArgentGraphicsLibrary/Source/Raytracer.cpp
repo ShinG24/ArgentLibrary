@@ -435,6 +435,82 @@ namespace argent::graphics
 
 	void Raytracer::CreateStateObjectAndProperties(const GraphicsDevice& graphics_device)
 	{
+		{
+			nv_helpers_dx12::RayTracingPipelineGenerator pipeline(graphics_device.GetLatestDevice());
+			// In a way similar to DLLs, each library is associated with a number of
+		  // exported symbols. This
+		  // has to be done explicitly in the lines below. Note that a single library
+		  // can contain an arbitrary number of symbols, whose semantic is given in HLSL
+		  // using the [shader("xxx")] syntax
+		  pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
+		  pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
+		  pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
+
+		  //// To be used, each DX12 shader needs a root signature defining which
+		  //// parameters and buffers will be accessed.
+		  //m_rayGenSignature = CreateRayGenSignature();
+		  //m_missSignature = CreateMissSignature();
+		  //m_hitSignature = CreateHitSignature();
+
+		  // 3 different shaders can be invoked to obtain an intersection: an
+		  // intersection shader is called
+		  // when hitting the bounding box of non-triangular geometry. This is beyond
+		  // the scope of this tutorial. An any-hit shader is called on potential
+		  // intersections. This shader can, for example, perform alpha-testing and
+		  // discard some intersections. Finally, the closest-hit program is invoked on
+		  // the intersection point closest to the ray origin. Those 3 shaders are bound
+		  // together into a hit group.
+
+		  // Note that for triangular geometry the intersection shader is built-in. An
+		  // empty any-hit shader is also defined by default, so in our simple case each
+		  // hit group contains only the closest hit shader. Note that since the
+		  // exported symbols are defined above the shaders can be simply referred to by
+		  // name.
+
+		  // Hit group for the triangles, with a shader simply interpolating vertex
+		  // colors
+		  pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
+
+		  // The following section associates the root signature to each shader. Note
+		  // that we can explicitly show that some shaders share the same root signature
+		  // (eg. Miss and ShadowMiss). Note that the hit shaders are now only referred
+		  // to as hit groups, meaning that the underlying intersection, any-hit and
+		  // closest-hit shaders share the same root signature.
+		  pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"RayGen"});
+		  pipeline.AddRootSignatureAssociation(miss_signature_.Get(), {L"Miss"});
+		  pipeline.AddRootSignatureAssociation(hit_signature_.Get(), {L"HitGroup"});
+
+		  // The payload size defines the maximum size of the data carried by the rays,
+		  // ie. the the data
+		  // exchanged between shaders, such as the HitInfo structure in the HLSL code.
+		  // It is important to keep this value as low as possible as a too high value
+		  // would result in unnecessary memory consumption and cache trashing.
+		  pipeline.SetMaxPayloadSize(4 * sizeof(float)); // RGB + distance
+
+		  // Upon hitting a surface, DXR can provide several attributes to the hit. In
+		  // our sample we just use the barycentric coordinates defined by the weights
+		  // u,v of the last two vertices of the triangle. The actual barycentrics can
+		  // be obtained using float3 barycentrics = float3(1.f-u-v, u, v);
+		  pipeline.SetMaxAttributeSize(2 * sizeof(float)); // barycentric coordinates
+
+		  // The raytracing process can shoot rays from existing hit points, resulting
+		  // in nested TraceRay calls. Our sample code traces only primary rays, which
+		  // then requires a trace depth of 1. Note that this recursion depth should be
+		  // kept to a minimum for best performance. Path tracing algorithms can be
+		  // easily flattened into a simple loop in the ray generation.
+		  pipeline.SetMaxRecursionDepth(1);
+
+		  // Compile the pipeline for execution on the GPU
+		  raytracing_state_object_ = pipeline.Generate();
+
+		  // Cast the state object into a properties object, allowing to later access
+		  // the shader pointers by name
+			raytracing_state_object_->QueryInterface(IID_PPV_ARGS(raytracing_state_object_properties_.ReleaseAndGetAddressOf()));
+		}
+
+		return;
+
+
 		constexpr UINT64 library_counts = 3u;
 		constexpr UINT64 hit_group_counts = 1u;
 		constexpr UINT64 root_signature_associations_counts = 3u;

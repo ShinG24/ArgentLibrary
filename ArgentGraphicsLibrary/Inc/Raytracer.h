@@ -7,6 +7,9 @@
 
 #include <DirectXMath.h>
 #include <string>
+
+#include "../RaytracingPipelineGenerator.h"
+
 using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
 using float4 = DirectX::XMFLOAT4;

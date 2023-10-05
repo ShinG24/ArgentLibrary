@@ -35,6 +35,7 @@
     </ClInclude>
     <ClInclude Include="Inc\Raytracer.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
+    <ClInclude Include="RaytracingPipelineGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -70,6 +71,7 @@
     </ClCompile>
     <ClCompile Include="Source\Raytracer.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
+    <ClCompile Include="RaytracingPipelineGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Direct3D12">

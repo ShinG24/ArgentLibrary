@@ -33,8 +33,10 @@
     <ClInclude Include="Inc\RootSignature.h" />
     <ClInclude Include="Inc\ShaderCompiler.h" />
     <ClInclude Include="Inc\SwapChain.h" />
+    <ClInclude Include="RaytracingPipelineGenerator.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="RaytracingPipelineGenerator.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
     <ClCompile Include="Source\Fence.cpp" />
