@@ -99,9 +99,33 @@ namespace argent::graphics
 		vertex_buffer_->Unmap(0u, nullptr);
 
 
+				Vertex vertices1[4]
+		{
+			{{ -0.3f, 0.8, 0.3 }, {}},
+			{{ 0.5f, 0.3f, 0.3f }, {}},
+			{{ -0.7f, -0.2f, 0.3f }, {}},
+			{{ 0.4f, -0.5f, 0.3f}, {}},
+		};
+
+
+		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
+			vertex_buffer1_.ReleaseAndGetAddressOf(), vertex_buffer_view1_);
+
+		Vertex* map1;
+		vertex_buffer1_->Map(0u, nullptr, reinterpret_cast<void**>(&map1));
+
+		map1[0] = vertices1[0];
+		map1[1] = vertices1[1];
+		map1[2] = vertices1[2];
+		map1[3] = vertices1[3];
+
+		vertex_buffer1_->Unmap(0u, nullptr);
+
+
+
 		AccelerationStructureBuffers bottom_level_buffer = 
 		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
-			{{vertex_buffer_.Get(), 3}});
+			{{vertex_buffer_.Get(), 3}, {vertex_buffer1_.Get(), 4}});
 
 		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }};
 		CreateTopLevelAs(graphics_device, command_list.GetCommandList4(), instances_);
@@ -148,16 +172,51 @@ namespace argent::graphics
 
 		vertex_buffer_->Unmap(0u, nullptr);
 
-		D3D12_RAYTRACING_GEOMETRY_DESC geometry_desc{};
-		geometry_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
-		geometry_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-		geometry_desc.Triangles.VertexBuffer.StartAddress = vertex_buffer_->GetGPUVirtualAddress();
-		geometry_desc.Triangles.VertexBuffer.StrideInBytes = sizeof(Vertex);
-		geometry_desc.Triangles.VertexCount = 3;
-		geometry_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-		geometry_desc.Triangles.IndexBuffer = 0;
-		geometry_desc.Triangles.IndexFormat = DXGI_FORMAT_UNKNOWN;
-		geometry_desc.Triangles.Transform3x4 = 0;
+
+		Vertex vertices1[4]
+		{
+			{{ -0.3f, 0.8, 0.3 }, {}},
+			{{ 0.5f, 0.3f, 0.3f }, {}},
+			{{ -0.7f, -0.2f, 0.3f }, {}},
+			{{ 0.4f, -0.5f, 0.3f}, {}},
+		};
+
+
+		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
+			vertex_buffer1_.ReleaseAndGetAddressOf(), vertex_buffer_view1_);
+
+		Vertex* map1;
+		vertex_buffer1_->Map(0u, nullptr, reinterpret_cast<void**>(&map1));
+
+		map1[0] = vertices[0];
+		map1[1] = vertices[1];
+		map1[2] = vertices[2];
+		map1[3] = vertices[3];
+
+		vertex_buffer1_->Unmap(0u, nullptr);
+
+
+
+		D3D12_RAYTRACING_GEOMETRY_DESC geometry_desc[2]{};
+		geometry_desc[0].Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+		geometry_desc[0].Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+		geometry_desc[0].Triangles.VertexBuffer.StartAddress = vertex_buffer_->GetGPUVirtualAddress();
+		geometry_desc[0].Triangles.VertexBuffer.StrideInBytes = sizeof(Vertex);
+		geometry_desc[0].Triangles.VertexCount = 3;
+		geometry_desc[0].Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+		geometry_desc[0].Triangles.IndexBuffer = 0;
+		geometry_desc[0].Triangles.IndexFormat = DXGI_FORMAT_UNKNOWN;
+		geometry_desc[0].Triangles.Transform3x4 = 0;
+
+		geometry_desc[1].Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+		geometry_desc[1].Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+		geometry_desc[1].Triangles.VertexBuffer.StartAddress = vertex_buffer1_->GetGPUVirtualAddress();
+		geometry_desc[1].Triangles.VertexBuffer.StrideInBytes = sizeof(Vertex);
+		geometry_desc[1].Triangles.VertexCount = 4;
+		geometry_desc[1].Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+		geometry_desc[1].Triangles.IndexBuffer = 0;
+		geometry_desc[1].Triangles.IndexFormat = DXGI_FORMAT_UNKNOWN;
+		geometry_desc[1].Triangles.Transform3x4 = 0;
 
 		UINT64 scratch_size_in_bytes = 0;
 		UINT64 result_size_in_bytes = 0;
@@ -172,7 +231,7 @@ namespace argent::graphics
 			build_input.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 			build_input.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 			build_input.NumDescs = 1u;
-			build_input.pGeometryDescs = &geometry_desc;
+			build_input.pGeometryDescs = geometry_desc;
 			build_input.Flags = flags;
 
 			//Building the acceleration structure requires some scratch space,
@@ -253,7 +312,7 @@ namespace argent::graphics
 			build_desc.Inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 			build_desc.Inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;	
 			build_desc.Inputs.NumDescs = 1u;
-			build_desc.Inputs.pGeometryDescs = &geometry_desc;
+			build_desc.Inputs.pGeometryDescs = geometry_desc;
 			build_desc.DestAccelerationStructureData = blas_result_buffer_->GetGPUVirtualAddress();
 			build_desc.ScratchAccelerationStructureData = blas_scratch_buffer_->GetGPUVirtualAddress();
 			build_desc.SourceAccelerationStructureData = 0u;
@@ -434,7 +493,6 @@ namespace argent::graphics
 			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
 				dummy_local_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
 		}
-
 
 		nv_helpers_dx12::RayTracingPipelineGenerator pipeline(graphics_device.GetLatestDevice());
 
@@ -1080,7 +1138,7 @@ namespace argent::graphics
 
 		sbt_generator_.AddRayGenerationProgram(L"RayGen", { heap_pointer });
 		sbt_generator_.AddMissProgram(L"Miss", {});
-		sbt_generator_.AddHitGroup(L"HitGroup", {(void*)(vertex_buffer_->GetGPUVirtualAddress())});
+		sbt_generator_.AddHitGroup(L"HitGroup", {(void*)(vertex_buffer_->GetGPUVirtualAddress()), (void*)(vertex_buffer1_->GetGPUVirtualAddress())});
 
 
 		UINT sbt_size = sbt_generator_.ComputeSBTSize();

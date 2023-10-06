@@ -19,9 +19,16 @@ RaytracingAccelerationStructure SceneBVH : register(t0);
   // Define a ray, consisting of origin, direction, and the min-max distance
   // values
   RayDesc ray;
+
+#if 0
   ray.Origin = float3(d.x, -d.y, 1);
   ray.Direction = float3(0, 0, -1);
-  ray.TMin = 0;
+#else
+    ray.Origin = float3(d.x, -d.y, -0.001);
+    ray.Direction = float3(0, 0, 1);
+#endif
+
+	ray.TMin = 0;
   ray.TMax = 100000;
 
   // Trace the ray

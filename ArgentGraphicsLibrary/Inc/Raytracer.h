@@ -117,6 +117,8 @@ namespace argent::graphics
 		//Vertex
 		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer_;
 		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer1_;
+		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view1_;
 
 		//Bottom level AS
 		Microsoft::WRL::ComPtr<ID3D12Resource> blas_scratch_buffer_;
