@@ -18,13 +18,13 @@ namespace argent::graphics
 
 	void RasterRenderer::OnRender(ID3D12GraphicsCommandList* command_list)
 	{
-		//command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
+		command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
 		command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		command_list->SetGraphicsRootSignature(root_signature_.Get());
 		command_list->SetPipelineState(pipeline_state_.Get());
 
-	//	command_list->DrawInstanced(4u, 1u, 0u, 0u);
+		command_list->DrawInstanced(4u, 1u, 0u, 0u);
 	}
 
 	void RasterRenderer::CreateVertexBuffer(const GraphicsDevice& graphics_device)

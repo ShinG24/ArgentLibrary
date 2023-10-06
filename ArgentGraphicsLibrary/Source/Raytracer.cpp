@@ -22,10 +22,10 @@ namespace argent::graphics
 		width_ = width;
 		height_ = height;
 		CreateAS(graphics_device, command_list, command_queue, fence);
-		//CreatePipeline(graphics_device);
-		//CreateOutputBuffer(graphics_device, width, height);
-		//CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
-		//CreateShaderBindingTable(graphics_device);
+		CreatePipeline(graphics_device);
+		CreateOutputBuffer(graphics_device, width, height);
+		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
+		CreateShaderBindingTable(graphics_device);
 	}
 
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list)
@@ -123,6 +123,8 @@ namespace argent::graphics
 
 		fence.PutUpFence(command_queue);
 		fence.WaitForGpuInCurrentFrame();
+
+		bottom_level_as_ = bottom_level_buffer.pResult;
 	}
 
 	void Raytracer::CreateBLAS(const GraphicsDevice& graphics_device, ID3D12GraphicsCommandList4* command_list)
@@ -418,6 +420,76 @@ namespace argent::graphics
 
 	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)
 	{
+		//Create Dummy Root Signature
+		{
+			D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
+			root_signature_desc.NumParameters = 0u;
+			root_signature_desc.pParameters = nullptr;
+			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+
+			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
+				dummy_global_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
+
+			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
+				dummy_local_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
+		}
+
+
+		nv_helpers_dx12::RayTracingPipelineGenerator pipeline(graphics_device.GetLatestDevice());
+
+		//Compile the shader library.
+		ShaderCompiler shader_compiler;
+		shader_compiler.CompileShaderLibrary(L"RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
+		shader_compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
+
+		pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
+		pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
+		pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
+
+		//RayGen signature
+		{
+			nv_helpers_dx12::RootSignatureGenerator rsc;
+
+			rsc.AddHeapRangesParameter(
+				{
+					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0},
+					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1}
+				}
+			);
+
+			ray_gen_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
+		}
+
+		//Miss Signature
+		{
+			nv_helpers_dx12::RootSignatureGenerator rsc;
+			miss_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
+		}
+
+		//Hit Signature
+		{
+			nv_helpers_dx12::RootSignatureGenerator rsc;
+			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV);
+			hit_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
+		}
+
+		pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
+
+		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"RayGen"});
+		pipeline.AddRootSignatureAssociation(miss_signature_.Get(), {L"Miss"});
+		pipeline.AddRootSignatureAssociation(hit_signature_.Get(), {L"HitGroup"});
+
+		pipeline.SetMaxPayloadSize(4 * sizeof(float));
+		pipeline.SetMaxAttributeSize(2 * sizeof(float));
+		pipeline.SetMaxRecursionDepth(1);
+
+		raytracing_state_object_ = pipeline.Generate();
+		HRESULT hr = raytracing_state_object_->QueryInterface(IID_PPV_ARGS(raytracing_state_object_properties_.ReleaseAndGetAddressOf()));
+		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Query Interface");
+
+		return;
 		//Create Dummy Root Signature
 		{
 			D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
@@ -910,13 +982,6 @@ namespace argent::graphics
 
 	void Raytracer::CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height)
 	{
-		D3D12_HEAP_PROPERTIES heap_prop{};
-		heap_prop.Type = D3D12_HEAP_TYPE_DEFAULT;
-		heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-		heap_prop.VisibleNodeMask = 0u;
-		heap_prop.CreationNodeMask = 0u;
-
 		D3D12_RESOURCE_DESC res_desc{};
 		res_desc.DepthOrArraySize = 1u;
 		res_desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -927,7 +992,7 @@ namespace argent::graphics
 		res_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		res_desc.MipLevels = 1u;
 		res_desc.SampleDesc.Count = 1u;
-		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, 
+		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&default_heap, 
 			D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr, 
 			IID_PPV_ARGS(output_buffer_.ReleaseAndGetAddressOf()));
 
@@ -939,7 +1004,7 @@ namespace argent::graphics
 	{
 		graphics_device.CreateDescriptorHeap(descriptor_heap_.ReleaseAndGetAddressOf(), 
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 
-			10);
+			2);
 
 
 
@@ -964,11 +1029,44 @@ namespace argent::graphics
 		srv_desc.Format = DXGI_FORMAT_UNKNOWN;
 		srv_desc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srv_desc.RaytracingAccelerationStructure.Location = tlas_result_buffer_->GetGPUVirtualAddress();
+		srv_desc.RaytracingAccelerationStructure.Location = top_level_as_buffer_.pResult->GetGPUVirtualAddress();
 		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
 			srv_handle);
 		//graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
 		//	tlas_result_descriptor_.cpu_handle_);
+
+		//graphics_device.CreateDescriptorHeap(descriptor_heap_.ReleaseAndGetAddressOf(), 
+		//	D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 
+		//	2);
+
+
+
+		////output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		////tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+
+		//D3D12_CPU_DESCRIPTOR_HANDLE srv_handle = descriptor_heap_->GetCPUDescriptorHandleForHeapStart();
+
+
+		//D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
+		//uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		//graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
+		//	nullptr, &uav_desc, srv_handle);
+		////D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
+		////uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		////graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
+		////	nullptr, &uav_desc, output_descriptor_.cpu_handle_);
+
+		//srv_handle.ptr += graphics_device.GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		//D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
+		//srv_desc.Format = DXGI_FORMAT_UNKNOWN;
+		//srv_desc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+		//srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		//srv_desc.RaytracingAccelerationStructure.Location = tlas_result_buffer_->GetGPUVirtualAddress();
+		//graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
+		//	srv_handle);
+		////graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
+		////	tlas_result_descriptor_.cpu_handle_);
 	}
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
@@ -987,14 +1085,6 @@ namespace argent::graphics
 
 		UINT sbt_size = sbt_generator_.ComputeSBTSize();
 
-
-		D3D12_HEAP_PROPERTIES heap_prop{};
-		heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
-		heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-		heap_prop.CreationNodeMask = 0u;
-		heap_prop.VisibleNodeMask = 0u;
-
 		D3D12_RESOURCE_DESC res_desc{};
 		res_desc.Alignment = 0u;
 		res_desc.DepthOrArraySize = 1u;
@@ -1008,7 +1098,7 @@ namespace argent::graphics
 		res_desc.SampleDesc.Quality = 0u;
 		res_desc.Width = sbt_size;
 
-		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&heap_prop,
+		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&upload_heap,
 			D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, 
 			IID_PPV_ARGS(sbt_storage_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create SBT Storage");
