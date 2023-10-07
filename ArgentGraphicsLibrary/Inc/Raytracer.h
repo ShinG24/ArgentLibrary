@@ -109,6 +109,7 @@ namespace argent::graphics
 		RootSignatureAssociation miss_association_;
 
 		Microsoft::WRL::ComPtr<IDxcBlob> hit_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> hit1_library_;
 		Library hit_library_data_;
 		D3D12_HIT_GROUP_DESC hit_group_desc_;
 		RootSignatureAssociation hit_association_;
@@ -132,6 +133,7 @@ namespace argent::graphics
 		//Root Signature
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> ray_gen_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_signature_;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit1_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> miss_signature_;
 
 		//Pipeline

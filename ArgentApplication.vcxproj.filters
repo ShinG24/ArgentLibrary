@@ -24,5 +24,6 @@
     <None Include="RayGen.hlsl">
       <Filter>Shader</Filter>
     </None>
+    <None Include="HIt1.hlsl" />
   </ItemGroup>
 </Project>

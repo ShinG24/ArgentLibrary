@@ -79,7 +79,7 @@ namespace argent::graphics
 	{
 #if 1
 
-				Vertex vertices[3]
+		Vertex vertices[3]
 		{
 			 {{0.0f, 0.6, 0.0f}, {1.0f, 1.0f, 0.0f, 1.0f}},
         {{0.25f, -0.6f, 0.0f}, {0.0f, 1.0f, 1.0f, 1.0f}},
@@ -99,7 +99,7 @@ namespace argent::graphics
 		vertex_buffer_->Unmap(0u, nullptr);
 
 
-				Vertex vertices1[4]
+		Vertex vertices1[4]
 		{
 			{{ -0.3f, 0.8, 0.3 }, {}},
 			{{ 0.5f, 0.3f, 0.3f }, {}},
@@ -125,9 +125,12 @@ namespace argent::graphics
 
 		AccelerationStructureBuffers bottom_level_buffer = 
 		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
-			{{vertex_buffer_.Get(), 3}, {vertex_buffer1_.Get(), 4}});
+			{{vertex_buffer_.Get(), 3}});
+		AccelerationStructureBuffers bottom_level_buffer1 = CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(),
+			{  {vertex_buffer1_.Get(), 4} });
 
-		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }};
+
+		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, XMMatrixIdentity()}};
 		CreateTopLevelAs(graphics_device, command_list.GetCommandList4(), instances_);
 
 #else
@@ -501,10 +504,12 @@ namespace argent::graphics
 		shader_compiler.CompileShaderLibrary(L"RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
 		shader_compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"Hit1.hlsl", hit1_library_.ReleaseAndGetAddressOf());
 
 		pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
 		pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
 		pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
+		pipeline.AddLibrary(hit1_library_.Get(), {L"ClosestHit1"});
 
 		//RayGen signature
 		{
@@ -531,13 +536,16 @@ namespace argent::graphics
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV);
 			hit_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
+			hit1_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
 		}
 
 		pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
+		pipeline.AddHitGroup(L"HitGroup1", L"ClosestHit1");
 
 		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"RayGen"});
 		pipeline.AddRootSignatureAssociation(miss_signature_.Get(), {L"Miss"});
 		pipeline.AddRootSignatureAssociation(hit_signature_.Get(), {L"HitGroup"});
+		pipeline.AddRootSignatureAssociation(hit1_signature_.Get(), {L"HitGroup1"});
 
 		pipeline.SetMaxPayloadSize(4 * sizeof(float));
 		pipeline.SetMaxAttributeSize(2 * sizeof(float));
@@ -667,6 +675,7 @@ namespace argent::graphics
 		  pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
 		  pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
 		  pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
+		  pipeline.AddLibrary(hit1_library_.Get(), {L"ClosestHit1"});
 
 		  //// To be used, each DX12 shader needs a root signature defining which
 		  //// parameters and buffers will be accessed.
@@ -692,6 +701,7 @@ namespace argent::graphics
 		  // Hit group for the triangles, with a shader simply interpolating vertex
 		  // colors
 		  pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
+		  pipeline.AddHitGroup(L"HitGroup1", L"ClosestHit1");
 
 		  // The following section associates the root signature to each shader. Note
 		  // that we can explicitly show that some shaders share the same root signature
@@ -701,6 +711,7 @@ namespace argent::graphics
 		  pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"RayGen"});
 		  pipeline.AddRootSignatureAssociation(miss_signature_.Get(), {L"Miss"});
 		  pipeline.AddRootSignatureAssociation(hit_signature_.Get(), {L"HitGroup"});
+		  pipeline.AddRootSignatureAssociation(hit1_signature_.Get(), {L"HitGroup1"});
 
 		  // The payload size defines the maximum size of the data carried by the rays,
 		  // ie. the the data
@@ -1138,7 +1149,8 @@ namespace argent::graphics
 
 		sbt_generator_.AddRayGenerationProgram(L"RayGen", { heap_pointer });
 		sbt_generator_.AddMissProgram(L"Miss", {});
-		sbt_generator_.AddHitGroup(L"HitGroup", {(void*)(vertex_buffer_->GetGPUVirtualAddress()), (void*)(vertex_buffer1_->GetGPUVirtualAddress())});
+		sbt_generator_.AddHitGroup(L"HitGroup", {(void*)(vertex_buffer_->GetGPUVirtualAddress())});
+		sbt_generator_.AddHitGroup(L"HitGroup1", {(void*)(vertex_buffer1_->GetGPUVirtualAddress())});
 
 
 		UINT sbt_size = sbt_generator_.ComputeSBTSize();
@@ -1203,8 +1215,10 @@ namespace argent::graphics
 		for(size_t i = 0; i < instances.size(); ++i)
 		{
 			top_level_as_generator_.AddInstance(instances[i].first.Get(), 
-				instances[i].second, static_cast<UINT>(i), 0u);
+				instances[i].second, static_cast<UINT>(i), i);
 		}
+
+//		int
 
 		UINT64 scratch_size, result_size, instance_desc_size;
 		top_level_as_generator_.ComputeASBufferSizes(graphics_device.GetLatestDevice(), 
