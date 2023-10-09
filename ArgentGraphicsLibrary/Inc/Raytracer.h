@@ -139,13 +139,13 @@ namespace argent::graphics
 
 		//Output buffer
 		Microsoft::WRL::ComPtr<ID3D12Resource> output_buffer_;
-		//Descriptor output_descriptor_;
-		//Descriptor tlas_result_descriptor_;
+		Descriptor output_descriptor_;
+		Descriptor tlas_result_descriptor_;
 
 		nv_helpers_dx12::ShaderBindingTableGenerator sbt_generator_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> sbt_storage_;
 
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptor_heap_;
+	//	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptor_heap_;
 
 
 		UINT width_;

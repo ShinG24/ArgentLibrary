@@ -156,6 +156,25 @@ ID3D12StateObject* RayTracingPipelineGenerator::Generate()
 
   UINT currentIndex = 0;
 
+
+  D3D12_STATE_SUBOBJECT globalRootSig;
+  globalRootSig.Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
+  //ID3D12RootSignature* dgSig = m_dummyGlobalRootSignature;
+  globalRootSig.pDesc = &m_dummyGlobalRootSignature;
+  //globalRootSig.pDesc = &dgSig;
+
+  subobjects[currentIndex++] = globalRootSig;
+
+  // The pipeline construction always requires an empty local root signature
+  D3D12_STATE_SUBOBJECT dummyLocalRootSig;
+  dummyLocalRootSig.Type = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
+  //ID3D12RootSignature* dlSig = m_dummyLocalRootSignature;
+  dummyLocalRootSig.pDesc = &m_dummyLocalRootSignature;
+  //dummyLocalRootSig.pDesc = &dlSig;
+  subobjects[currentIndex++] = dummyLocalRootSig;
+
+
+
   // Add all the DXIL libraries
   for (const Library& lib : m_libraries)
   {
@@ -241,19 +260,6 @@ ID3D12StateObject* RayTracingPipelineGenerator::Generate()
   }
 
   // The pipeline construction always requires an empty global root signature
-  D3D12_STATE_SUBOBJECT globalRootSig;
-  globalRootSig.Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
-  ID3D12RootSignature* dgSig = m_dummyGlobalRootSignature;
-  globalRootSig.pDesc = &dgSig;
-
-  subobjects[currentIndex++] = globalRootSig;
-
-  // The pipeline construction always requires an empty local root signature
-  D3D12_STATE_SUBOBJECT dummyLocalRootSig;
-  dummyLocalRootSig.Type = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
-  ID3D12RootSignature* dlSig = m_dummyLocalRootSignature;
-  dummyLocalRootSig.pDesc = &dlSig;
-  subobjects[currentIndex++] = dummyLocalRootSig;
 
   // Add a subobject for the ray tracing pipeline configuration
   D3D12_RAYTRACING_PIPELINE_CONFIG pipelineConfig = {};

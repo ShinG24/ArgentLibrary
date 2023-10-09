@@ -32,8 +32,8 @@ namespace argent::graphics
 	{
 		auto command_list = graphics_command_list.GetCommandList4();
 
-		std::vector<ID3D12DescriptorHeap*> heaps{ descriptor_heap_.Get() };
-		command_list->SetDescriptorHeaps(1u, heaps.data());
+		//std::vector<ID3D12DescriptorHeap*> heaps{ descriptor_heap_.Get() };
+		//command_list->SetDescriptorHeaps(1u, heaps.data());
 
 		//return;
 		D3D12_RESOURCE_BARRIER resource_barrier{};
@@ -273,44 +273,49 @@ namespace argent::graphics
 	void Raytracer::CreateShaderResourceHeap(const GraphicsDevice& graphics_device, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
-		graphics_device.CreateDescriptorHeap(descriptor_heap_.ReleaseAndGetAddressOf(), 
-			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 
-			2);
+		//graphics_device.CreateDescriptorHeap(descriptor_heap_.ReleaseAndGetAddressOf(), 
+		//	D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 
+		//	2);
 
 
 
-		//output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
-		//tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
-		D3D12_CPU_DESCRIPTOR_HANDLE srv_handle = descriptor_heap_->GetCPUDescriptorHandleForHeapStart();
+	//	D3D12_CPU_DESCRIPTOR_HANDLE srv_handle = descriptor_heap_->GetCPUDescriptorHandleForHeapStart();
 
 
+#if 0 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
 		uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
 			nullptr, &uav_desc, srv_handle);
-		//D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
-		//uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		//graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
-		//	nullptr, &uav_desc, output_descriptor_.cpu_handle_);
+#else
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
+		uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
+			nullptr, &uav_desc, output_descriptor_.cpu_handle_);
 
-		srv_handle.ptr += graphics_device.GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+#endif
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
 		srv_desc.Format = DXGI_FORMAT_UNKNOWN;
 		srv_desc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srv_desc.RaytracingAccelerationStructure.Location = top_level_as_buffer_.pResult->GetGPUVirtualAddress();
+
+
+#if 0
+		srv_handle.ptr += graphics_device.GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
 		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
 			srv_handle);
-		//graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
-		//	tlas_result_descriptor_.cpu_handle_);
 
-		//graphics_device.CreateDescriptorHeap(descriptor_heap_.ReleaseAndGetAddressOf(), 
-		//	D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 
-		//	2);
+#else
+		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
+			tlas_result_descriptor_.cpu_handle_);
 
-
+#endif
 
 		////output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		////tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
@@ -344,8 +349,8 @@ namespace argent::graphics
 	{
 		sbt_generator_.Reset();
 
-		D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = descriptor_heap_->GetGPUDescriptorHandleForHeapStart();
-		//D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = output_descriptor_.gpu_handle_;
+		//D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = descriptor_heap_->GetGPUDescriptorHandleForHeapStart();
+		D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = output_descriptor_.gpu_handle_;
 
 		auto heap_pointer = reinterpret_cast<UINT64**>(srv_uav_heap_handle.ptr);
 

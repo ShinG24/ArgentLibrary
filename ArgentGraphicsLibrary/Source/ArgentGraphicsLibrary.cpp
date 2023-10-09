@@ -72,7 +72,7 @@ namespace argent::graphics
 		command_list.GetCommandList()->RSSetScissorRects(1u, &scissor_rect_);
 
 		std::vector<ID3D12DescriptorHeap*> heaps = { cbv_srv_uav_heap_.GetDescriptorHeapObject() };
-	//	command_list.GetCommandList()->SetDescriptorHeaps(1u, heaps.data());
+		command_list.GetCommandList()->SetDescriptorHeaps(1u, heaps.data());
 
 		OnRender();
 	}
