@@ -81,16 +81,9 @@ namespace argent::graphics
 		void CreateAS(const GraphicsDevice& graphics_device, 
 		GraphicsCommandList& command_list, const CommandQueue& command_queue, 
 		Fence& fence);
-		void CreateBLAS(const GraphicsDevice& graphics_device, ID3D12GraphicsCommandList4* command_list);
-		void CreateTLAS(const GraphicsDevice& graphics_device, ID3D12GraphicsCommandList4* command_list);
 
 		void CreatePipeline(const GraphicsDevice& graphics_device);
 
-		void CreateRayGenSignature(const GraphicsDevice& graphics_device);
-		void CreateHitSignature(const GraphicsDevice& graphics_device);
-		void CreateMissSignature(const GraphicsDevice& graphics_device);
-
-		void CreateStateObjectAndProperties(const GraphicsDevice& graphics_device);
 		void BuildShaderExportList(std::vector<std::wstring> exported_symbols);
 
 		void CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height);
@@ -133,7 +126,7 @@ namespace argent::graphics
 		//Root Signature
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> ray_gen_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit1_signature_;
+	//	Microsoft::WRL::ComPtr<ID3D12RootSignature> hit1_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> miss_signature_;
 
 		//Pipeline
