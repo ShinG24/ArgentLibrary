@@ -36,17 +36,18 @@ namespace argent::platform
 		ShowWindow(hwnd_, SW_SHOW);
 	}
 
-	void Platform::ProcessSystemEventQueue()
+	bool Platform::ProcessSystemEventQueue()
 	{
 		MSG msg{};
-
-		if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		bool peek_message = PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
+		if(peek_message)
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
 		if(WM_QUIT == msg.message) request_shutdown_ = true;
+		return peek_message;
 	}
 
 	LRESULT HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

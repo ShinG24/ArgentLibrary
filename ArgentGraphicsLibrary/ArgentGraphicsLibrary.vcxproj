@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="BottomLevelASGenerator.h" />
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
+    <ClInclude Include="Inc\ConstantBuffer.h" />
     <ClInclude Include="Inc\DescriptorHeap.h" />
     <ClInclude Include="Inc\Fence.h" />
     <ClInclude Include="Inc\FrameResource.h" />

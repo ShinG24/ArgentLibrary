@@ -9,3 +9,5 @@ dxil.dll
 ArgentGraphicsLibrary/External/DXC/Lib/
 ArgentGraphicsLibrary/Obj/
 ArgentPlatformLibrary/Obj/
+ArgentUtilityLibrary/Obj/
+ArgentUtilityLibrary/Bin/

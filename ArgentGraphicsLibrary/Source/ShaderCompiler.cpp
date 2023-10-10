@@ -102,7 +102,7 @@ namespace argent::graphics
 		//Create blob from the string
 		Microsoft::WRL::ComPtr<IDxcBlobEncoding> p_tex_blob;
 		HRESULT hr = p_library->CreateBlobWithEncodingFromPinned(
-			s_shader.c_str(), s_shader.size(), 0, p_tex_blob.ReleaseAndGetAddressOf());
+			s_shader.c_str(), static_cast<UINT32>(s_shader.size()), 0, p_tex_blob.ReleaseAndGetAddressOf());
 
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Shader Blob");
 

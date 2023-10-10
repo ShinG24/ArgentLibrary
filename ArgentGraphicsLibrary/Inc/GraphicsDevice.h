@@ -57,7 +57,9 @@ namespace argent::graphics
 			ID3D12Resource** pp_vertex_buffer, D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const;
 
 		HRESULT CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_FLAGS resource_flags, 
-		UINT size, D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const;
+			UINT size, D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const;
+
+		void CreateCBV(ID3D12Resource* constant_buffer, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
 
 		UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const;
 

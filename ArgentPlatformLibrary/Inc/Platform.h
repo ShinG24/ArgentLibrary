@@ -12,7 +12,7 @@ namespace argent::platform
 
 		void Awake(long window_width, long window_height);
 
-		void ProcessSystemEventQueue();
+		bool ProcessSystemEventQueue();
 
 		HWND GetHwnd() const { return hwnd_; }
 		bool GetRequestShutdown() const { return request_shutdown_; }

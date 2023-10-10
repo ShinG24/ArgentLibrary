@@ -3,7 +3,7 @@
 #include <unordered_set>
 #include <vector>
 
-
+#include "../Inc/GraphicsCommon.h"
 #include "../Inc/GraphicsDevice.h"
 #include "../Inc/GraphicsCommandList.h"
 #include "../Inc/CommandQueue.h"
@@ -12,7 +12,6 @@
 #include "../Inc/ShaderCompiler.h"
 
 
-#define _ALIGNMENT_(value, alignment_size)	 (((value) + (alignment_size)-1) & ~((alignment_size)-1))
 namespace argent::graphics
 {
 	void Raytracer::Awake(const GraphicsDevice& graphics_device, GraphicsCommandList& command_list,
@@ -21,15 +20,32 @@ namespace argent::graphics
 	{
 		width_ = width;
 		height_ = height;
+		
 		CreateAS(graphics_device, command_list, command_queue, fence);
 		CreatePipeline(graphics_device);
 		CreateOutputBuffer(graphics_device, width, height);
 		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
 		CreateShaderBindingTable(graphics_device);
+
 	}
 
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list)
 	{
+		//Update Camera
+		{
+			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
+			DirectX::XMVECTOR Focus = Eye;
+			Focus.m128_f32[2] += 1.0f;
+			DirectX::XMVECTOR Up{ 0, 1, 0, 0 };
+			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
+			auto proj = DirectX::XMMatrixPerspectiveFovLH(fov_angle_, aspect_ratio_, near_z_, far_z_);
+
+			SceneConstant data{};
+			data.camera_position_ = camera_position_;
+			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
+
+			scene_constant_buffer_.Update(data, 0);
+		}
 		auto command_list = graphics_command_list.GetCommandList4();
 
 		//std::vector<ID3D12DescriptorHeap*> heaps{ descriptor_heap_.Get() };
@@ -60,7 +76,7 @@ namespace argent::graphics
 		desc.HitGroupTable.SizeInBytes = hit_group_section_size;
 		desc.HitGroupTable.StrideInBytes = sbt_generator_.GetHitGroupEntrySize();
 
-		desc.Width = width_;
+		desc.Width = static_cast<UINT>(width_);
 		desc.Height = height_;
 		desc.Depth = 1;
 
@@ -79,9 +95,9 @@ namespace argent::graphics
 	{
 		Vertex vertices[3]
 		{
-			 {{0.0f, 0.6, 0.0f}, {1.0f, 1.0f, 0.0f, 1.0f}},
-        {{0.25f, -0.6f, 0.0f}, {0.0f, 1.0f, 1.0f, 1.0f}},
-        {{-0.25f, -0.6f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}
+			 {{0.0f, 0.6f, 0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
+        {{0.25f, -0.6f, 0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
+        {{-0.25f, -0.6f, 0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}}
 		};
 
 		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
@@ -99,7 +115,7 @@ namespace argent::graphics
 
 		Vertex vertices1[4]
 		{
-			{{ -0.3f, 0.8, 0.3 }, {}},
+			{{ -0.3f, 0.8f, 0.3f }, {}},
 			{{ 0.5f, 0.3f, 0.3f }, {}},
 			{{ -0.7f, -0.2f, 0.3f }, {}},
 			{{ 0.4f, -0.5f, 0.3f}, {}},
@@ -183,8 +199,9 @@ namespace argent::graphics
 
 			rsc.AddHeapRangesParameter(
 				{
-					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0},
-					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1}
+					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 				}
 			);
 
@@ -273,17 +290,10 @@ namespace argent::graphics
 	void Raytracer::CreateShaderResourceHeap(const GraphicsDevice& graphics_device, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
-		//graphics_device.CreateDescriptorHeap(descriptor_heap_.ReleaseAndGetAddressOf(), 
-		//	D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 
-		//	2);
-
-
-
 		output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
-	//	D3D12_CPU_DESCRIPTOR_HANDLE srv_handle = descriptor_heap_->GetCPUDescriptorHandleForHeapStart();
-
+		scene_constant_buffer_.Awake(graphics_device, cbv_srv_uav_descriptor_heap);
 
 #if 0 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
@@ -316,33 +326,6 @@ namespace argent::graphics
 			tlas_result_descriptor_.cpu_handle_);
 
 #endif
-
-		////output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
-		////tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
-
-		//D3D12_CPU_DESCRIPTOR_HANDLE srv_handle = descriptor_heap_->GetCPUDescriptorHandleForHeapStart();
-
-
-		//D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
-		//uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		//graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
-		//	nullptr, &uav_desc, srv_handle);
-		////D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
-		////uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		////graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
-		////	nullptr, &uav_desc, output_descriptor_.cpu_handle_);
-
-		//srv_handle.ptr += graphics_device.GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-		//D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
-		//srv_desc.Format = DXGI_FORMAT_UNKNOWN;
-		//srv_desc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
-		//srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		//srv_desc.RaytracingAccelerationStructure.Location = tlas_result_buffer_->GetGPUVirtualAddress();
-		//graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
-		//	srv_handle);
-		////graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
-		////	tlas_result_descriptor_.cpu_handle_);
 	}
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
@@ -354,7 +337,14 @@ namespace argent::graphics
 
 		auto heap_pointer = reinterpret_cast<UINT64**>(srv_uav_heap_handle.ptr);
 
-		sbt_generator_.AddRayGenerationProgram(L"RayGen", { heap_pointer });
+#if 0 
+		auto heap_pointer1 = reinterpret_cast<UINT64**>(tlas_result_descriptor_.gpu_handle_.ptr);
+		auto heap_pointer2 = reinterpret_cast<UINT64**>(scene_constant_buffer_.GetGpuHandle(0).ptr);
+
+		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}, { heap_pointer1 }, { heap_pointer2 } });
+#else
+		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}});
+#endif
 		sbt_generator_.AddMissProgram(L"Miss", {});
 		sbt_generator_.AddHitGroup(L"HitGroup", {(void*)(vertex_buffer_->GetGPUVirtualAddress())});
 		sbt_generator_.AddHitGroup(L"HitGroup1", {(void*)(vertex_buffer1_->GetGPUVirtualAddress())});
@@ -405,9 +395,9 @@ namespace argent::graphics
 
 		AccelerationStructureBuffers buffers;
 		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			scratch_size_in_bytes, D3D12_RESOURCE_STATE_COMMON,buffers.pScratch.ReleaseAndGetAddressOf());
+			static_cast<UINT>(scratch_size_in_bytes), D3D12_RESOURCE_STATE_COMMON,buffers.pScratch.ReleaseAndGetAddressOf());
 		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
-			result_size_in_bytes, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, 
+			static_cast<UINT>(result_size_in_bytes), D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, 
 			buffers.pResult.ReleaseAndGetAddressOf());
 
 		bottom_level_as.Generate(command_list, buffers.pScratch.Get(), 
@@ -422,7 +412,7 @@ namespace argent::graphics
 		for(size_t i = 0; i < instances.size(); ++i)
 		{
 			top_level_as_generator_.AddInstance(instances[i].first.Get(), 
-				instances[i].second, static_cast<UINT>(i), i);
+				instances[i].second, static_cast<UINT>(i), static_cast<UINT>(i));
 		}
 
 //		int
@@ -433,14 +423,14 @@ namespace argent::graphics
 
 
 		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
-			scratch_size, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, top_level_as_buffer_.pScratch.ReleaseAndGetAddressOf());
+			static_cast<UINT>(scratch_size), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, top_level_as_buffer_.pScratch.ReleaseAndGetAddressOf());
 		
 		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
-			result_size, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+			static_cast<UINT>(result_size), D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
 			top_level_as_buffer_.pResult.ReleaseAndGetAddressOf());
 		
 		graphics_device.CreateBuffer(upload_heap, D3D12_RESOURCE_FLAG_NONE, 
-			instance_desc_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
+			static_cast<UINT>(instance_desc_size), D3D12_RESOURCE_STATE_GENERIC_READ, 
 			top_level_as_buffer_.pInstanceDesc.ReleaseAndGetAddressOf());
 
 		top_level_as_generator_.Generate(command_list, 

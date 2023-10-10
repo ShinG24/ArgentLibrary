@@ -50,6 +50,9 @@
     <ClInclude Include="TopLevelASGenerator.h">
       <Filter>External</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\ConstantBuffer.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />

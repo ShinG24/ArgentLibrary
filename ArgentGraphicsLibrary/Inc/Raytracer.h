@@ -16,6 +16,8 @@
 
 #include "DescriptorHeap.h"
 
+#include "ConstantBuffer.h"
+
 using namespace DirectX;
 
 using float2 = DirectX::XMFLOAT2;
@@ -145,10 +147,23 @@ namespace argent::graphics
 		nv_helpers_dx12::ShaderBindingTableGenerator sbt_generator_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> sbt_storage_;
 
+		struct SceneConstant
+		{
+			DirectX::XMFLOAT4X4 inv_view_projection_;
+			DirectX::XMFLOAT4 camera_position_;
+		};
+		ConstantBuffer<SceneConstant> scene_constant_buffer_;
+
+		DirectX::XMFLOAT4 camera_position_{ 0.0, 0.0f, -10.0f, 1.0f };
+		float near_z_ = 0.001f;
+		float far_z_ = 1000.0f;
+		float fov_angle_ = 60.0f;
+		float aspect_ratio_ = 16.0f / 9.0f;
+
 	//	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptor_heap_;
 
 
-		UINT width_;
+		UINT64 width_;
 		UINT height_;
 
 		struct Vertex

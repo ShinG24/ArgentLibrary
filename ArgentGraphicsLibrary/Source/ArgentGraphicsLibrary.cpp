@@ -101,16 +101,6 @@ namespace argent::graphics
 		}
 		swap_chain_.Present();
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
-
-		//fence_.PutUpFence(main_rendering_queue_);
-		////	main_rendering_queue_.Signal(fence_);
-
-		//fence_.WaitForGpuInCurrentFrame();
-		//swap_chain_.Present();
-
-		//back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
-
-	//	fence_.WaitForGpu(back_buffer_index_);
 	}
 
 	void GraphicsLibrary::OnRender()

@@ -6,10 +6,37 @@ RWTexture2D<float4> gOutput : register(u0);
 // Raytracing acceleration structure, accessed as a SRV
 RaytracingAccelerationStructure SceneBVH : register(t0);
 
+struct SceneConstant
+{
+    float4x4 inv_view_projection_;
+    float4 camera_position_;
+};
+
+ConstantBuffer<SceneConstant> scene_constant : register(b0);
+
+
+inline void GenerateCameraRay(uint2 index, out float3 origin, out float3 direction)
+{
+    float2 xy = index + 0.5f; // center in the middle of the pixel.
+    float2 screenPos = xy / DispatchRaysDimensions().xy * 2.0 - 1.0;
+
+    // Invert Y for DirectX-style coordinates.
+    screenPos.y = -screenPos.y;
+
+    // Unproject the pixel coordinate into a ray.
+    float4 world = mul(float4(screenPos, 1, 1), scene_constant.inv_view_projection_);
+
+    world.xyz /= world.w;
+    origin = scene_constant.camera_position_.xyz;
+    direction = normalize(world.xyz - origin);
+}
+
+
 [shader("raygeneration")] void RayGen() {
   // Initialize the ray payload
   HitInfo payload;
-  payload.colorAndDistance = float4(0, 0, 0, 0);
+ payload.colorAndDistance = float4(0, 0, 0, 0);
+    //payload.colorAndDistance = scene_constant.camera_position_;
 
   // Get the location within the dispatched 2D grid of work items
   // (often maps to pixels, so this could represent a pixel coordinate).
@@ -24,12 +51,19 @@ RaytracingAccelerationStructure SceneBVH : register(t0);
   ray.Origin = float3(d.x, -d.y, 1);
   ray.Direction = float3(0, 0, -1);
 #else
-    ray.Origin = float3(d.x, -d.y, -0.001);
-    ray.Direction = float3(0, 0, 1);
+
+    float3 ray_origin;
+    float3 ray_direction;
+    GenerateCameraRay(DispatchRaysIndex().xy, ray_origin, ray_direction);
+    ray.Origin = ray_origin;
+    ray.Direction = ray_direction;
+
+    //ray.Origin = float3(d.x, -d.y, -0.001);
+    //ray.Direction = float3(0, 0, 1);
 #endif
 
-	ray.TMin = 0;
-  ray.TMax = 100000;
+	ray.TMin = 0.001;
+  ray.TMax = 10000.0;
 
   // Trace the ray
   TraceRay(

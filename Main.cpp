@@ -3,6 +3,7 @@
 
 #include "ArgentGraphicsLibrary/Inc/ArgentGraphicsLibrary.h"
 #include "ArgentPlatformLibrary/Inc/Platform.h"
+#include "ArgentUtilityLibrary/Inc/Timer.h"
 
 
 int main()
@@ -18,15 +19,21 @@ int main()
 
 	argent::graphics::GraphicsLibrary graphics_library{};
 	graphics_library.Awake(platform.GetHwnd());
+	argent::Timer timer;
+	timer.Awake();
 
 	while (!platform.GetRequestShutdown())
 	{
-		platform.ProcessSystemEventQueue();
-		graphics_library.FrameBegin();
-
-
-
-		graphics_library.FrameEnd();
+		if(!platform.ProcessSystemEventQueue())
+		{
+			timer.Tick();
+			timer.ShowFrameTime(platform.GetHwnd());
+#ifdef _DEBUG
+			timer.ShowFrameTime(platform.GetHwnd());
+#endif
+			graphics_library.FrameBegin();
+			graphics_library.FrameEnd();
+		}
 	}
 
 	graphics_library.Shutdown();

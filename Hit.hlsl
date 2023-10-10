@@ -21,4 +21,5 @@ StructuredBuffer<STriVertex> BTriVertex : register(t0);
 	//payload.colorAndDistance = float4(0, 1, 0, RayTCurrent());
 
   payload.colorAndDistance = float4(hitColor, RayTCurrent());
+    payload.colorAndDistance = float4(0, 0, 1, RayTCurrent());
 }
