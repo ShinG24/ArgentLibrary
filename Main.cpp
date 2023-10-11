@@ -2,7 +2,7 @@
 #include <crtdbg.h>
 
 #include "ArgentGraphicsLibrary/Inc/ArgentGraphicsLibrary.h"
-#include "ArgentPlatformLibrary/Inc/Platform.h"
+#include "ArgentGraphicsLibrary/Inc/Platform.h"
 #include "ArgentUtilityLibrary/Inc/Timer.h"
 
 

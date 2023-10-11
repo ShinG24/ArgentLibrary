@@ -6,7 +6,8 @@ namespace argent::graphics
 	{
 		HRESULT hr{ S_OK };
 		RECT rect{};
-		GetWindowRect(hwnd, &rect);
+		//GetWindowRect(hwnd, &rect);
+		GetClientRect(hwnd, &rect);
 
 		const UINT window_width = rect.right - rect.left;
 		const  UINT window_height = rect.bottom - rect.top;

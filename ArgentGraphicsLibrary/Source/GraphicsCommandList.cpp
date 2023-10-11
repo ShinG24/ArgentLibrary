@@ -88,4 +88,14 @@ namespace argent::graphics
 	{
 		command_list_->OMSetRenderTargets(num_render_targets, p_rtv_handles, in_a_row_handle, p_dsv_handle);
 	}
+
+	void GraphicsCommandList::SetViewports(UINT num_viewports, const D3D12_VIEWPORT* p_viewport) const
+	{
+		command_list_->RSSetViewports(num_viewports, p_viewport);
+	}
+
+	void GraphicsCommandList::SetRects(UINT num_rects, const D3D12_RECT* p_rect) const
+	{
+		command_list_->RSSetScissorRects(num_rects, p_rect);
+	}
 }

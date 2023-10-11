@@ -53,6 +53,33 @@
     <ClInclude Include="Inc\ConstantBuffer.h">
       <Filter>Direct3D12</Filter>
     </ClInclude>
+    <ClInclude Include="External\Imgui\imconfig.h">
+      <Filter>External\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imgui.h">
+      <Filter>External\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imgui_internal.h">
+      <Filter>External\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imstb_rectpack.h">
+      <Filter>External\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imstb_textedit.h">
+      <Filter>External\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imstb_truetype.h">
+      <Filter>External\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imgui_impl_dx12.h">
+      <Filter>External\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imgui_impl_win32.h">
+      <Filter>External\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Platform.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -103,6 +130,27 @@
     <ClCompile Include="TopLevelASGenerator.cpp">
       <Filter>External</Filter>
     </ClCompile>
+    <ClCompile Include="External\Imgui\imgui.cpp">
+      <Filter>External\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_draw.cpp">
+      <Filter>External\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_tables.cpp">
+      <Filter>External\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_widgets.cpp">
+      <Filter>External\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_impl_dx12.cpp">
+      <Filter>External\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_impl_win32.cpp">
+      <Filter>External\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Platform.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Direct3D12">
@@ -116,6 +164,12 @@
     </Filter>
     <Filter Include="External">
       <UniqueIdentifier>{caeb2f6a-7793-4ced-8f16-5aadc96f97c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\Imgui">
+      <UniqueIdentifier>{ba489122-1b31-403c-962c-d6c0dce9861b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{4a1bef5c-8ac2-4526-87e3-7a3ca06f6dbe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

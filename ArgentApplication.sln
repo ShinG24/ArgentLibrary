@@ -5,13 +5,10 @@ VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentApplication", "ArgentApplication.vcxproj", "{E9434475-C25B-48C9-B899-107F74068222}"
 	ProjectSection(ProjectDependencies) = postProject
-		{31695653-CF86-47B3-9958-1907008EB501} = {31695653-CF86-47B3-9958-1907008EB501}
 		{6755F871-61D5-4800-9525-6DADE6685D06} = {6755F871-61D5-4800-9525-6DADE6685D06}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentGraphicsLibrary", "ArgentGraphicsLibrary\ArgentGraphicsLibrary.vcxproj", "{6755F871-61D5-4800-9525-6DADE6685D06}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentPlatformLibrary", "ArgentPlatformLibrary\ArgentPlatformLibrary.vcxproj", "{31695653-CF86-47B3-9958-1907008EB501}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentUtilityLibrary", "ArgentUtilityLibrary\ArgentUtilityLibrary.vcxproj", "{205A738B-050E-4AAA-9899-6E7FB328A9CE}"
 EndProject
@@ -39,14 +36,6 @@ Global
 		{6755F871-61D5-4800-9525-6DADE6685D06}.Release|x64.Build.0 = Release|x64
 		{6755F871-61D5-4800-9525-6DADE6685D06}.Release|x86.ActiveCfg = Release|Win32
 		{6755F871-61D5-4800-9525-6DADE6685D06}.Release|x86.Build.0 = Release|Win32
-		{31695653-CF86-47B3-9958-1907008EB501}.Debug|x64.ActiveCfg = Debug|x64
-		{31695653-CF86-47B3-9958-1907008EB501}.Debug|x64.Build.0 = Debug|x64
-		{31695653-CF86-47B3-9958-1907008EB501}.Debug|x86.ActiveCfg = Debug|Win32
-		{31695653-CF86-47B3-9958-1907008EB501}.Debug|x86.Build.0 = Debug|Win32
-		{31695653-CF86-47B3-9958-1907008EB501}.Release|x64.ActiveCfg = Release|x64
-		{31695653-CF86-47B3-9958-1907008EB501}.Release|x64.Build.0 = Release|x64
-		{31695653-CF86-47B3-9958-1907008EB501}.Release|x86.ActiveCfg = Release|Win32
-		{31695653-CF86-47B3-9958-1907008EB501}.Release|x86.Build.0 = Release|Win32
 		{205A738B-050E-4AAA-9899-6E7FB328A9CE}.Debug|x64.ActiveCfg = Debug|x64
 		{205A738B-050E-4AAA-9899-6E7FB328A9CE}.Debug|x64.Build.0 = Debug|x64
 		{205A738B-050E-4AAA-9899-6E7FB328A9CE}.Debug|x86.ActiveCfg = Debug|Win32

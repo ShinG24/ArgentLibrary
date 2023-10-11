@@ -55,6 +55,13 @@ namespace argent::graphics
 
 		void OnDebugLayer() const;
 
+		//For Imgui
+		void ImguiAwake();
+		void ImguiShutdown();
+
+		void ImguiFrameBegin();
+		void ImguiFrameEnd();
+
 	private:
 		HWND hwnd_;	//Window handle
 
@@ -82,10 +89,13 @@ namespace argent::graphics
 
 	private:
 
-		void CreateRaytracingRootSignature();
-
 		RasterRenderer raster_renderer_;
 		Raytracer raytracer_;
 		bool on_raster_mode_ = false;
+
+
+	private:
+		//For imgui
+		Descriptor imgui_font_srv_descriptor_;
 	};
 }

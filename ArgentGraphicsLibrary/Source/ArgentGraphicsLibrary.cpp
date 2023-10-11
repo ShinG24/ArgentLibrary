@@ -4,7 +4,13 @@
 
 #include "../External/d3dx12.h"
 
+//Imgui
+#include "../External/Imgui/imgui_impl_win32.h"
+#include "../External/Imgui/imgui_impl_dx12.h"
+#include "../External/Imgui/imgui.h"
+
 #include "../Inc/ShaderCompiler.h"
+
 
 
 #pragma comment(lib, "DXGI.lib")
@@ -35,7 +41,8 @@ namespace argent::graphics
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
 
 		RECT rect{};
-		GetWindowRect(hwnd_, &rect);
+		GetClientRect(hwnd_, &rect);
+		//GetWindowRect(hwnd_, &rect);
 		viewport_ = D3D12_VIEWPORT(0.0f, 0.0f, static_cast<FLOAT>(rect.right - rect.left), 
 			static_cast<FLOAT>(rect.bottom - rect.top), 0.0f, 1.0f);
 		scissor_rect_ = D3D12_RECT(rect);
@@ -46,10 +53,14 @@ namespace argent::graphics
 		raytracer_.Awake(graphics_device_, resource_upload_command_list_,
 			resource_upload_queue_, fence_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
 			cbv_srv_uav_heap_);
+
+
+		ImguiAwake();
 	}
 
 	void GraphicsLibrary::Shutdown()
 	{
+		ImguiShutdown();
 		INT last_back_buffer_index = static_cast<INT>(back_buffer_index_) - 1;
 		if(last_back_buffer_index < 0) { last_back_buffer_index = kNumBackBuffers; }
 		fence_.WaitForGpu(last_back_buffer_index);
@@ -68,17 +79,22 @@ namespace argent::graphics
 
 		frame_resources_[back_buffer_index_].Activate(command_list);
 
-		command_list.GetCommandList()->RSSetViewports(1u, &viewport_);
-		command_list.GetCommandList()->RSSetScissorRects(1u, &scissor_rect_);
+		command_list.SetViewports(1u, &viewport_);
+		command_list.SetRects(1u, &scissor_rect_);
 
-		std::vector<ID3D12DescriptorHeap*> heaps = { cbv_srv_uav_heap_.GetDescriptorHeapObject() };
+		std::vector heaps = { cbv_srv_uav_heap_.GetDescriptorHeapObject() };
 		command_list.GetCommandList()->SetDescriptorHeaps(1u, heaps.data());
+
+		//For ImGui
+		ImguiFrameBegin();
 
 		OnRender();
 	}
 
 	void GraphicsLibrary::FrameEnd()
 	{
+		ImguiFrameEnd();
+
 		auto& command_list = graphics_command_list_[back_buffer_index_];
 
 		frame_resources_[back_buffer_index_].Deactivate(command_list);
@@ -99,6 +115,7 @@ namespace argent::graphics
 			fence_.GetFence()->SetEventOnCompletion(fence_value_, event_handler);
 			WaitForSingleObject(event_handler, INFINITE);
 		}
+
 		swap_chain_.Present();
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
 	}
@@ -120,16 +137,16 @@ namespace argent::graphics
 			D3D12_RESOURCE_BARRIER resource_barrier{};
 			resource_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 			resource_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
 			resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
 			resource_barrier.Transition.pResource = frame_resources_[back_buffer_index_].GetBackBuffer();
 			command_list->ResourceBarrier(1u, &resource_barrier);
 
 			command_list->CopyResource(frame_resources_[back_buffer_index_].GetBackBuffer(), 
 				raytracer_.GetOutputBuffer());
 
-			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 			resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 			command_list->ResourceBarrier(1u, &resource_barrier);
 		}
 	}
@@ -168,54 +185,61 @@ namespace argent::graphics
 		debugLayer->Release();
 	}
 
-
-	void GraphicsLibrary::CreateRaytracingRootSignature()
+	void GraphicsLibrary::ImguiAwake()
 	{
-		////Global Root Signature
-		////Shared across all raytracing shaders invoked during a DispatchRays() call.
-		//{
-		//	D3D12_DESCRIPTOR_RANGE uav_descriptor_range;
-		//	uav_descriptor_range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-		//	uav_descriptor_range.NumDescriptors = 1;
-		//	uav_descriptor_range.BaseShaderRegister = 0;
-		//	uav_descriptor_range.RegisterSpace = 0;
-		//	uav_descriptor_range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
 
-		//	D3D12_ROOT_PARAMETER root_parameters[2];
-		//	root_parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		//	root_parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		//	root_parameters[0].DescriptorTable.NumDescriptorRanges = 1;
-		//	root_parameters[0].DescriptorTable.pDescriptorRanges = &uav_descriptor_range;
+		//Add Font file
+		io.Fonts->AddFontFromFileTTF("Assets/Fonts/HGRMB.TTC", 16.0f, nullptr);
 
-		//	root_parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-		//	root_parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		//	root_parameters[1].Descriptor.ShaderRegister = 0u;
-		//	root_parameters[1].Descriptor.RegisterSpace = 0u;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-		//	CD3DX12_ROOT_SIGNATURE_DESC global_root_signature_desc(
-		//		ARRAYSIZE(root_parameters), root_parameters);
+		ImGui::StyleColorsLight();
 
-		//	graphics_device_.SerializeAndCreateRootSignature(global_root_signature_desc,
-		//		raytracing_global_root_signature_.ReleaseAndGetAddressOf());
-		//}
+		ImGuiStyle& style = ImGui::GetStyle();
+		if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_ModalWindowDimBg].w = 1.0f;
+		}
+		style.Colors[ImGuiCol_WindowBg].w = 0.5f;
 
-		////Local Root Signature
-		////enables a shader to have unique arguments that come from shader table
-		//{
-		//	D3D12_ROOT_PARAMETER root_parameters[1];
-		//	root_parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-		//	root_parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		//	root_parameters[0].Constants.Num32BitValues = 8u;
-		//	root_parameters[0].Constants.RegisterSpace = 0;
-		//	root_parameters[0].Constants.ShaderRegister = 0;
+		imgui_font_srv_descriptor_ = cbv_srv_uav_heap_.PopDescriptor();
+		ImGui_ImplWin32_Init(hwnd_);
+		ImGui_ImplDX12_Init(graphics_device_.GetDevice(), kNumBackBuffers, DXGI_FORMAT_R8G8B8A8_UNORM, 
+			cbv_srv_uav_heap_.GetDescriptorHeapObject(), imgui_font_srv_descriptor_.cpu_handle_, 
+			imgui_font_srv_descriptor_.gpu_handle_);
 
-		//	D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
-		//	root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-		//	root_signature_desc.NumParameters = 1;
-		//	root_signature_desc.pParameters = root_parameters;
-		//	graphics_device_.SerializeAndCreateRootSignature(root_signature_desc, 
-		//		raytracing_local_root_signature_.ReleaseAndGetAddressOf());
-		//}
 	}
 
+	void GraphicsLibrary::ImguiShutdown()
+	{
+		ImGui_ImplDX12_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+	}
+
+	void GraphicsLibrary::ImguiFrameBegin()
+	{
+		ImGui_ImplDX12_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_::ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(300.0f, 500.0f), ImGuiCond_::ImGuiCond_Once);
+
+		ImGui::Begin("Imgui");
+	}
+
+
+	void GraphicsLibrary::ImguiFrameEnd()
+	{
+		ImGui::End();
+		ImGui::Render();
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), graphics_command_list_[back_buffer_index_].GetCommandList());
+	}
 }

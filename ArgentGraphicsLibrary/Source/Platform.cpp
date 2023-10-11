@@ -3,8 +3,10 @@
 #include <crtdbg.h>
 #include <Windows.h>
 
+	extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace argent::platform
 {
+
 	LRESULT HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	void Platform::Awake(long window_width, long window_height)
@@ -62,6 +64,8 @@ namespace argent::platform
 		default:
 			break;
 		}
+
+		ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
 
 		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}

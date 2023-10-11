@@ -34,6 +34,8 @@ namespace argent::graphics
 		void SetRenderTargets(UINT num_render_targets,
 		const D3D12_CPU_DESCRIPTOR_HANDLE* p_rtv_handles, bool in_a_row_handle, const D3D12_CPU_DESCRIPTOR_HANDLE* p_dsv_handle) const;
 
+		void SetViewports(UINT num_viewports, const D3D12_VIEWPORT* p_viewport) const;
+		void SetRects(UINT num_rects, const D3D12_RECT* p_rect) const;
 
 		ID3D12GraphicsCommandList* GetCommandList() const { return command_list_.Get(); }
 		ID3D12GraphicsCommandList4* GetCommandList4() const { return command_list_.Get(); }
