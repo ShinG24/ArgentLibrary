@@ -3,6 +3,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "../External/Imgui/imgui.h"
+
 #include "../Inc/GraphicsCommon.h"
 #include "../Inc/GraphicsDevice.h"
 #include "../Inc/GraphicsCommandList.h"
@@ -36,8 +38,20 @@ namespace argent::graphics
 	{
 		//Update Camera
 		{
+			
+			//Draw on ImGui
+			{
+				ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+				ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
+			}
+
+			//Update camera forward direction by the rotation
+			DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
+			DirectX::XMVECTOR F = R.r[2];
+			F = DirectX::XMVector3Normalize(F);
+
 			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
-			DirectX::XMVECTOR Focus = {};
+			DirectX::XMVECTOR Focus = Eye + F;
 			//Focus.m128_f32[2] += 1.0f;
 			DirectX::XMVECTOR Up{ 0, 1, 0, 0 };
 			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
@@ -116,12 +130,11 @@ namespace argent::graphics
 		vertex_buffer_->Unmap(0u, nullptr);
 
 
-		Vertex vertices1[4]
+		Vertex vertices1[3]
 		{
 			{{ -0.3f, 0.8f, 0.3f }, {}},
 			{{ 0.5f, 0.3f, 0.3f }, {}},
 			{{ -0.7f, -0.2f, 0.3f }, {}},
-			{{ 0.4f, -0.5f, 0.3f}, {}},
 		};
 
 
@@ -134,7 +147,6 @@ namespace argent::graphics
 		map1[0] = vertices1[0];
 		map1[1] = vertices1[1];
 		map1[2] = vertices1[2];
-		map1[3] = vertices1[3];
 
 		vertex_buffer1_->Unmap(0u, nullptr);
 
@@ -142,7 +154,7 @@ namespace argent::graphics
 		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
 			{{vertex_buffer_.Get(), 3}});
 		AccelerationStructureBuffers bottom_level_buffer1 = CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(),
-			{  {vertex_buffer1_.Get(), 4} });
+			{  {vertex_buffer1_.Get(), 3} });
 
 
 		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, XMMatrixIdentity()}};
@@ -283,7 +295,7 @@ namespace argent::graphics
 		res_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		res_desc.MipLevels = 1u;
 		res_desc.SampleDesc.Count = 1u;
-		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&default_heap, 
+		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&kDefaultHeapProp, 
 			D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr, 
 			IID_PPV_ARGS(output_buffer_.ReleaseAndGetAddressOf()));
 
@@ -368,7 +380,7 @@ namespace argent::graphics
 		res_desc.SampleDesc.Quality = 0u;
 		res_desc.Width = sbt_size;
 
-		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&upload_heap,
+		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&kUploadHeapProp,
 			D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, 
 			IID_PPV_ARGS(sbt_storage_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create SBT Storage");
@@ -397,9 +409,9 @@ namespace argent::graphics
 			false, &scratch_size_in_bytes, &result_size_in_bytes);
 
 		AccelerationStructureBuffers buffers;
-		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			static_cast<UINT>(scratch_size_in_bytes), D3D12_RESOURCE_STATE_COMMON,buffers.pScratch.ReleaseAndGetAddressOf());
-		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
+		graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			static_cast<UINT>(result_size_in_bytes), D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, 
 			buffers.pResult.ReleaseAndGetAddressOf());
 
@@ -418,21 +430,19 @@ namespace argent::graphics
 				instances[i].second, static_cast<UINT>(i), static_cast<UINT>(i));
 		}
 
-//		int
-
 		UINT64 scratch_size, result_size, instance_desc_size;
 		top_level_as_generator_.ComputeASBufferSizes(graphics_device.GetLatestDevice(), 
 			true, &scratch_size, &result_size, &instance_desc_size);
 
 
-		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
+		graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			static_cast<UINT>(scratch_size), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, top_level_as_buffer_.pScratch.ReleaseAndGetAddressOf());
 		
-		graphics_device.CreateBuffer(default_heap, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
+		graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			static_cast<UINT>(result_size), D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
 			top_level_as_buffer_.pResult.ReleaseAndGetAddressOf());
 		
-		graphics_device.CreateBuffer(upload_heap, D3D12_RESOURCE_FLAG_NONE, 
+		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
 			static_cast<UINT>(instance_desc_size), D3D12_RESOURCE_STATE_GENERIC_READ, 
 			top_level_as_buffer_.pInstanceDesc.ReleaseAndGetAddressOf());
 

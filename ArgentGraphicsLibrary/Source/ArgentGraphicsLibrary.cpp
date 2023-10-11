@@ -207,7 +207,10 @@ namespace argent::graphics
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_ModalWindowDimBg].w = 1.0f;
 		}
-		style.Colors[ImGuiCol_WindowBg].w = 0.5f;
+		style.Colors[ImGuiCol_WindowBg].w = 0.7f;
+		style.Colors[ImGuiCol_FrameBg].w = 0.7f;
+		style.Colors[ImGuiCol_TitleBgActive].w = 0.7f;
+
 
 		imgui_font_srv_descriptor_ = cbv_srv_uav_heap_.PopDescriptor();
 		ImGui_ImplWin32_Init(hwnd_);

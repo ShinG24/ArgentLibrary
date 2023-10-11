@@ -154,11 +154,13 @@ namespace argent::graphics
 		};
 		ConstantBuffer<SceneConstant> scene_constant_buffer_;
 
+		//Camera
 		DirectX::XMFLOAT4 camera_position_{ 0.0, 0.0f, -10.0f, 1.0f };
 		float near_z_ = 0.001f;
 		float far_z_ = 1000.0f;
 		float fov_angle_ = 60.0f;
 		float aspect_ratio_ = 16.0f / 9.0f;
+		DirectX::XMFLOAT3 camera_rotation_{};
 
 	//	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptor_heap_;
 
@@ -171,8 +173,6 @@ namespace argent::graphics
 			float3 position_;
 			float4 color_;
 		};
-
-
 
 
 		//In Tutorial
@@ -189,9 +189,5 @@ namespace argent::graphics
 		void CreateTopLevelAs(const GraphicsDevice& graphics_device,
 		ID3D12GraphicsCommandList4* command_list,
 		const std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>>& instances);
-
-
-		D3D12_HEAP_PROPERTIES default_heap{D3D12_HEAP_TYPE_DEFAULT, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0u, 0u };
-		D3D12_HEAP_PROPERTIES upload_heap{D3D12_HEAP_TYPE_UPLOAD, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0u, 0u };
 	};
 }
