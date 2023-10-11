@@ -20,7 +20,10 @@ namespace argent::graphics
 	{
 		width_ = width;
 		height_ = height;
-		
+
+		scene_constant_buffer_.Awake(graphics_device, cbv_srv_uav_descriptor_heap);
+
+
 		CreateAS(graphics_device, command_list, command_queue, fence);
 		CreatePipeline(graphics_device);
 		CreateOutputBuffer(graphics_device, width, height);
@@ -34,11 +37,11 @@ namespace argent::graphics
 		//Update Camera
 		{
 			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
-			DirectX::XMVECTOR Focus = Eye;
-			Focus.m128_f32[2] += 1.0f;
+			DirectX::XMVECTOR Focus = {};
+			//Focus.m128_f32[2] += 1.0f;
 			DirectX::XMVECTOR Up{ 0, 1, 0, 0 };
 			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
-			auto proj = DirectX::XMMatrixPerspectiveFovLH(fov_angle_, aspect_ratio_, near_z_, far_z_);
+			auto proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov_angle_), aspect_ratio_, near_z_, far_z_);
 
 			SceneConstant data{};
 			data.camera_position_ = camera_position_;
@@ -135,8 +138,6 @@ namespace argent::graphics
 
 		vertex_buffer1_->Unmap(0u, nullptr);
 
-
-
 		AccelerationStructureBuffers bottom_level_buffer = 
 		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
 			{{vertex_buffer_.Get(), 3}});
@@ -201,9 +202,11 @@ namespace argent::graphics
 				{
 					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+				//	{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 				}
 			);
+
+			rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
 
 			ray_gen_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
 		}
@@ -293,7 +296,7 @@ namespace argent::graphics
 		output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
-		scene_constant_buffer_.Awake(graphics_device, cbv_srv_uav_descriptor_heap);
+		
 
 #if 0 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
