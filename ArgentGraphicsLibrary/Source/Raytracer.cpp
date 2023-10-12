@@ -107,7 +107,7 @@ namespace argent::graphics
 			//OutputBuffer & TLAS
 			command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
 			command_list->SetComputeRootDescriptorTable(1u, scene_constant_buffer_.GetGpuHandle(0u));
-			command_list->SetComputeRootDescriptorTable(2u, cube_vertex_descriptor_.gpu_handle_);
+		//	command_list->SetComputeRootDescriptorTable(2u, cube_vertex_descriptor_.gpu_handle_);
 		}
 
 		command_list->SetPipelineState1(raytracing_state_object_.Get());
@@ -353,10 +353,10 @@ namespace argent::graphics
 			);
 
 			rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
-			rsc.AddHeapRangesParameter(
-				{
-					{ 1, 2u, 0u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			});
+			//rsc.AddHeapRangesParameter(
+			//	{
+			//		{ 1, 2u, 0u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
+			//});
 
 			dummy_global_root_signature_ = rsc.Generate(graphics_device.GetDevice(), false);
 
@@ -395,7 +395,7 @@ namespace argent::graphics
 
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
-			//rsc.AddHeapRangesParameter({{0u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
+			rsc.AddHeapRangesParameter({{0u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
 			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
 		}
 
@@ -537,7 +537,7 @@ namespace argent::graphics
 		sbt_generator_.AddMissProgram(L"Miss", {});
 		sbt_generator_.AddHitGroup(L"HitGroup", {/*{(void*)(vertex_buffer_->GetGPUVirtualAddress())},*/ });
 		sbt_generator_.AddHitGroup(L"HitGroup1", {/*{(void*)(vertex_buffer1_->GetGPUVirtualAddress())}*/});
-		sbt_generator_.AddHitGroup(L"HitGroup2", {/*{(void*)(cube_index_descriptor_.gpu_handle_.ptr)}*/});
+		sbt_generator_.AddHitGroup(L"HitGroup2", {{(void*)(cube_vertex_descriptor_.gpu_handle_.ptr)}});
 		//sbt_generator_.AddHitGroup(L"HitGroup2", {{(void*)(vertex_buffer2_->GetGPUVirtualAddress())}});
 
 

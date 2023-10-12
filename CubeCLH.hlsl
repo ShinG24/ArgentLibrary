@@ -6,8 +6,18 @@ struct Vertex
     float3 normal_;
 };
 
+#define _USE_LOCAL_ROOT_SIGNATURE 0
+
+#if _USE_LOCAL_ROOT_SIGNATURE
 StructuredBuffer<Vertex> vertices : register(t1);
 ByteAddressBuffer Indices : register(t2);
+
+#else
+
+StructuredBuffer<Vertex> vertices : register(t0, space1);
+ByteAddressBuffer Indices : register(t1, space1);
+
+#endif
 
 struct SceneConstant
 {
@@ -81,6 +91,8 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     //float3 light_direction = float3(1.0, -1.0, 1.0);
     //float3 light_direction = normalize(float3(1.0f, -1.0f, 1.0f));
     //float3 pixel_to_light = normalize(scene_constant.light_position_ - hit_position);
+
+    
 
     float fNDotL = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
     //float fNDotL = max(0.0f, dot(pixel_to_light, triangle_normal));
