@@ -25,6 +25,8 @@ namespace argent::graphics
 
 		scene_constant_buffer_.Awake(graphics_device, cbv_srv_uav_descriptor_heap);
 
+		cube_vertex_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		cube_index_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
 		CreateAS(graphics_device, command_list, command_queue, fence);
 		CreatePipeline(graphics_device);
@@ -42,6 +44,7 @@ namespace argent::graphics
 			{
 				ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
 				ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
+				ImGui::DragFloat3("Light", &light_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
 			}
 
 			//Update camera forward direction by the rotation
@@ -59,6 +62,7 @@ namespace argent::graphics
 			SceneConstant data{};
 			data.camera_position_ = camera_position_;
 			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
+			data.light_position_ = light_position_; 
 
 			scene_constant_buffer_.Update(data, 0);
 		}
@@ -89,6 +93,7 @@ namespace argent::graphics
 		uint32_t hit_group_section_size = sbt_generator_.GetHitGroupSectionSize();
 		desc.HitGroupTable.StartAddress = sbt_storage_->GetGPUVirtualAddress() +
 			ray_generation_section_size_in_bytes + miss_section_size_in_bytes;
+		//desc.HitGroupTable.StartAddress = _ALIGNMENT_(desc.HitGroupTable.StartAddress, 64);
 		desc.HitGroupTable.SizeInBytes = hit_group_section_size;
 		desc.HitGroupTable.StrideInBytes = sbt_generator_.GetHitGroupEntrySize();
 
@@ -102,6 +107,7 @@ namespace argent::graphics
 			//OutputBuffer & TLAS
 			command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
 			command_list->SetComputeRootDescriptorTable(1u, scene_constant_buffer_.GetGpuHandle(0u));
+			command_list->SetComputeRootDescriptorTable(2u, cube_vertex_descriptor_.gpu_handle_);
 		}
 
 		command_list->SetPipelineState1(raytracing_state_object_.Get());
@@ -169,7 +175,7 @@ namespace argent::graphics
 
 		//Cube
 		{
-			UINT32 indices[] =
+			UINT16 indices[] =
 		    {
 		        3,1,0,
 		        2,1,3,
@@ -226,7 +232,7 @@ namespace argent::graphics
 
 
 			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 24, vertex_buffer2_.ReleaseAndGetAddressOf(), vertex_buffer_view2_);
-			graphics_device.CreateIndexBufferAndView(sizeof(UINT16), 36, DXGI_FORMAT_R32_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
+			graphics_device.CreateIndexBufferAndView(sizeof(UINT16), 36, DXGI_FORMAT_R16_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
 
 			Vertex* map;
 			vertex_buffer2_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
@@ -235,9 +241,24 @@ namespace argent::graphics
 
 			UINT16* i_map;
 			index_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&i_map));
-			memcpy(i_map, indices, sizeof(UINT32) * 36);
+			memcpy(i_map, indices, sizeof(UINT16) * 36);
 			index_buffer_->Unmap(0u, nullptr);
 
+			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+			desc.Format = DXGI_FORMAT_UNKNOWN;
+			desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+			desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+			desc.Buffer.NumElements = 24;
+			desc.Buffer.StructureByteStride = sizeof(Vertex);
+			graphics_device.GetDevice()->CreateShaderResourceView(vertex_buffer2_.Get(), &desc, cube_vertex_descriptor_.cpu_handle_);
+
+			desc.Format = DXGI_FORMAT_R32_TYPELESS;
+			desc.Buffer.NumElements = 36 / 4;
+			//desc.Buffer.NumElements = 36;
+			desc.Buffer.StructureByteStride = 0;
+			desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
+			graphics_device.GetDevice()->CreateShaderResourceView(index_buffer_.Get(), &desc, cube_index_descriptor_.cpu_handle_);
 		}
 	}
 
@@ -332,6 +353,10 @@ namespace argent::graphics
 			);
 
 			rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
+			rsc.AddHeapRangesParameter(
+				{
+					{ 1, 2u, 0u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
+			});
 
 			dummy_global_root_signature_ = rsc.Generate(graphics_device.GetDevice(), false);
 
@@ -362,46 +387,28 @@ namespace argent::graphics
 		pipeline.AddLibrary(hit1_library_.Get(), {L"ClosestHit1"});
 		pipeline.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
 
-		//RayGen signature
+		//Shared root signature
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
-
-			//rsc.AddHeapRangesParameter(
-			//	{
-			//		{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-			//		{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-			//	//	{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-			//	}
-			//);
-
-			//rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
-
-			ray_gen_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
+			shared_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
 		}
 
-		//Miss Signature
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
-			miss_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
-		}
-
-		//Hit Signature
-		{
-			nv_helpers_dx12::RootSignatureGenerator rsc;
-			//rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV);
-			hit_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
-		//	hit1_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
+			//rsc.AddHeapRangesParameter({{0u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
+			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
 		}
 
 		pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
 		pipeline.AddHitGroup(L"HitGroup1", L"ClosestHit1");
 		pipeline.AddHitGroup(L"HitGroup2", L"CubeHit");
 
-		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"RayGen"});
+		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"RayGen"});
 
 #if 1
-		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"Miss"});
-		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}, {L"HitGroup2"}});
+		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"Miss"});
+		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}});
+		pipeline.AddRootSignatureAssociation(hit_local_root_signature_.Get(), { {L"HitGroup2"}});
 
 #else
 
@@ -473,15 +480,15 @@ namespace argent::graphics
 	{
 		output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+#if 0
 
-		
-
-#if 0 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
 		uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
 			nullptr, &uav_desc, srv_handle);
+
 #else
+
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
 		uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
@@ -516,7 +523,7 @@ namespace argent::graphics
 		//D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = descriptor_heap_->GetGPUDescriptorHandleForHeapStart();
 		D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = output_descriptor_.gpu_handle_;
 
-		auto heap_pointer = reinterpret_cast<UINT64**>(srv_uav_heap_handle.ptr);
+		//auto heap_pointer = reinterpret_cast<UINT64**>(srv_uav_heap_handle.ptr);
 
 #if 0 
 		auto heap_pointer1 = reinterpret_cast<UINT64**>(tlas_result_descriptor_.gpu_handle_.ptr);
@@ -524,13 +531,14 @@ namespace argent::graphics
 
 		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}, { heap_pointer1 }, { heap_pointer2 } });
 #else
-		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}});
+		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{/*heap_pointer*/}});
 #endif
 
 		sbt_generator_.AddMissProgram(L"Miss", {});
-		sbt_generator_.AddHitGroup(L"HitGroup", {{(void*)(vertex_buffer_->GetGPUVirtualAddress())}, });
-		sbt_generator_.AddHitGroup(L"HitGroup1", {(void*)(vertex_buffer1_->GetGPUVirtualAddress())});
-		sbt_generator_.AddHitGroup(L"HitGroup2", {(void*)(vertex_buffer2_->GetGPUVirtualAddress())});
+		sbt_generator_.AddHitGroup(L"HitGroup", {/*{(void*)(vertex_buffer_->GetGPUVirtualAddress())},*/ });
+		sbt_generator_.AddHitGroup(L"HitGroup1", {/*{(void*)(vertex_buffer1_->GetGPUVirtualAddress())}*/});
+		sbt_generator_.AddHitGroup(L"HitGroup2", {/*{(void*)(cube_index_descriptor_.gpu_handle_.ptr)}*/});
+		//sbt_generator_.AddHitGroup(L"HitGroup2", {{(void*)(vertex_buffer2_->GetGPUVirtualAddress())}});
 
 
 		UINT sbt_size = sbt_generator_.ComputeSBTSize();

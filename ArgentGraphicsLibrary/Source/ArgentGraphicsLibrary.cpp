@@ -54,7 +54,6 @@ namespace argent::graphics
 			resource_upload_queue_, fence_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
 			cbv_srv_uav_heap_);
 
-
 		ImguiAwake();
 	}
 

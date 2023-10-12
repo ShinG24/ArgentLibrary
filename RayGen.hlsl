@@ -10,6 +10,7 @@ struct SceneConstant
 {
     row_major float4x4 inv_view_projection_;
     float4 camera_position_;
+    float4 light_position_;
 };
 
 ConstantBuffer<SceneConstant> scene_constant : register(b0);

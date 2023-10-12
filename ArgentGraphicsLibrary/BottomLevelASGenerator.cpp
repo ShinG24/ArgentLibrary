@@ -106,7 +106,7 @@ void BottomLevelASGenerator::AddVertexBuffer(
       indexBuffer ? (indexBuffer->GetGPUVirtualAddress() + indexOffsetInBytes)
                   : 0;
   descriptor.Triangles.IndexFormat =
-      indexBuffer ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_UNKNOWN;
+      indexBuffer ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_UNKNOWN;
   descriptor.Triangles.IndexCount = indexCount;
   descriptor.Triangles.Transform3x4 =
       transformBuffer

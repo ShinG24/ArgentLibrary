@@ -99,7 +99,7 @@ namespace argent::graphics
 	}
 
 	void GraphicsDevice::CreateVertexBufferAndView(UINT size_of_data_type, UINT num_data, ID3D12Resource** pp_vertex_buffer,
-		D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const
+	                                               D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const
 	{
 		CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, size_of_data_type * num_data, D3D12_RESOURCE_STATE_GENERIC_READ, pp_vertex_buffer);
 

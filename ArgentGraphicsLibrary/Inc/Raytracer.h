@@ -127,12 +127,12 @@ namespace argent::graphics
 		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view2_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> index_buffer_;
 		D3D12_INDEX_BUFFER_VIEW index_buffer_view_;
+		Descriptor cube_vertex_descriptor_;
+		Descriptor cube_index_descriptor_;
 
 		//Root Signature
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> ray_gen_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_signature_;
-	//	Microsoft::WRL::ComPtr<ID3D12RootSignature> hit1_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> miss_signature_;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> shared_local_root_signature_;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_local_root_signature_;
 
 		//Pipeline
 		Microsoft::WRL::ComPtr<ID3D12StateObject> raytracing_state_object_;
@@ -154,6 +154,7 @@ namespace argent::graphics
 		{
 			DirectX::XMFLOAT4X4 inv_view_projection_;
 			DirectX::XMFLOAT4 camera_position_;
+			DirectX::XMFLOAT4 light_position_;
 		};
 		ConstantBuffer<SceneConstant> scene_constant_buffer_;
 
@@ -164,8 +165,7 @@ namespace argent::graphics
 		float fov_angle_ = 60.0f;
 		float aspect_ratio_ = 16.0f / 9.0f;
 		DirectX::XMFLOAT3 camera_rotation_{};
-
-	//	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptor_heap_;
+		DirectX::XMFLOAT4 light_position_{ 1.0, -1.0f, 1.0f, 1.0f };
 
 
 		UINT64 width_;
