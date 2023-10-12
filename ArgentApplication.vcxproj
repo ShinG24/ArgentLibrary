@@ -154,6 +154,7 @@
     <None Include="Assets\Shader\VertexShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Common.hlsli" />
     <None Include="Hit.hlsl">
       <FileType>Document</FileType>
     </None>

@@ -1,4 +1,4 @@
-#include "Common.hlsl"
+#include "Common.hlsli"
 
 // Raytracing output texture, accessed as a UAV
 RWTexture2D<float4> gOutput : register(u0);
@@ -36,7 +36,7 @@ inline void GenerateCameraRay(uint2 index, out float3 origin, out float3 directi
 
 [shader("raygeneration")] void RayGen() {
   // Initialize the ray payload
-  HitInfo payload;
+  RayPayload payload;
  payload.colorAndDistance = float4(0, 0, 0, 0);
     //payload.colorAndDistance = scene_constant.camera_position_;
 

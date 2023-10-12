@@ -1,4 +1,4 @@
-#include "Common.hlsl"
+#include "Common.hlsli"
 
 struct Vertex
 {
@@ -67,7 +67,7 @@ uint3 Load3x16BitIndices(uint offsetBytes)
 }
 
 
-[shader("closesthit")]void CubeHit(inout HitInfo payload,
+[shader("closesthit")]void CubeHit(inout RayPayload payload,
                                        Attributes attrib)
 {
     float3 hit_position = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
@@ -114,11 +114,20 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     ray.TMin = 0.0001f;
 
     gOutput[DispatchRaysIndex().xy] = float4(payload.colorAndDistance.rgb, 1.f);
-
-
 #if 0
-    // Trace the ray
-    TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
-      0xFF, 0, 1, 0, ray, payload);
+
+    if(payload.num_reflect_ < kMaxReflection)
+    {
+        payload.num_reflect_ += 1;
+	    // Trace the ray
+	    TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+	      0xFF, 0, 1, 0, ray, payload);
+    }
+    
 #endif
+
+    //color += payload.colorAndDistance * 0.3f;
+
+    //gOutput[DispatchRaysIndex().xy] = float4(color.rgb, 1.0f);
+    //payload.colorAndDistance = float4(color, 1.0f);
 }

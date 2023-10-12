@@ -191,6 +191,5 @@ namespace argent::graphics
 		void CreateTopLevelAs(const GraphicsDevice& graphics_device,
 		ID3D12GraphicsCommandList4* command_list,
 		const std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>>& instances);
-		UINT reflection_depth_ = 2u;
 	};
 }

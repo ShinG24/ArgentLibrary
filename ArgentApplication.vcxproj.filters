@@ -30,5 +30,8 @@
     <None Include="Plane.hlsl">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Common.hlsli">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

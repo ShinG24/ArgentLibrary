@@ -1,4 +1,4 @@
-#include "Common.hlsl"
+#include "Common.hlsli"
 
 //struct STriVertex
 //{
@@ -10,7 +10,7 @@
 RaytracingAccelerationStructure SceneBVH : register(t0);
 RWTexture2D<float4> gOutput : register(u0);
 
-[shader("closesthit")]void CLHPlane(inout HitInfo payload,
+[shader("closesthit")]void CLHPlane(inout RayPayload payload,
                                        Attributes attrib)
 {
     //float3 barycentrics =
@@ -38,8 +38,13 @@ RWTexture2D<float4> gOutput : register(u0);
     ray.TMax = 1000.0f;
 
         // Trace the ray
-    TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
-      0xFF, 0, 1, 0, ray, payload);
+
+    if(payload.num_reflect_ < kMaxReflection)
+    {
+        payload.num_reflect_ += 1;
+	    TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+	      0xFF, 0, 1, 0, ray, payload);
+    }
 
     payload.colorAndDistance += color * 0.5f;
     payload.colorAndDistance.w = 1.0f;

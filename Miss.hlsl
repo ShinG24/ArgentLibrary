@@ -1,6 +1,6 @@
-#include "Common.hlsl"
+#include "Common.hlsli"
 
-[shader("miss")] void Miss(inout HitInfo payload
+[shader("miss")] void Miss(inout RayPayload payload
                            : SV_RayPayload) {
   uint2 launchIndex = DispatchRaysIndex().xy;
   float2 dims = float2(DispatchRaysDimensions().xy);
