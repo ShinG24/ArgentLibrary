@@ -8,7 +8,7 @@
 
 //StructuredBuffer<STriVertex> BTriVertex : register(t0);
 
-[shader("closesthit")]void ClosestHit1(inout HitInfo payload,
+[shader("closesthit")]void CLHPlane(inout HitInfo payload,
                                        Attributes attrib)
 {
     //float3 barycentrics =
@@ -20,7 +20,8 @@
     //                BTriVertex[vertId + 2].color * barycentrics.z;
 
 
-	payload.colorAndDistance = float4(0, 1, 0, RayTCurrent());
+    payload.colorAndDistance = float4(0.8f, 0.8f, 0.8f, RayTCurrent());
+	//payload.colorAndDistance = float4(0, 1, 0, RayTCurrent());
 
     //payload.colorAndDistance = float4(hitColor, RayTCurrent());
 }

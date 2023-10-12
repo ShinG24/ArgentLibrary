@@ -97,26 +97,7 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     float fNDotL = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
     //float fNDotL = max(0.0f, dot(pixel_to_light, triangle_normal));
 
-    float3 color = float3(1, 1, 1) * fNDotL;
-
+    float3 color = float3(0.4f, 0.8f, 1.0f) * fNDotL;
 
     payload.colorAndDistance = float4(color, RayTCurrent());
-
-
-    float3 col = abs(index.xyz - 36.0f);
-    col /= 36.0f;
-//payload.colorAndDistance = float4(col, RayTCurrent());
-    triangle_normal = (triangle_normal + 1.0f) * 0.5f;
-  // payload.colorAndDistance = float4(triangle_normal, RayTCurrent()); 
-   
-
-    //float3 barycentrics =
-    //  float3(1.f - attrib.bary.x - attrib.bary.y, attrib.bary.x, attrib.bary.y);
-
-    //uint vertId = 3 * PrimitiveIndex();
-    //float3 hitColor = abs(vertices[vertId + 0].normal_) * barycentrics.x +
-    //                abs(vertices[vertId + 1].normal_) * barycentrics.y +
-    //                abs(vertices[vertId + 2].normal_) * barycentrics.z;
-    //payload.colorAndDistance = float4(hitColor, RayTCurrent());
-    //payload.colorAndDistance = float4(1.0f, attrib.bary, RayTCurrent());
 }

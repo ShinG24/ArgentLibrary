@@ -165,7 +165,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HIt1.hlsl">
+    <None Include="Plane.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

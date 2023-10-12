@@ -378,13 +378,13 @@ namespace argent::graphics
 		shader_compiler.CompileShaderLibrary(L"RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
 		shader_compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"Hit1.hlsl", hit1_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"Plane.hlsl", hit1_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"CubeCLH.hlsl", hit2_library_.ReleaseAndGetAddressOf());
 
 		pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
 		pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
 		pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
-		pipeline.AddLibrary(hit1_library_.Get(), {L"ClosestHit1"});
+		pipeline.AddLibrary(hit1_library_.Get(), {L"CLHPlane"});
 		pipeline.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
 
 		//Shared root signature
@@ -400,7 +400,7 @@ namespace argent::graphics
 		}
 
 		pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
-		pipeline.AddHitGroup(L"HitGroup1", L"ClosestHit1");
+		pipeline.AddHitGroup(L"HitGroup1", L"CLHPlane");
 		pipeline.AddHitGroup(L"HitGroup2", L"CubeHit");
 
 		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"RayGen"});
