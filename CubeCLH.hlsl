@@ -112,11 +112,9 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     ray.Direction = float3(0.0f, -1.0f, 0.0f);
     ray.TMax = 10000.0f;
     ray.TMin = 0.0001f;
-
-    gOutput[DispatchRaysIndex().xy] = float4(payload.colorAndDistance.rgb, 1.f);
 #if 0
 
-    if(payload.num_reflect_ < kMaxReflection)
+    if(payload.num_reflect_ < 2)
     {
         payload.num_reflect_ += 1;
 	    // Trace the ray
@@ -126,8 +124,8 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     
 #endif
 
-    //color += payload.colorAndDistance * 0.3f;
+    color += payload.colorAndDistance * 0.3f;
 
     //gOutput[DispatchRaysIndex().xy] = float4(color.rgb, 1.0f);
-    //payload.colorAndDistance = float4(color, 1.0f);
+    payload.colorAndDistance = float4(color, 1.0f);
 }

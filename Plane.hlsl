@@ -39,13 +39,14 @@ RWTexture2D<float4> gOutput : register(u0);
 
         // Trace the ray
 
-    if(payload.num_reflect_ < kMaxReflection)
+    if (payload.num_reflect_ < 2)
     {
         payload.num_reflect_ += 1;
-	    TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+       // payload.num_reflect_ += 1;
+        TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
 	      0xFF, 0, 1, 0, ray, payload);
     }
 
-    payload.colorAndDistance += color * 0.5f;
+    payload.colorAndDistance += payload.colorAndDistance * 0.3 + color * 0.5f;
     payload.colorAndDistance.w = 1.0f;
 }

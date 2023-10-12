@@ -14,7 +14,7 @@ struct RayPayload
     uint num_reflect_;
 };
 
-const int kMaxReflection = 2;
+static const uint kMaxReflection = 2;
 
 // Attributes output by the raytracing when hitting a surface,
 // here the barycentric coordinates

@@ -38,6 +38,7 @@ inline void GenerateCameraRay(uint2 index, out float3 origin, out float3 directi
   // Initialize the ray payload
   RayPayload payload;
  payload.colorAndDistance = float4(0, 0, 0, 0);
+    payload.num_reflect_ = 0u;
     //payload.colorAndDistance = scene_constant.camera_position_;
 
   // Get the location within the dispatched 2D grid of work items
