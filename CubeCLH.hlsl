@@ -14,6 +14,10 @@ ByteAddressBuffer Indices : register(t2);
 
 #else
 
+
+RaytracingAccelerationStructure SceneBVH : register(t0);
+RWTexture2D<float4> gOutput : register(u0);
+
 StructuredBuffer<Vertex> vertices : register(t0, space1);
 ByteAddressBuffer Indices : register(t1, space1);
 
@@ -100,4 +104,21 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     float3 color = float3(0.4f, 0.8f, 1.0f) * fNDotL;
 
     payload.colorAndDistance = float4(color, RayTCurrent());
+
+
+
+    RayDesc ray;
+    ray.Origin = hit_position;
+    ray.Direction = float3(0.0f, -1.0f, 0.0f);
+    ray.TMax = 10000.0f;
+    ray.TMin = 0.0001f;
+
+    gOutput[DispatchRaysIndex().xy] = float4(payload.colorAndDistance.rgb, 1.f);
+
+
+#if 0
+    // Trace the ray
+    TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+      0xFF, 0, 1, 0, ray, payload);
+#endif
 }

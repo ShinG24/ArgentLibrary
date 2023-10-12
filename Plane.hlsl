@@ -7,6 +7,8 @@
 //};
 
 //StructuredBuffer<STriVertex> BTriVertex : register(t0);
+RaytracingAccelerationStructure SceneBVH : register(t0);
+RWTexture2D<float4> gOutput : register(u0);
 
 [shader("closesthit")]void CLHPlane(inout HitInfo payload,
                                        Attributes attrib)
@@ -20,8 +22,25 @@
     //                BTriVertex[vertId + 2].color * barycentrics.z;
 
 
+
+    float4 color = float4(0.8f, 0.8f, 0.8f, RayTCurrent());
     payload.colorAndDistance = float4(0.8f, 0.8f, 0.8f, RayTCurrent());
 	//payload.colorAndDistance = float4(0, 1, 0, RayTCurrent());
 
     //payload.colorAndDistance = float4(hitColor, RayTCurrent());
+
+    gOutput[DispatchRaysIndex().xy] = float4(payload.colorAndDistance.xyz, 1.0f);
+
+    RayDesc ray;
+    ray.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+    ray.Direction = float3(0.0f, 1.0f, 0.0f);
+    ray.TMin = 0.0001f;
+    ray.TMax = 1000.0f;
+
+        // Trace the ray
+    TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+      0xFF, 0, 1, 0, ray, payload);
+
+    payload.colorAndDistance += color * 0.5f;
+    payload.colorAndDistance.w = 1.0f;
 }

@@ -11,6 +11,7 @@
     
     float ramp = launchIndex.y / dims.y;
 
-	payload.colorAndDistance = float4(1, 0, 0, -1.0);
+    payload.colorAndDistance = float4(payload.colorAndDistance.xyz, RayTCurrent());
+	//payload.colorAndDistance = float4(1, 0, 0, -1.0);
     //payload.colorAndDistance = float4(0.0f, 0.2f, 0.7f - 0.3f * ramp, -1.0f);
 }
