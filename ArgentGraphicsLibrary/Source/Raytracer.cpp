@@ -130,15 +130,20 @@ namespace argent::graphics
 		vertex_buffer_->Unmap(0u, nullptr);
 
 
-		Vertex vertices1[3]
+		float size = 1.0f;
+		Vertex vertices1[6]
 		{
-			{{ -0.3f, 0.8f, 0.3f }, {}},
-			{{ 0.5f, 0.3f, 0.3f }, {}},
-			{{ -0.7f, -0.2f, 0.3f }, {}},
+			{{ -size, 0.0f, size }, {}},
+			{{ size, 0.0f, size }, {}},
+			{{ -size, 0.0f, -size }, {}},
+
+			{{ -size, 0.0f, -size }, {}},
+			{{ size, 0.0f, size }, {}},
+			{{ size, 0.0f, -size }, {}},
 		};
 
 
-		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
+		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 6, 
 			vertex_buffer1_.ReleaseAndGetAddressOf(), vertex_buffer_view1_);
 
 		Vertex* map1;
@@ -147,6 +152,9 @@ namespace argent::graphics
 		map1[0] = vertices1[0];
 		map1[1] = vertices1[1];
 		map1[2] = vertices1[2];
+		map1[3] = vertices1[3];
+		map1[4] = vertices1[4];
+		map1[5] = vertices1[5];
 
 		vertex_buffer1_->Unmap(0u, nullptr);
 
@@ -154,10 +162,15 @@ namespace argent::graphics
 		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
 			{{vertex_buffer_.Get(), 3}});
 		AccelerationStructureBuffers bottom_level_buffer1 = CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(),
-			{  {vertex_buffer1_.Get(), 3} });
+			{  {vertex_buffer1_.Get(), 6} });
 
+		DirectX::XMFLOAT3 pos{ 0.0f, -10.0f, 0.0f };
+		DirectX::XMFLOAT3 scale{ 100.0f, 100.0f, 100.0f };
 
-		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, XMMatrixIdentity()}};
+		DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
+		DirectX::XMMATRIX S = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+		
+		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, S * T}};
 		CreateTopLevelAs(graphics_device, command_list.GetCommandList4(), instances_);
 
 		//Execute Command list
