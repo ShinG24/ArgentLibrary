@@ -93,8 +93,8 @@ uint3 Load3x16BitIndices(uint offsetBytes)
 
     float3 col = abs(index.xyz - 36.0f);
     col /= 36.0f;
-payload.colorAndDistance = float4(col, RayTCurrent());
-
+//payload.colorAndDistance = float4(col, RayTCurrent());
+    triangle_normal = (triangle_normal + 1.0f) * 0.5f;
   // payload.colorAndDistance = float4(triangle_normal, RayTCurrent()); 
    
 

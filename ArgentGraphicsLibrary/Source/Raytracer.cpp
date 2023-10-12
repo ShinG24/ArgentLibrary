@@ -253,11 +253,11 @@ namespace argent::graphics
 			desc.Buffer.StructureByteStride = sizeof(Vertex);
 			graphics_device.GetDevice()->CreateShaderResourceView(vertex_buffer2_.Get(), &desc, cube_vertex_descriptor_.cpu_handle_);
 
-			desc.Format = DXGI_FORMAT_R32_TYPELESS;
-			desc.Buffer.NumElements = 36 / 4;
+			desc.Format = DXGI_FORMAT_R16_UINT;
+			desc.Buffer.NumElements = 36;
 			//desc.Buffer.NumElements = 36;
 			desc.Buffer.StructureByteStride = 0;
-			desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
+			//desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
 			graphics_device.GetDevice()->CreateShaderResourceView(index_buffer_.Get(), &desc, cube_index_descriptor_.cpu_handle_);
 		}
 	}
