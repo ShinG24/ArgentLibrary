@@ -169,7 +169,7 @@ namespace argent::graphics
 
 		//Cube
 		{
-			UINT16 indices[] =
+			UINT32 indices[] =
 		    {
 		        3,1,0,
 		        2,1,3,
@@ -226,7 +226,7 @@ namespace argent::graphics
 
 
 			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 24, vertex_buffer2_.ReleaseAndGetAddressOf(), vertex_buffer_view2_);
-			graphics_device.CreateIndexBufferAndView(sizeof(UINT16), 32, DXGI_FORMAT_R16_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
+			graphics_device.CreateIndexBufferAndView(sizeof(UINT16), 36, DXGI_FORMAT_R32_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
 
 			Vertex* map;
 			vertex_buffer2_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
@@ -235,7 +235,7 @@ namespace argent::graphics
 
 			UINT16* i_map;
 			index_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&i_map));
-			memcpy(i_map, indices, sizeof(UINT16) * 32);
+			memcpy(i_map, indices, sizeof(UINT32) * 36);
 			index_buffer_->Unmap(0u, nullptr);
 
 		}
@@ -253,12 +253,13 @@ namespace argent::graphics
 		AccelerationStructureBuffers bottom_level_buffer1 = CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(),
 			{  {vertex_buffer1_.Get(), 6} });
 
-		AccelerationStructureBuffers bottom_level_buffer2;
+		AccelerationStructureBuffers bottom_level_buffer2/* = CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
+			{{vertex_buffer2_.Get(), 24}})*/;
 		{
 			nv_helpers_dx12::BottomLevelASGenerator bottom_level_as;
 
 			bottom_level_as.AddVertexBuffer(vertex_buffer2_.Get(), 0u, 24,
-					sizeof(Vertex), index_buffer_.Get(), 2, 32, nullptr, 0u);
+					sizeof(Vertex), index_buffer_.Get(), 0u, 36, nullptr, 0u);
 			
 			UINT64 scratch_size_in_bytes = 0u;
 			UINT64 result_size_in_bytes = 0u;
@@ -283,8 +284,11 @@ namespace argent::graphics
 
 		DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 		DirectX::XMMATRIX S = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+
+		DirectX::XMFLOAT3 pos1{3.0f, 0.0f, 0.0f};
+		DirectX::XMMATRIX T1 = DirectX::XMMatrixTranslation(pos1.x, pos1.y, pos1.z);
 		
-		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, S * T},{ bottom_level_buffer2.pResult, XMMatrixIdentity()}, };
+		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, S * T},{ bottom_level_buffer2.pResult, T1}, };
 		CreateTopLevelAs(graphics_device, command_list.GetCommandList4(), instances_);
 
 		//Execute Command list
@@ -350,11 +354,13 @@ namespace argent::graphics
 		shader_compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"Hit1.hlsl", hit1_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"CubeCLH.hlsl", hit2_library_.ReleaseAndGetAddressOf());
 
 		pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
 		pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
 		pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
 		pipeline.AddLibrary(hit1_library_.Get(), {L"ClosestHit1"});
+		pipeline.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
 
 		//RayGen signature
 		{
@@ -389,12 +395,13 @@ namespace argent::graphics
 
 		pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
 		pipeline.AddHitGroup(L"HitGroup1", L"ClosestHit1");
+		pipeline.AddHitGroup(L"HitGroup2", L"CubeHit");
 
 		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"RayGen"});
 
 #if 1
 		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"Miss"});
-		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}});
+		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}, {L"HitGroup2"}});
 
 #else
 
@@ -519,9 +526,11 @@ namespace argent::graphics
 #else
 		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}});
 #endif
+
 		sbt_generator_.AddMissProgram(L"Miss", {});
 		sbt_generator_.AddHitGroup(L"HitGroup", {{(void*)(vertex_buffer_->GetGPUVirtualAddress())}, });
-		sbt_generator_.AddHitGroup(L"HitGroup1", {{(void*)(vertex_buffer1_->GetGPUVirtualAddress())}});
+		sbt_generator_.AddHitGroup(L"HitGroup1", {(void*)(vertex_buffer1_->GetGPUVirtualAddress())});
+		sbt_generator_.AddHitGroup(L"HitGroup2", {(void*)(vertex_buffer2_->GetGPUVirtualAddress())});
 
 
 		UINT sbt_size = sbt_generator_.ComputeSBTSize();

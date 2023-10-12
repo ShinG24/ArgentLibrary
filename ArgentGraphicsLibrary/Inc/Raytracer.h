@@ -106,6 +106,7 @@ namespace argent::graphics
 
 		Microsoft::WRL::ComPtr<IDxcBlob> hit_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> hit1_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> hit2_library_;
 		Library hit_library_data_;
 		D3D12_HIT_GROUP_DESC hit_group_desc_;
 		RootSignatureAssociation hit_association_;
