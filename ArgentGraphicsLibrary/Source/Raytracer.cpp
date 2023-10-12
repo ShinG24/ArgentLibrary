@@ -38,7 +38,6 @@ namespace argent::graphics
 	{
 		//Update Camera
 		{
-			
 			//Draw on ImGui
 			{
 				ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
@@ -114,57 +113,139 @@ namespace argent::graphics
 		command_list->ResourceBarrier(1, &resource_barrier);
 	}
 
+	void Raytracer::BuildGeometry(const GraphicsDevice& graphics_device)
+	{
+		//Polygon
+		{
+			Vertex vertices[3]
+			{
+				 {{0.0f, 0.6f, 0.5f}, {}},
+	        {{0.25f, -0.6f, 0.5f}, {}},
+	        {{-0.25f, -0.6f, 0.5f}, {}}
+			};
+
+			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
+				vertex_buffer_.ReleaseAndGetAddressOf(), vertex_buffer_view_);
+
+			Vertex* map;
+			vertex_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+			map[0] = vertices[0];
+			map[1] = vertices[1];
+			map[2] = vertices[2];
+
+			vertex_buffer_->Unmap(0u, nullptr);
+		}
+
+		//Plane
+		{
+			Vertex vertices1[6]
+			{
+				{{ -1.0f, 0.0f, 1.0f }, {}},
+				{{ 1.0f, 0.0f, 1.0f }, {}},
+				{{ -1.0f, 0.0f, -1.0f }, {}},
+
+				{{ -1.0f, 0.0f, -1.0f }, {}},
+				{{ 1.0f, 0.0f, 1.0f }, {}},
+				{{ 1.0f, 0.0f, -1.0f }, {}},
+			};
+
+
+			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 6, 
+				vertex_buffer1_.ReleaseAndGetAddressOf(), vertex_buffer_view1_);
+
+			Vertex* map1;
+			vertex_buffer1_->Map(0u, nullptr, reinterpret_cast<void**>(&map1));
+
+			map1[0] = vertices1[0];
+			map1[1] = vertices1[1];
+			map1[2] = vertices1[2];
+			map1[3] = vertices1[3];
+			map1[4] = vertices1[4];
+			map1[5] = vertices1[5];
+
+			vertex_buffer1_->Unmap(0u, nullptr);
+		}
+
+		//Cube
+		{
+			UINT16 indices[] =
+		    {
+		        3,1,0,
+		        2,1,3,
+
+		        6,4,5,
+		        7,4,6,
+
+		        11,9,8,
+		        10,9,11,
+
+		        14,12,13,
+		        15,12,14,
+
+		        19,17,16,
+		        18,17,19,
+
+		        22,20,21,
+		        23,20,22
+		    };
+
+		    // Cube vertices positions and corresponding triangle normals.
+		    Vertex vertices[] =
+		    {
+		        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
+		        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
+		        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
+		        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
+
+		        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
+		        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
+		        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
+		        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
+
+		        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
+		        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
+		        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
+		        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
+
+		        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+		        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+		        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+		        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+
+		        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
+		        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
+		        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
+		        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
+
+		        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
+		        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
+		        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
+		        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
+		    };
+
+
+			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 24, vertex_buffer2_.ReleaseAndGetAddressOf(), vertex_buffer_view2_);
+			graphics_device.CreateIndexBufferAndView(sizeof(UINT16), 32, DXGI_FORMAT_R16_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
+
+			Vertex* map;
+			vertex_buffer2_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+			memcpy(map, vertices, sizeof(Vertex) * 24);
+			vertex_buffer2_->Unmap(0u, nullptr);
+
+			UINT16* i_map;
+			index_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&i_map));
+			memcpy(i_map, indices, sizeof(UINT16) * 32);
+			index_buffer_->Unmap(0u, nullptr);
+
+		}
+	}
+
 	void Raytracer::CreateAS(const GraphicsDevice& graphics_device, 
 	                         GraphicsCommandList& command_list, const CommandQueue& command_queue, 
 	                         Fence& fence)
 	{
-		Vertex vertices[3]
-		{
-			 {{0.0f, 0.6f, 0.5f}, {}},
-        {{0.25f, -0.6f, 0.5f}, {}},
-        {{-0.25f, -0.6f, 0.5f}, {}}
-		};
-
-		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
-			vertex_buffer_.ReleaseAndGetAddressOf(), vertex_buffer_view_);
-
-		Vertex* map;
-		vertex_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
-
-		map[0] = vertices[0];
-		map[1] = vertices[1];
-		map[2] = vertices[2];
-
-		vertex_buffer_->Unmap(0u, nullptr);
-
-
-		float size = 1.0f;
-		Vertex vertices1[6]
-		{
-			{{ -size, 0.0f, size }, {}},
-			{{ size, 0.0f, size }, {}},
-			{{ -size, 0.0f, -size }, {}},
-
-			{{ -size, 0.0f, -size }, {}},
-			{{ size, 0.0f, size }, {}},
-			{{ size, 0.0f, -size }, {}},
-		};
-
-
-		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 6, 
-			vertex_buffer1_.ReleaseAndGetAddressOf(), vertex_buffer_view1_);
-
-		Vertex* map1;
-		vertex_buffer1_->Map(0u, nullptr, reinterpret_cast<void**>(&map1));
-
-		map1[0] = vertices1[0];
-		map1[1] = vertices1[1];
-		map1[2] = vertices1[2];
-		map1[3] = vertices1[3];
-		map1[4] = vertices1[4];
-		map1[5] = vertices1[5];
-
-		vertex_buffer1_->Unmap(0u, nullptr);
+		BuildGeometry(graphics_device);
 
 		AccelerationStructureBuffers bottom_level_buffer = 
 		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
@@ -172,13 +253,38 @@ namespace argent::graphics
 		AccelerationStructureBuffers bottom_level_buffer1 = CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(),
 			{  {vertex_buffer1_.Get(), 6} });
 
+		AccelerationStructureBuffers bottom_level_buffer2;
+		{
+			nv_helpers_dx12::BottomLevelASGenerator bottom_level_as;
+
+			bottom_level_as.AddVertexBuffer(vertex_buffer2_.Get(), 0u, 24,
+					sizeof(Vertex), index_buffer_.Get(), 2, 32, nullptr, 0u);
+			
+			UINT64 scratch_size_in_bytes = 0u;
+			UINT64 result_size_in_bytes = 0u;
+
+			bottom_level_as.ComputeASBufferSizes(graphics_device.GetLatestDevice(), 
+				false, &scratch_size_in_bytes, &result_size_in_bytes);
+
+			AccelerationStructureBuffers buffers;
+			graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+				static_cast<UINT>(scratch_size_in_bytes), D3D12_RESOURCE_STATE_COMMON,buffers.pScratch.ReleaseAndGetAddressOf());
+			graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+				static_cast<UINT>(result_size_in_bytes), D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, 
+				buffers.pResult.ReleaseAndGetAddressOf());
+
+			bottom_level_as.Generate(command_list.GetCommandList4(), buffers.pScratch.Get(), 
+				buffers.pResult.Get(), false, nullptr);
+			bottom_level_buffer2 = buffers;
+		}
+
 		DirectX::XMFLOAT3 pos{ 0.0f, -10.0f, 0.0f };
 		DirectX::XMFLOAT3 scale{ 100.0f, 100.0f, 100.0f };
 
 		DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 		DirectX::XMMATRIX S = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
 		
-		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, S * T}};
+		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, S * T},{ bottom_level_buffer2.pResult, XMMatrixIdentity()}, };
 		CreateTopLevelAs(graphics_device, command_list.GetCommandList4(), instances_);
 
 		//Execute Command list
@@ -192,8 +298,6 @@ namespace argent::graphics
 
 		fence.PutUpFence(command_queue);
 		fence.WaitForGpuInCurrentFrame();
-
-		bottom_level_as_ = bottom_level_buffer.pResult;
 	}
 
 	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)
@@ -287,8 +391,17 @@ namespace argent::graphics
 		pipeline.AddHitGroup(L"HitGroup1", L"ClosestHit1");
 
 		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"RayGen"});
+
+#if 1
+		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), {L"Miss"});
+		pipeline.AddRootSignatureAssociation(ray_gen_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}});
+
+#else
+
 		pipeline.AddRootSignatureAssociation(miss_signature_.Get(), {L"Miss"});
 		pipeline.AddRootSignatureAssociation(hit_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}});
+
+#endif
 	//	pipeline.AddRootSignatureAssociation(hit1_signature_.Get(), {L"HitGroup1"});
 
 		pipeline.SetMaxPayloadSize(4 * sizeof(float));
@@ -407,8 +520,8 @@ namespace argent::graphics
 		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}});
 #endif
 		sbt_generator_.AddMissProgram(L"Miss", {});
-		sbt_generator_.AddHitGroup(L"HitGroup", {(void*)(vertex_buffer_->GetGPUVirtualAddress())});
-		sbt_generator_.AddHitGroup(L"HitGroup1", {(void*)(vertex_buffer1_->GetGPUVirtualAddress())});
+		sbt_generator_.AddHitGroup(L"HitGroup", {{(void*)(vertex_buffer_->GetGPUVirtualAddress())}, });
+		sbt_generator_.AddHitGroup(L"HitGroup1", {{(void*)(vertex_buffer1_->GetGPUVirtualAddress())}});
 
 
 		UINT sbt_size = sbt_generator_.ComputeSBTSize();

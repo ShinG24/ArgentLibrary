@@ -80,6 +80,7 @@ namespace argent::graphics
 
 	private:
 
+		void BuildGeometry(const GraphicsDevice& graphics_device);
 		void CreateAS(const GraphicsDevice& graphics_device, 
 		GraphicsCommandList& command_list, const CommandQueue& command_queue, 
 		Fence& fence);
@@ -111,19 +112,20 @@ namespace argent::graphics
 
 
 		//Vertex
+
+		//Polygon
 		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer_;
 		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view_;
+
+		//Plane
 		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer1_;
 		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view1_;
 
-		//Bottom level AS
-		Microsoft::WRL::ComPtr<ID3D12Resource> blas_scratch_buffer_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> blas_result_buffer_;
-
-		//Top lvel AS
-		Microsoft::WRL::ComPtr<ID3D12Resource> tlas_scratch_buffer_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> tlas_result_buffer_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> tlas_instance_buffer_;
+		//Cube
+		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer2_;
+		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view2_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> index_buffer_;
+		D3D12_INDEX_BUFFER_VIEW index_buffer_view_;
 
 		//Root Signature
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> ray_gen_signature_;
@@ -176,7 +178,6 @@ namespace argent::graphics
 
 
 		//In Tutorial
-		ComPtr<ID3D12Resource> bottom_level_as_;
 		nv_helpers_dx12::TopLevelASGenerator top_level_as_generator_;
 		AccelerationStructureBuffers top_level_as_buffer_;
 		std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>> instances_;

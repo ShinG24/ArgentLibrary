@@ -74,7 +74,8 @@ inline void GenerateCameraRay(uint2 index, out float3 origin, out float3 directi
 
       // Parameter name: RayFlags
       // Flags can be used to specify the behavior upon hitting a surface
-      RAY_FLAG_NONE,
+      RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+      //RAY_FLAG_NONE,
 
       // Parameter name: InstanceInclusionMask
       // Instance inclusion mask, which can be used to mask out some geometry to

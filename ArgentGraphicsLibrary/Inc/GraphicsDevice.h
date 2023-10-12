@@ -47,7 +47,7 @@ namespace argent::graphics
 		                             D3D12_DESCRIPTOR_HEAP_FLAGS heap_flags, D3D12_DESCRIPTOR_HEAP_TYPE heap_type, UINT num_descriptors,
 		                             UINT node_mask = 0) const;
 
-		//TODO
+		//Under developement
 		HRESULT CreateRenderTarget();
 		HRESULT CreateFence(ID3D12Fence** pp_fence, UINT64 initial_fence_value = 0, D3D12_FENCE_FLAGS fence_flags = D3D12_FENCE_FLAG_NONE) const;
 
@@ -55,6 +55,7 @@ namespace argent::graphics
 
 		void CreateVertexBufferAndView(UINT size_of_data_type, UINT num_data, 
 			ID3D12Resource** pp_vertex_buffer, D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const;
+		void CreateIndexBufferAndView(UINT size_of_data_type, UINT num_data, DXGI_FORMAT format, ID3D12Resource** pp_resource, D3D12_INDEX_BUFFER_VIEW& index_buffer_view) const;
 
 		HRESULT CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_FLAGS resource_flags, 
 			UINT size, D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const;

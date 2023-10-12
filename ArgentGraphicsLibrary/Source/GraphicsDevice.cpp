@@ -1,5 +1,7 @@
 #include  "../Inc/GraphicsDevice.h"
 
+#include "../Inc/GraphicsCommon.h"
+
 
 namespace argent::graphics
 {
@@ -75,6 +77,7 @@ namespace argent::graphics
 		return hr;
 	}
 
+	//Under developement
 	HRESULT GraphicsDevice::CreateRenderTarget()
 	{
 		return E_FAIL;
@@ -98,37 +101,25 @@ namespace argent::graphics
 	void GraphicsDevice::CreateVertexBufferAndView(UINT size_of_data_type, UINT num_data, ID3D12Resource** pp_vertex_buffer,
 		D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const
 	{
-		D3D12_HEAP_PROPERTIES heap_prop{};
-		heap_prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heap_prop.CreationNodeMask = 0u;
-		heap_prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-		heap_prop.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-		D3D12_RESOURCE_DESC res_desc{};
-		res_desc.Format = DXGI_FORMAT_UNKNOWN;
-		res_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-		res_desc.Alignment = 0u;
-		res_desc.DepthOrArraySize = 1;
-		res_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		res_desc.Height = 1u;
-		res_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		res_desc.MipLevels = 1u;
-		res_desc.SampleDesc.Count = 1u;
-		res_desc.SampleDesc.Quality = 0u;
-		res_desc.Width = size_of_data_type * num_data;
-		HRESULT hr = device_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, 
-			&res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-			IID_PPV_ARGS(pp_vertex_buffer));
-		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create a Buffer");
+		CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, size_of_data_type * num_data, D3D12_RESOURCE_STATE_GENERIC_READ, pp_vertex_buffer);
 
 		vertex_buffer_view.BufferLocation = (*pp_vertex_buffer)->GetGPUVirtualAddress();
 		vertex_buffer_view.SizeInBytes = size_of_data_type * num_data;
 		vertex_buffer_view.StrideInBytes = size_of_data_type;
 	}
 
+	void GraphicsDevice::CreateIndexBufferAndView(UINT size_of_data_type, UINT num_data, DXGI_FORMAT format, ID3D12Resource** pp_resource, D3D12_INDEX_BUFFER_VIEW& index_buffer_view) const
+	{
+		CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, size_of_data_type * num_data, D3D12_RESOURCE_STATE_GENERIC_READ, pp_resource);
+
+		index_buffer_view.Format = format;
+		index_buffer_view.BufferLocation =(*pp_resource)->GetGPUVirtualAddress();
+		index_buffer_view.SizeInBytes = size_of_data_type * num_data;
+	}
+
 	HRESULT GraphicsDevice::CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, 
-		D3D12_RESOURCE_FLAGS resource_flags, UINT size, 
-		D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const
+	                                     D3D12_RESOURCE_FLAGS resource_flags, UINT size, 
+	                                     D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const
 	{
 		D3D12_RESOURCE_DESC res_desc{};
 		res_desc.Alignment = 0u;
