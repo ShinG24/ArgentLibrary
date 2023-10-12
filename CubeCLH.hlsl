@@ -82,7 +82,7 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     //float3 light_direction = normalize(float3(1.0f, -1.0f, 1.0f));
     //float3 pixel_to_light = normalize(scene_constant.light_position_ - hit_position);
 
-    float fNDotL = max(0.0f, dot(-scene_constant.light_position_, triangle_normal));
+    float fNDotL = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
     //float fNDotL = max(0.0f, dot(pixel_to_light, triangle_normal));
 
     float3 color = float3(1, 1, 1) * fNDotL;
