@@ -171,7 +171,7 @@ namespace argent::graphics
 		struct Vertex
 		{
 			float3 position_;
-			float4 color_;
+			float3 normal_;
 		};
 
 

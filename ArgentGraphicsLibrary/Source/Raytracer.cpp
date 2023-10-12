@@ -97,6 +97,14 @@ namespace argent::graphics
 		desc.Height = height_;
 		desc.Depth = 1;
 
+		//Set Global Raytracing RootSignature Resource
+		{
+			command_list->SetComputeRootSignature(dummy_global_root_signature_.Get());
+			//OutputBuffer & TLAS
+			command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
+			command_list->SetComputeRootDescriptorTable(1u, scene_constant_buffer_.GetGpuHandle(0u));
+		}
+
 		command_list->SetPipelineState1(raytracing_state_object_.Get());
 		command_list->DispatchRays(&desc);
 
@@ -112,9 +120,9 @@ namespace argent::graphics
 	{
 		Vertex vertices[3]
 		{
-			 {{0.0f, 0.6f, 0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
-        {{0.25f, -0.6f, 0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
-        {{-0.25f, -0.6f, 0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}}
+			 {{0.0f, 0.6f, 0.5f}, {}},
+        {{0.25f, -0.6f, 0.5f}, {}},
+        {{-0.25f, -0.6f, 0.5f}, {}}
 		};
 
 		graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
@@ -192,6 +200,7 @@ namespace argent::graphics
 	{
 		//Create Dummy Root Signature
 		{
+#if 0
 			D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
 			root_signature_desc.NumParameters = 0u;
 			root_signature_desc.pParameters = nullptr;
@@ -203,6 +212,30 @@ namespace argent::graphics
 			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
 			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
 				dummy_local_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
+#else
+			nv_helpers_dx12::RootSignatureGenerator rsc;
+
+			rsc.AddHeapRangesParameter(
+				{
+					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+				//	{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+				}
+			);
+
+			rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
+
+			dummy_global_root_signature_ = rsc.Generate(graphics_device.GetDevice(), false);
+
+
+			D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
+			root_signature_desc.NumParameters = 0u;
+			root_signature_desc.pParameters = nullptr;
+
+			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
+				dummy_local_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
+#endif
 		}
 
 		nv_helpers_dx12::RayTracingPipelineGenerator pipeline(graphics_device.GetLatestDevice());
@@ -223,15 +256,15 @@ namespace argent::graphics
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 
-			rsc.AddHeapRangesParameter(
-				{
-					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-				//	{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-				}
-			);
+			//rsc.AddHeapRangesParameter(
+			//	{
+			//		{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+			//		{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+			//	//	{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
+			//	}
+			//);
 
-			rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
+			//rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
 
 			ray_gen_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
 		}
@@ -245,7 +278,7 @@ namespace argent::graphics
 		//Hit Signature
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
-			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV);
+			//rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV);
 			hit_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
 		//	hit1_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
 		}
@@ -262,7 +295,7 @@ namespace argent::graphics
 		pipeline.SetMaxAttributeSize(2 * sizeof(float));
 		pipeline.SetMaxRecursionDepth(1);
 
-		raytracing_state_object_ = pipeline.Generate();
+		raytracing_state_object_ = pipeline.Generate(dummy_global_root_signature_.Get(), dummy_local_root_signature_.Get());
 		HRESULT hr = raytracing_state_object_->QueryInterface(IID_PPV_ARGS(raytracing_state_object_properties_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Query Interface");
 	}
@@ -400,7 +433,6 @@ namespace argent::graphics
 
 
 		sbt_generator_.Generate(sbt_storage_.Get(), raytracing_state_object_properties_.Get());
-
 	}
 
 	AccelerationStructureBuffers Raytracer::CreateBottomLevelAs(
