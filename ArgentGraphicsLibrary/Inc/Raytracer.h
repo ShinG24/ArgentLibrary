@@ -191,5 +191,10 @@ namespace argent::graphics
 		void CreateTopLevelAs(const GraphicsDevice& graphics_device,
 		ID3D12GraphicsCommandList4* command_list,
 		const std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>>& instances);
+
+
+		Microsoft::WRL::ComPtr<ID3D12Resource> raygen_shader_table_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> miss_shader_table_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> hit_shader_table_;
 	};
 }

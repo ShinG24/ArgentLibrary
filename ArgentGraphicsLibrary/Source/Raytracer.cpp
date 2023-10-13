@@ -536,7 +536,7 @@ namespace argent::graphics
 
 		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}, { heap_pointer1 }, { heap_pointer2 } });
 #else
-		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{/*heap_pointer*/}});
+		sbt_generator_.AddRayGenerationProgram(L"RayGen", {});
 #endif
 
 		sbt_generator_.AddMissProgram(L"Miss", {});
@@ -561,13 +561,79 @@ namespace argent::graphics
 		res_desc.SampleDesc.Quality = 0u;
 		res_desc.Width = sbt_size;
 
-		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&kUploadHeapProp,
-			D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, 
-			IID_PPV_ARGS(sbt_storage_.ReleaseAndGetAddressOf()));
-		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create SBT Storage");
+		//HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&kUploadHeapProp,
+		//	D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, 
+		//	IID_PPV_ARGS(sbt_storage_.ReleaseAndGetAddressOf()));
+		//_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create SBT Storage");
+		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sbt_size, D3D12_RESOURCE_STATE_GENERIC_READ, sbt_storage_.ReleaseAndGetAddressOf());
 
 
 		sbt_generator_.Generate(sbt_storage_.Get(), raytracing_state_object_properties_.Get());
+
+
+		return;
+		//Try
+		{
+			//The size Shader Identifier
+			uint shader_record_size =  D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
+
+			//Raygen Table
+			{
+				graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, shader_record_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
+					raygen_shader_table_.ReleaseAndGetAddressOf());
+
+				//Map by 1byte offset
+				uint8_t* map;
+				raygen_shader_table_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+				auto id = raytracing_state_object_properties_->GetShaderIdentifier(L"RayGen");
+				memcpy(map, id, shader_record_size);
+
+				raygen_shader_table_->Unmap(0u, nullptr);
+			}
+
+			//Miss
+			{
+				graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, shader_record_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
+					miss_shader_table_.ReleaseAndGetAddressOf());
+
+				uint8_t* map;
+				miss_shader_table_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+				auto id = raytracing_state_object_properties_->GetShaderIdentifier(L"Miss");
+				memcpy(map, id, shader_record_size);
+
+				miss_shader_table_->Unmap(0u, nullptr);
+			}
+
+			//Hit
+			{
+				uint num_hit_group = 3;
+				uint resource_size = shader_record_size * num_hit_group + 8;
+				resource_size = _ALIGNMENT_(resource_size, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+				graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, resource_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
+					hit_shader_table_.ReleaseAndGetAddressOf());
+
+				uint8_t* map;
+				hit_shader_table_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+				//Map Shader Identifier
+				auto id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup");
+
+				memcpy(map, id, shader_record_size);
+
+				id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup1");
+				memcpy(map + shader_record_size, id, shader_record_size);
+
+				id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup2");
+				memcpy(map + shader_record_size * 2, id, shader_record_size);
+
+				//Map Resource
+				memcpy(map + shader_record_size * 3, (void*)(cube_vertex_descriptor_.gpu_handle_.ptr), 8u);
+
+				hit_shader_table_->Unmap(0u, nullptr);
+			}
+		}
 	}
 
 	AccelerationStructureBuffers Raytracer::CreateBottomLevelAs(
