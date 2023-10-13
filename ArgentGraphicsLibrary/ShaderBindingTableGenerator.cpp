@@ -92,10 +92,15 @@ uint32_t ShaderBindingTableGenerator::ComputeSBTSize()
 
   // The total SBT size is the sum of the entries for ray generation, miss and hit groups, aligned
   // on 256 bytes
-  uint32_t sbtSize = ROUND_UP(m_rayGenEntrySize * static_cast<UINT>(m_rayGen.size()) +
+    //Is it really need to aligned on 256bytes??
+    //There are no error or bug if i does not use 256 aligned size. 
+  uint32_t sbtSize = m_rayGenEntrySize * static_cast<UINT>(m_rayGen.size()) +
                                   m_missEntrySize * static_cast<UINT>(m_miss.size()) +
-                                  m_hitGroupEntrySize * static_cast<UINT>(m_hitGroup.size()),
-                              256);
+                                  m_hitGroupEntrySize * static_cast<UINT>(m_hitGroup.size());
+  //uint32_t sbtSize = ROUND_UP(m_rayGenEntrySize * static_cast<UINT>(m_rayGen.size()) +
+  //                                m_missEntrySize * static_cast<UINT>(m_miss.size()) +
+  //                                m_hitGroupEntrySize * static_cast<UINT>(m_hitGroup.size()),
+  //                            256);
   return sbtSize;
 }
 

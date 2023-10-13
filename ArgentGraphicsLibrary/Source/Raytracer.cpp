@@ -17,6 +17,9 @@
 #include "../../Common.hlsli";
 
 
+#define _USE_SBT_GENERATOR_	0
+
+
 namespace argent::graphics
 {
 	void Raytracer::Awake(const GraphicsDevice& graphics_device, GraphicsCommandList& command_list,
@@ -84,6 +87,8 @@ namespace argent::graphics
 		command_list->ResourceBarrier(1u, &resource_barrier);
 
 		D3D12_DISPATCH_RAYS_DESC desc{};
+
+#if _USE_SBT_GENERATOR_
 		uint32_t ray_generation_section_size_in_bytes = sbt_generator_.GetRayGenSectionSize();
 		desc.RayGenerationShaderRecord.StartAddress = sbt_storage_->GetGPUVirtualAddress();
 		desc.RayGenerationShaderRecord.SizeInBytes = ray_generation_section_size_in_bytes;
@@ -99,6 +104,21 @@ namespace argent::graphics
 		//desc.HitGroupTable.StartAddress = _ALIGNMENT_(desc.HitGroupTable.StartAddress, 64);
 		desc.HitGroupTable.SizeInBytes = hit_group_section_size;
 		desc.HitGroupTable.StrideInBytes = sbt_generator_.GetHitGroupEntrySize();
+
+#else
+
+		desc.RayGenerationShaderRecord.StartAddress = raygen_shader_table_->GetGPUVirtualAddress();
+		desc.RayGenerationShaderRecord.SizeInBytes = 32u;
+
+		desc.MissShaderTable.StartAddress = miss_shader_table_->GetGPUVirtualAddress();
+		desc.MissShaderTable.SizeInBytes = 32u;
+		desc.MissShaderTable.StrideInBytes = 32u;
+
+		desc.HitGroupTable.StartAddress = hit_shader_table_->GetGPUVirtualAddress();
+		desc.HitGroupTable.SizeInBytes = 192u;
+		desc.HitGroupTable.StrideInBytes = 64u;
+
+#endif
 
 		desc.Width = static_cast<UINT>(width_);
 		desc.Height = height_;
@@ -523,55 +543,60 @@ namespace argent::graphics
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
 	{
-		sbt_generator_.Reset();
 
-		//D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = descriptor_heap_->GetGPUDescriptorHandleForHeapStart();
-		D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = output_descriptor_.gpu_handle_;
+#if _USE_SBT_GENERATOR_
+		{
+			sbt_generator_.Reset();
 
-		//auto heap_pointer = reinterpret_cast<UINT64**>(srv_uav_heap_handle.ptr);
+			//D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = descriptor_heap_->GetGPUDescriptorHandleForHeapStart();
+			D3D12_GPU_DESCRIPTOR_HANDLE srv_uav_heap_handle = output_descriptor_.gpu_handle_;
 
-#if 0 
-		auto heap_pointer1 = reinterpret_cast<UINT64**>(tlas_result_descriptor_.gpu_handle_.ptr);
-		auto heap_pointer2 = reinterpret_cast<UINT64**>(scene_constant_buffer_.GetGpuHandle(0).ptr);
+			//auto heap_pointer = reinterpret_cast<UINT64**>(srv_uav_heap_handle.ptr);
 
-		sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}, { heap_pointer1 }, { heap_pointer2 } });
+	#if 0 
+			auto heap_pointer1 = reinterpret_cast<UINT64**>(tlas_result_descriptor_.gpu_handle_.ptr);
+			auto heap_pointer2 = reinterpret_cast<UINT64**>(scene_constant_buffer_.GetGpuHandle(0).ptr);
+
+			sbt_generator_.AddRayGenerationProgram(L"RayGen", {{heap_pointer}, { heap_pointer1 }, { heap_pointer2 } });
+	#else
+			sbt_generator_.AddRayGenerationProgram(L"RayGen", {});
+	#endif
+
+			sbt_generator_.AddMissProgram(L"Miss", {});
+			sbt_generator_.AddHitGroup(L"HitGroup", {/*{(void*)(vertex_buffer_->GetGPUVirtualAddress())},*/ });
+			sbt_generator_.AddHitGroup(L"HitGroup1", {/*{(void*)(vertex_buffer1_->GetGPUVirtualAddress())}*/});
+			sbt_generator_.AddHitGroup(L"HitGroup2", {{(void*)(cube_vertex_descriptor_.gpu_handle_.ptr)}});
+			//sbt_generator_.AddHitGroup(L"HitGroup2", {{(void*)(vertex_buffer2_->GetGPUVirtualAddress())}});
+
+
+			UINT sbt_size = sbt_generator_.ComputeSBTSize();
+
+			D3D12_RESOURCE_DESC res_desc{};
+			res_desc.Alignment = 0u;
+			res_desc.DepthOrArraySize = 1u;
+			res_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+			res_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+			res_desc.Format = DXGI_FORMAT_UNKNOWN;
+			res_desc.Height = 1u;
+			res_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+			res_desc.MipLevels = 1u;
+			res_desc.SampleDesc.Count = 1u;
+			res_desc.SampleDesc.Quality = 0u;
+			res_desc.Width = sbt_size;
+
+			//HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&kUploadHeapProp,
+			//	D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, 
+			//	IID_PPV_ARGS(sbt_storage_.ReleaseAndGetAddressOf()));
+			//_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create SBT Storage");
+			graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sbt_size, D3D12_RESOURCE_STATE_GENERIC_READ, sbt_storage_.ReleaseAndGetAddressOf());
+
+
+			sbt_generator_.Generate(sbt_storage_.Get(), raytracing_state_object_properties_.Get());
+			
+		}
+
 #else
-		sbt_generator_.AddRayGenerationProgram(L"RayGen", {});
-#endif
-
-		sbt_generator_.AddMissProgram(L"Miss", {});
-		sbt_generator_.AddHitGroup(L"HitGroup", {/*{(void*)(vertex_buffer_->GetGPUVirtualAddress())},*/ });
-		sbt_generator_.AddHitGroup(L"HitGroup1", {/*{(void*)(vertex_buffer1_->GetGPUVirtualAddress())}*/});
-		sbt_generator_.AddHitGroup(L"HitGroup2", {{(void*)(cube_vertex_descriptor_.gpu_handle_.ptr)}});
-		//sbt_generator_.AddHitGroup(L"HitGroup2", {{(void*)(vertex_buffer2_->GetGPUVirtualAddress())}});
-
-
-		UINT sbt_size = sbt_generator_.ComputeSBTSize();
-
-		D3D12_RESOURCE_DESC res_desc{};
-		res_desc.Alignment = 0u;
-		res_desc.DepthOrArraySize = 1u;
-		res_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		res_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-		res_desc.Format = DXGI_FORMAT_UNKNOWN;
-		res_desc.Height = 1u;
-		res_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		res_desc.MipLevels = 1u;
-		res_desc.SampleDesc.Count = 1u;
-		res_desc.SampleDesc.Quality = 0u;
-		res_desc.Width = sbt_size;
-
-		//HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&kUploadHeapProp,
-		//	D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, 
-		//	IID_PPV_ARGS(sbt_storage_.ReleaseAndGetAddressOf()));
-		//_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create SBT Storage");
-		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sbt_size, D3D12_RESOURCE_STATE_GENERIC_READ, sbt_storage_.ReleaseAndGetAddressOf());
-
-
-		sbt_generator_.Generate(sbt_storage_.Get(), raytracing_state_object_properties_.Get());
-
-
-		return;
+	//	return;
 		//Try
 		{
 			//The size Shader Identifier
@@ -608,9 +633,14 @@ namespace argent::graphics
 
 			//Hit
 			{
+				//Need to use only one Entry size.
+				//if  hit1 shader use 32bit entry size, hit2 use 64bit, and hit3 use 128bit,
+				//then you have to use 128bit for all entry size.
 				uint num_hit_group = 3;
-				uint resource_size = shader_record_size * num_hit_group + 8;
-				resource_size = _ALIGNMENT_(resource_size, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+				uint entry_size = shader_record_size + 8u;
+				entry_size = _ALIGNMENT_(entry_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+				uint resource_size = entry_size * num_hit_group;
+				//resource_size = _ALIGNMENT_(resource_size, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 				graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, resource_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
 					hit_shader_table_.ReleaseAndGetAddressOf());
 
@@ -621,19 +651,30 @@ namespace argent::graphics
 				auto id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup");
 
 				memcpy(map, id, shader_record_size);
+				map += entry_size;
 
 				id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup1");
-				memcpy(map + shader_record_size, id, shader_record_size);
+				memcpy(map, id, shader_record_size);
+				map += entry_size;
 
 				id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup2");
-				memcpy(map + shader_record_size * 2, id, shader_record_size);
+				memcpy(map, id, shader_record_size);
+				map += shader_record_size;
+
+				//Not Entry directly
+				//memcpy(map, reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle.ptr), 8) does not
+				//act my assumption.
+				std::vector<void*> data(1);
+				data.at(0) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
 
 				//Map Resource
-				memcpy(map + shader_record_size * 3, (void*)(cube_vertex_descriptor_.gpu_handle_.ptr), 8u);
+				memcpy(map, data.data(), data.size() * 8);
 
 				hit_shader_table_->Unmap(0u, nullptr);
 			}
 		}
+
+#endif
 	}
 
 	AccelerationStructureBuffers Raytracer::CreateBottomLevelAs(
