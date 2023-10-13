@@ -122,7 +122,7 @@ namespace argent::graphics
 
 		desc.Width = static_cast<UINT>(width_);
 		desc.Height = height_;
-		desc.Depth = kMaxReflection;
+		desc.Depth = _MAX_REFLECTION_;
 
 		//Set Global Raytracing RootSignature Resource
 		{
@@ -445,7 +445,7 @@ namespace argent::graphics
 		pipeline.SetMaxPayloadSize(sizeof(RayPayload) / 4 * sizeof(float));
 		//pipeline.SetMaxPayloadSize(5 * sizeof(float));
 		pipeline.SetMaxAttributeSize(2 * sizeof(float));
-		pipeline.SetMaxRecursionDepth(kMaxReflection);
+		pipeline.SetMaxRecursionDepth(_MAX_REFLECTION_);
 
 		raytracing_state_object_ = pipeline.Generate(dummy_global_root_signature_.Get(), dummy_local_root_signature_.Get());
 		HRESULT hr = raytracing_state_object_->QueryInterface(IID_PPV_ARGS(raytracing_state_object_properties_.ReleaseAndGetAddressOf()));

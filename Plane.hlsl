@@ -39,7 +39,7 @@ RWTexture2D<float4> gOutput : register(u0);
 
         // Trace the ray
 
-    if (payload.num_reflect_ < 2)
+    if (payload.num_reflect_ < _MAX_REFLECTION_)
     {
         payload.num_reflect_ += 1;
        // payload.num_reflect_ += 1;
