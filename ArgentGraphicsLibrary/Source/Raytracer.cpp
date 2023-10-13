@@ -178,7 +178,7 @@ namespace argent::graphics
 
 		//Cube
 		{
-			UINT16 indices[] =
+			UINT32 indices[] =
 		    {
 		        3,1,0,
 		        2,1,3,
@@ -235,16 +235,16 @@ namespace argent::graphics
 
 
 			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 24, vertex_buffer2_.ReleaseAndGetAddressOf(), vertex_buffer_view2_);
-			graphics_device.CreateIndexBufferAndView(sizeof(UINT16), 36, DXGI_FORMAT_R16_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
+			graphics_device.CreateIndexBufferAndView(sizeof(UINT32), 36, DXGI_FORMAT_R16_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
 
 			Vertex* map;
 			vertex_buffer2_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
 			memcpy(map, vertices, sizeof(Vertex) * 24);
 			vertex_buffer2_->Unmap(0u, nullptr);
 
-			UINT16* i_map;
+			UINT32* i_map;
 			index_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&i_map));
-			memcpy(i_map, indices, sizeof(UINT16) * 36);
+			memcpy(i_map, indices, sizeof(UINT32) * 36);
 			index_buffer_->Unmap(0u, nullptr);
 
 			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
@@ -255,11 +255,12 @@ namespace argent::graphics
 			desc.Buffer.NumElements = 24;
 			desc.Buffer.StructureByteStride = sizeof(Vertex);
 			graphics_device.GetDevice()->CreateShaderResourceView(vertex_buffer2_.Get(), &desc, cube_vertex_descriptor_.cpu_handle_);
-
-			desc.Format = DXGI_FORMAT_R16_UINT;
+			
+			//desc.Format = DXGI_FORMAT_R32_TYPELESS;
+			desc.Buffer.FirstElement = 0u;
 			desc.Buffer.NumElements = 36;
 			//desc.Buffer.NumElements = 36;
-			desc.Buffer.StructureByteStride = 0;
+			desc.Buffer.StructureByteStride = 4;
 			//desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
 			graphics_device.GetDevice()->CreateShaderResourceView(index_buffer_.Get(), &desc, cube_index_descriptor_.cpu_handle_);
 		}

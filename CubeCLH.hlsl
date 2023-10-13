@@ -67,6 +67,13 @@ uint3 Load3x16BitIndices(uint offsetBytes)
 }
 
 
+uint3 Load3x32BitIndices()
+{
+    uint offset_index = PrimitiveIndex() * 4 * 3;
+    return Indices.Load3(offset_index);
+}
+
+
 [shader("closesthit")]void CubeHit(inout RayPayload payload,
                                        Attributes attrib)
 {
@@ -77,7 +84,12 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     uint triangle_index_stride = index_size_in_bytes * indices_per_triangle;
     uint offset_index = PrimitiveIndex() * triangle_index_stride;
 
-    uint3 index = Load3x16BitIndices(offset_index);
+
+#if 0
+    uint index = Load3x16BitIndices(offset_index);
+#else
+    uint3 index = Load3x32BitIndices();
+#endif
     //uint3 index = Indices.Load3(offset_index);
 
     
