@@ -30,6 +30,7 @@ namespace argent::graphics
 			float depth = 1.0, UINT8 stencil = 0, UINT num_rects = 0, 
 			const D3D12_RECT* p_rects = nullptr) const;
 		void SetTransitionBarrier(ID3D12Resource* p_resource, D3D12_RESOURCE_STATES state_before, D3D12_RESOURCE_STATES state_after) const;
+		void SetUavBarrier(ID3D12Resource* p_resource, D3D12_RESOURCE_BARRIER_FLAGS flags) const;
 		void SetRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE* p_rtv_handles, const D3D12_CPU_DESCRIPTOR_HANDLE* p_dsv_handle) const;
 		void SetRenderTargets(UINT num_render_targets,
 		const D3D12_CPU_DESCRIPTOR_HANDLE* p_rtv_handles, bool in_a_row_handle, const D3D12_CPU_DESCRIPTOR_HANDLE* p_dsv_handle) const;

@@ -18,6 +18,7 @@
 
 #define _USE_SBT_GENERATOR_	0
 
+#define _USE_BLAS_GENERATOR_ 0
 
 namespace argent::graphics
 {
@@ -245,6 +246,7 @@ namespace argent::graphics
 	{
 		BuildGeometry(graphics_device);
 
+#if _USE_BLAS_GENERATOR_
 		AccelerationStructureBuffers bottom_level_buffer = 
 		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
 			{{vertex_buffer_.Get(), 3}});
@@ -276,7 +278,19 @@ namespace argent::graphics
 				buffers.pResult.Get(), false, nullptr);
 			bottom_level_buffer2 = buffers;
 		}
+#else
+		bottom_level_0_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
+			&command_list, vertex_buffer_.Get(), 3u, sizeof(Vertex), nullptr, 0u);
 
+		bottom_level_1_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
+			&command_list, vertex_buffer1_.Get(), 6u, sizeof(Vertex), nullptr, 0u);
+
+		bottom_level_2_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
+			&command_list, vertex_buffer2_.Get(), 24u, sizeof(Vertex), 
+			index_buffer_.Get(), 36u);
+
+
+#endif
 		DirectX::XMFLOAT3 pos{ 0.0f, -3.0f, 0.0f };
 		DirectX::XMFLOAT3 scale{ 100.0f, 100.0f, 100.0f };
 
@@ -285,8 +299,14 @@ namespace argent::graphics
 
 		DirectX::XMFLOAT3 pos1{3.0f, 0.0f, 0.0f};
 		DirectX::XMMATRIX T1 = DirectX::XMMatrixTranslation(pos1.x, pos1.y, pos1.z);
-		
+
+#if _USE_BLAS_GENERATOR_
 		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, S * T},{ bottom_level_buffer2.pResult, T1}, };
+#else
+		instances_ = {{bottom_level_0_->GetResultBuffer(), XMMatrixIdentity() },
+			{ bottom_level_1_->GetResultBuffer(), S * T},
+			{ bottom_level_2_->GetResultBuffer(), T1}, };
+#endif
 		CreateTopLevelAs(graphics_device, command_list.GetCommandList4(), instances_);
 
 		//Execute Command list

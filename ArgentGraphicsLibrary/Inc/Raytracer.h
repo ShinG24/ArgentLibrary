@@ -1,12 +1,14 @@
 #pragma once
 
 #include <d3d12.h>
-#include "../External/DXC/Inc/dxcapi.h"
-#include <wrl.h>
-#include <vector>
-
 #include <DirectXMath.h>
+#include <wrl.h>
+
+#include <memory>
+#include <vector>
 #include <string>
+
+#include "../External/DXC/Inc/dxcapi.h"
 
 #include "../RaytracingPipelineGenerator.h"
 #include "../ShaderBindingTableGenerator.h"
@@ -16,7 +18,7 @@
 
 #include "DescriptorHeap.h"
 
-#include "ConstantBuffer.h"
+#include "BottomLevelAccelerationStructure.h"
 
 using namespace DirectX;
 
@@ -176,5 +178,10 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<ID3D12Resource> raygen_shader_table_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> miss_shader_table_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> hit_shader_table_;
+
+		//Bottom Level
+		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_0_;
+		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_1_;
+		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_2_;
 	};
 }

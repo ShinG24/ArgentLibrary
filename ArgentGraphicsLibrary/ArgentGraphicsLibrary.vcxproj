@@ -28,6 +28,7 @@
     <ClInclude Include="External\Imgui\imstb_rectpack.h" />
     <ClInclude Include="External\Imgui\imstb_textedit.h" />
     <ClInclude Include="External\Imgui\imstb_truetype.h" />
+    <ClInclude Include="Inc\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
     <ClInclude Include="Inc\ConstantBuffer.h" />
     <ClInclude Include="Inc\DescriptorHeap.h" />
@@ -60,6 +61,7 @@
     <ClCompile Include="RaytracingPipelineGenerator.cpp" />
     <ClCompile Include="RootSignatureGenerator.cpp" />
     <ClCompile Include="ShaderBindingTableGenerator.cpp" />
+    <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
     <ClCompile Include="Source\FrameResource.cpp" />

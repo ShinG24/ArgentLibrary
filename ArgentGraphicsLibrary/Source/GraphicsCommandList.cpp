@@ -77,6 +77,15 @@ namespace argent::graphics
 		command_list_->ResourceBarrier(1u, &barrier);
 	}
 
+	void GraphicsCommandList::SetUavBarrier(ID3D12Resource* p_resource, D3D12_RESOURCE_BARRIER_FLAGS flags) const
+	{
+		D3D12_RESOURCE_BARRIER barrier{};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+		barrier.UAV.pResource = p_resource;
+		barrier.Flags = flags;
+		command_list_->ResourceBarrier(1u, &barrier);
+	}
+
 	void GraphicsCommandList::SetRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE* p_rtv_handles,
 	                                          const D3D12_CPU_DESCRIPTOR_HANDLE* p_dsv_handle) const
 	{

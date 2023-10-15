@@ -20,6 +20,7 @@
 #include "RasterRenderer.h"
 #include "Raytracer.h"
 #include "ImGuiWrapper.h"
+#include "ConstantBuffer.h"
 
 #define _USE_RAY_TRACER_ 1
 
