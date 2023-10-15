@@ -28,8 +28,6 @@ namespace argent::graphics
 		width_ = width;
 		height_ = height;
 
-		scene_constant_buffer_.Awake(graphics_device, cbv_srv_uav_descriptor_heap);
-
 		cube_vertex_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		cube_index_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
@@ -40,49 +38,11 @@ namespace argent::graphics
 		CreateShaderBindingTable(graphics_device);
 	}
 
-	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list)
+	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle)
 	{
-		//Update Camera
-		{
-			//Draw on ImGui
-			{
-				ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
-				ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
-				ImGui::DragFloat3("Light", &light_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
-			}
-
-			//Update camera forward direction by the rotation
-			DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
-			DirectX::XMVECTOR F = R.r[2];
-			F = DirectX::XMVector3Normalize(F);
-
-			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
-			DirectX::XMVECTOR Focus = Eye + F;
-			//Focus.m128_f32[2] += 1.0f;
-			DirectX::XMVECTOR Up{ 0, 1, 0, 0 };
-			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
-			auto proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov_angle_), aspect_ratio_, near_z_, far_z_);
-
-			SceneConstant data{};
-			data.camera_position_ = camera_position_;
-			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
-			data.light_position_ = light_position_; 
-
-			scene_constant_buffer_.Update(data, 0);
-		}
 		auto command_list = graphics_command_list.GetCommandList4();
 
-		//std::vector<ID3D12DescriptorHeap*> heaps{ descriptor_heap_.Get() };
-		//command_list->SetDescriptorHeaps(1u, heaps.data());
-
-		//return;
-		D3D12_RESOURCE_BARRIER resource_barrier{};
-		resource_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		resource_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
-		resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-		resource_barrier.Transition.pResource = output_buffer_.Get();
-		command_list->ResourceBarrier(1u, &resource_barrier);
+		graphics_command_list.SetTransitionBarrier(output_buffer_.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		D3D12_DISPATCH_RAYS_DESC desc{};
 
@@ -127,17 +87,13 @@ namespace argent::graphics
 			command_list->SetComputeRootSignature(dummy_global_root_signature_.Get());
 			//OutputBuffer & TLAS
 			command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
-			command_list->SetComputeRootDescriptorTable(1u, scene_constant_buffer_.GetGpuHandle(0u));
-		//	command_list->SetComputeRootDescriptorTable(2u, cube_vertex_descriptor_.gpu_handle_);
+			command_list->SetComputeRootDescriptorTable(1u, scene_constant_gpu_handle);
 		}
 
 		command_list->SetPipelineState1(raytracing_state_object_.Get());
 		command_list->DispatchRays(&desc);
 
-		resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-		resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
-		resource_barrier.Transition.pResource = output_buffer_.Get();
-		command_list->ResourceBarrier(1, &resource_barrier);
+		graphics_command_list.SetTransitionBarrier(output_buffer_.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	}
 
 	void Raytracer::BuildGeometry(const GraphicsDevice& graphics_device)

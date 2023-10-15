@@ -5,13 +5,7 @@
 #include "../External/d3dx12.h"
 
 //Imgui
-#include "../External/Imgui/imgui_impl_win32.h"
-#include "../External/Imgui/imgui_impl_dx12.h"
 #include "../External/Imgui/imgui.h"
-
-#include "../Inc/ShaderCompiler.h"
-
-
 
 #pragma comment(lib, "DXGI.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -28,34 +22,15 @@ namespace argent::graphics
 
 		dxgi_factory_.Awake();
 		graphics_device_.Awake(dxgi_factory_.GetIDxgiFactory());
-		main_rendering_queue_.Awake(graphics_device_.GetLatestDevice(), L"Main Rendering Queue");
-		resource_upload_queue_.Awake(graphics_device_.GetLatestDevice(), L"Resource Upload Queue");
-		swap_chain_.Awake(hwnd, dxgi_factory_.GetIDxgiFactory(), main_rendering_queue_.GetCommandQueue(), kNumBackBuffers);
 
 		//Check Raytracing tier supported
 		const bool raytracing_supported = graphics_device_.IsDirectXRaytracingSupported();
 		_ASSERT_EXPR(raytracing_supported, L"DXR not Supported");
 
 		CreateDeviceDependencyObjects();
+		CreateWindowDependencyObjects();
 
-		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
-
-		RECT rect{};
-		GetClientRect(hwnd_, &rect);
-		viewport_ = D3D12_VIEWPORT(0.0f, 0.0f, static_cast<FLOAT>(rect.right - rect.left), 
-			static_cast<FLOAT>(rect.bottom - rect.top), 0.0f, 1.0f);
-		scissor_rect_ = D3D12_RECT(rect);
-
-		raster_renderer_.Awake(graphics_device_);
-
-		resource_upload_command_list_.Activate();
-#if _USE_RAY_TRACER_
-		raytracer_.Awake(graphics_device_, resource_upload_command_list_,
-			resource_upload_queue_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
-			cbv_srv_uav_heap_);
-#endif
-
-		imgui_wrapper_.Awake(&graphics_device_, &cbv_srv_uav_heap_, hwnd_);
+		InitializeScene();
 	}
 
 	void GraphicsLibrary::Shutdown()
@@ -109,39 +84,76 @@ namespace argent::graphics
 		main_rendering_queue_.WaitForGpu(back_buffer_index_);
 	}
 
+	void GraphicsLibrary::InitializeScene()
+	{
+		scene_constant_buffer_.Awake(graphics_device_, cbv_srv_uav_heap_);
+
+		raster_renderer_.Awake(graphics_device_);
+
+		resource_upload_command_list_.Activate();
+#if _USE_RAY_TRACER_
+		raytracer_.Awake(graphics_device_, resource_upload_command_list_,
+			resource_upload_queue_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
+			cbv_srv_uav_heap_);
+#endif
+	}
+
 	void GraphicsLibrary::OnRender()
 	{
-		const auto command_list = graphics_command_list_[back_buffer_index_].GetCommandList();
+		//Update Constant Buffer
+		{
+			//Draw on ImGui
+			{
+				ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+				ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
+				ImGui::DragFloat3("Light", &light_direction_.x, 0.01f, -FLT_MAX, FLT_MAX);
+			}
+
+			//Update camera forward direction by the rotation
+			DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
+			DirectX::XMVECTOR F = R.r[2];
+			F = DirectX::XMVector3Normalize(F);
+
+			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
+			DirectX::XMVECTOR Focus = Eye + F;
+			//Focus.m128_f32[2] += 1.0f;
+			DirectX::XMVECTOR Up{ 0, 1, 0, 0 };
+			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
+			auto proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov_angle_), aspect_ratio_, near_z_, far_z_);
+
+			SceneConstant data{};
+			data.camera_position_ = camera_position_;
+			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
+			data.light_position_ = light_direction_;
+
+			scene_constant_buffer_.Update(data, back_buffer_index_);
+		}
+
+		const auto& command_list = graphics_command_list_[back_buffer_index_];
 		if(on_raster_mode_)
 		{
-			raster_renderer_.OnRender(command_list);
+			raster_renderer_.OnRender(command_list.GetCommandList());
 		}
 		else
 		{
 #if _USE_RAY_TRACER_
-			raytracer_.OnRender(graphics_command_list_[back_buffer_index_]);
+			raytracer_.OnRender(graphics_command_list_[back_buffer_index_], scene_constant_buffer_.GetGpuHandle(back_buffer_index_));
 
-			//return;
-			D3D12_RESOURCE_BARRIER resource_barrier{};
-			resource_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			resource_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-			resource_barrier.Transition.pResource = frame_resources_[back_buffer_index_].GetBackBuffer();
-			command_list->ResourceBarrier(1u, &resource_barrier);
+			command_list.SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
 
-			command_list->CopyResource(frame_resources_[back_buffer_index_].GetBackBuffer(), 
+			command_list.GetCommandList()->CopyResource(frame_resources_[back_buffer_index_].GetBackBuffer(), 
 				raytracer_.GetOutputBuffer());
 
-			resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			command_list->ResourceBarrier(1u, &resource_barrier);
+			command_list.SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
 #endif
 		}
 	}
 
 	void GraphicsLibrary::CreateDeviceDependencyObjects()
 	{
+		main_rendering_queue_.Awake(graphics_device_.GetLatestDevice(), L"Main Rendering Queue");
+		resource_upload_queue_.Awake(graphics_device_.GetLatestDevice(), L"Resource Upload Queue");
+
 		cbv_srv_uav_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::CbvSrvUav, 10000);
 		rtv_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Rtv, 100);
 		dsv_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Dsv, 100);
@@ -151,12 +163,25 @@ namespace argent::graphics
 		graphics_command_list_[1].Awake(graphics_device_.GetDevice());
 		graphics_command_list_[2].Awake(graphics_device_.GetDevice());
 		resource_upload_command_list_.Awake(graphics_device_.GetDevice());
+		
+		imgui_wrapper_.Awake(&graphics_device_, &cbv_srv_uav_heap_, hwnd_);
+	}
 
-		for(int i = 0; i < kNumBackBuffers; ++i)
+	void GraphicsLibrary::CreateWindowDependencyObjects()
+	{
+		swap_chain_.Awake(hwnd_, dxgi_factory_.GetIDxgiFactory(), main_rendering_queue_.GetCommandQueue(), kNumBackBuffers);
+		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
+
+		for (int i = 0; i < kNumBackBuffers; ++i)
 		{
 			frame_resources_[i].Awake(graphics_device_, swap_chain_, i, rtv_heap_.PopDescriptor(), dsv_heap_.PopDescriptor());
 		}
-		//Create Raytracing Objects
+
+		RECT rect{};
+		GetClientRect(hwnd_, &rect);
+		viewport_ = D3D12_VIEWPORT(0.0f, 0.0f, static_cast<FLOAT>(rect.right - rect.left),
+			static_cast<FLOAT>(rect.bottom - rect.top), 0.0f, 1.0f);
+		scissor_rect_ = D3D12_RECT(rect);
 	}
 
 	void GraphicsLibrary::OnDebugLayer() const

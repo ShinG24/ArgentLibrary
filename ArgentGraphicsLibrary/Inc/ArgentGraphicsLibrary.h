@@ -17,8 +17,6 @@
 
 #include "FrameResource.h"
 
-#include "dxcapi.h"
-
 #include "RasterRenderer.h"
 #include "Raytracer.h"
 #include "ImGuiWrapper.h"
@@ -51,9 +49,12 @@ namespace argent::graphics
 		void FrameBegin();
 		void FrameEnd();
 	private:
+
+		void InitializeScene();
 		void OnRender();
 
 		void CreateDeviceDependencyObjects();
+		void CreateWindowDependencyObjects();
 
 		void OnDebugLayer() const;
 
@@ -87,6 +88,26 @@ namespace argent::graphics
 #if _USE_RAY_TRACER_
 		Raytracer raytracer_;
 #endif
+
+		struct SceneConstant
+		{
+			DirectX::XMFLOAT4X4 inv_view_projection_;
+			DirectX::XMFLOAT4 camera_position_;
+			DirectX::XMFLOAT4 light_position_;
+		};
+		ConstantBuffer<SceneConstant> scene_constant_buffer_;
+
+		//Camera
+		DirectX::XMFLOAT4 camera_position_{ 0.0, 0.0f, -10.0f, 1.0f };
+		DirectX::XMFLOAT3 camera_rotation_{};
+		float near_z_ = 0.001f;
+		float far_z_ = 1000.0f;
+		float fov_angle_ = 60.0f;
+		float aspect_ratio_ = 16.0f / 9.0f;
+
+		DirectX::XMFLOAT4 light_direction_{ 1.0, -1.0f, 1.0f, 1.0f };
+		
+
 		bool on_raster_mode_ = false;
 
 

@@ -56,8 +56,7 @@ namespace argent::graphics
 
 	void CommandQueue::WaitForGpu() const
 	{
-		auto completed_value = fence_object_->GetCompletedValue();
-		if (completed_value < last_fence_value_)
+		if (fence_object_->GetCompletedValue() < last_fence_value_)
 		{
 			HRESULT hr = fence_object_->SetEventOnCompletion(last_fence_value_, event_.Get());
 			_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Set Event");

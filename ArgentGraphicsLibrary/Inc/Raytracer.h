@@ -71,7 +71,7 @@ namespace argent::graphics
 			UINT64 width, UINT height, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap);
 
-		void OnRender(const GraphicsCommandList& command_list);
+		void OnRender(const GraphicsCommandList& command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle);
 
 		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
 	private:
@@ -147,25 +147,7 @@ namespace argent::graphics
 
 		nv_helpers_dx12::ShaderBindingTableGenerator sbt_generator_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> sbt_storage_;
-
-		struct SceneConstant
-		{
-			DirectX::XMFLOAT4X4 inv_view_projection_;
-			DirectX::XMFLOAT4 camera_position_;
-			DirectX::XMFLOAT4 light_position_;
-		};
-		ConstantBuffer<SceneConstant> scene_constant_buffer_;
-
-		//Camera
-		DirectX::XMFLOAT4 camera_position_{ 0.0, 0.0f, -10.0f, 1.0f };
-		float near_z_ = 0.001f;
-		float far_z_ = 1000.0f;
-		float fov_angle_ = 60.0f;
-		float aspect_ratio_ = 16.0f / 9.0f;
-		DirectX::XMFLOAT3 camera_rotation_{};
-		DirectX::XMFLOAT4 light_position_{ 1.0, -1.0f, 1.0f, 1.0f };
-
-
+		
 		UINT64 width_;
 		UINT height_;
 
