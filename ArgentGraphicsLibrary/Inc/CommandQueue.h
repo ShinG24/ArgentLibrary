@@ -71,5 +71,6 @@ namespace argent::graphics
 		UINT fence_values_[kNumBackBuffers];
 		UINT last_fence_value_;
 		HANDLE event_handle_;
+		Microsoft::WRL::Wrappers::Event event_;
 	};
 }

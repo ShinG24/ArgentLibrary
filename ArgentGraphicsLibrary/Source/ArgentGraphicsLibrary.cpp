@@ -66,6 +66,7 @@ namespace argent::graphics
 		fence_.WaitForGpu(last_back_buffer_index);*/
 		main_rendering_queue_.WaitForGpu();
 		resource_upload_queue_.WaitForGpu();
+
 	}
 
 	void GraphicsLibrary::FrameBegin()

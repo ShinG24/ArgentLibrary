@@ -24,6 +24,8 @@ namespace argent::graphics
 
 		device->CreateFence(0u, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(fence_object_.ReleaseAndGetAddressOf()));
 		fence_values_[0] = fence_values_[1] = fence_values_[2] = last_fence_value_ = 0u;
+
+		event_.Attach(CreateEvent(nullptr, false, false, nullptr));
 	}
 
 	void CommandQueue::Execute(UINT num_command_lists, ID3D12CommandList* command_lists[], UINT back_buffer_index)
@@ -43,8 +45,9 @@ namespace argent::graphics
 	{
 		if(fence_object_->GetCompletedValue() < fence_values_[back_buffer_index])
 		{
-			fence_object_->SetEventOnCompletion(fence_values_[back_buffer_index], event_handle_);
-			WaitForSingleObject(event_handle_, INFINITE);
+			HRESULT hr = fence_object_->SetEventOnCompletion(fence_values_[back_buffer_index], event_.Get());
+			_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Set Event");
+			WaitForSingleObjectEx(event_.Get(), INFINITE, false);
 		}
 	}
 
@@ -53,8 +56,9 @@ namespace argent::graphics
 		auto completed_value = fence_object_->GetCompletedValue();
 		if (completed_value < last_fence_value_)
 		{
-			fence_object_->SetEventOnCompletion(last_fence_value_, event_handle_);
-			WaitForSingleObject(event_handle_, INFINITE);
+			HRESULT hr = fence_object_->SetEventOnCompletion(last_fence_value_, event_.Get());
+			_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Set Event");
+			WaitForSingleObjectEx(event_.Get(), INFINITE, false);
 		}
 	}
 }
