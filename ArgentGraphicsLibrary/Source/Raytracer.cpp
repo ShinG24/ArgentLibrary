@@ -342,6 +342,7 @@ namespace argent::graphics
 			command_list.GetCommandList(),
 		};
 		command_queue.Execute(1u, command_lists);
+		command_queue.Signal();
 		command_queue.WaitForGpu();
 
 		//fence.PutUpFence(command_queue);

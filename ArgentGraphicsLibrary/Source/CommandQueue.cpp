@@ -9,7 +9,7 @@ namespace argent::graphics
 	,	fence_object_(nullptr)
 	,	fence_values_{0u}
 	,	last_fence_value_(0u)
-	,	event_handle_(nullptr)
+	,	event_(nullptr)
 	{
 	}
 
@@ -28,16 +28,19 @@ namespace argent::graphics
 		event_.Attach(CreateEvent(nullptr, false, false, nullptr));
 	}
 
-	void CommandQueue::Execute(UINT num_command_lists, ID3D12CommandList* command_lists[], UINT back_buffer_index)
+	void CommandQueue::Execute(UINT num_command_lists, ID3D12CommandList* command_lists[]) const
 	{
 		command_queue_object_->ExecuteCommandLists(num_command_lists, command_lists);
+	}
+
+	void CommandQueue::Signal(UINT back_buffer_index)
+	{
 		command_queue_object_->Signal(fence_object_.Get(), ++last_fence_value_);
 		fence_values_[back_buffer_index] = last_fence_value_;
 	}
 
-	void CommandQueue::Execute(UINT num_command_lists, ID3D12CommandList* command_lists[])
+	void CommandQueue::Signal()
 	{
-		command_queue_object_->ExecuteCommandLists(num_command_lists, command_lists);
 		command_queue_object_->Signal(fence_object_.Get(), ++last_fence_value_);
 	}
 

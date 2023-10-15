@@ -36,21 +36,17 @@ namespace argent::graphics
 		           D3D12_COMMAND_QUEUE_PRIORITY command_queue_priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH, 
 		           D3D12_COMMAND_QUEUE_FLAGS command_queue_flags = D3D12_COMMAND_QUEUE_FLAG_NONE, 
 		           UINT node_mask = 0);
-
-		/**
-		 * \brief Execute Command List.
-		 * \param num_command_lists : num command lists
-		 * \param command_lists : pointer to the command list array.
-		 * \param back_buffer_index	: back_buffer_index
-		 */
-		void Execute(UINT num_command_lists, ID3D12CommandList* command_lists[], UINT back_buffer_index);
-
+		
 		/**
 		 * \brief Execute Command List without store the fence value on the array of value.
 		 * \param num_command_lists : num command list.
 		 * \param command_lists : pointer to the command list array.
 		 */
-		void Execute(UINT num_command_lists, ID3D12CommandList* command_lists[]);
+		void Execute(UINT num_command_lists, ID3D12CommandList* command_lists[]) const;
+
+		void Signal(UINT back_buffer_index);
+
+		void Signal();
 
 		/**
 		 * \brief Wait for Gpu until complete the specified index fence values 
@@ -70,7 +66,6 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<ID3D12Fence> fence_object_;
 		UINT fence_values_[kNumBackBuffers];
 		UINT last_fence_value_;
-		HANDLE event_handle_;
 		Microsoft::WRL::Wrappers::Event event_;
 	};
 }
