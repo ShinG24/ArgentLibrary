@@ -14,7 +14,6 @@
 #include "CommandQueue.h"
 #include "GraphicsCommandList.h"
 
-#include "Fence.h"
 
 #include "FrameResource.h"
 
@@ -22,6 +21,8 @@
 
 #include "RasterRenderer.h"
 #include "Raytracer.h"
+
+#define _USE_RAY_TRACER_ 1
 
 namespace argent::graphics
 {
@@ -77,8 +78,6 @@ namespace argent::graphics
 		DescriptorHeap dsv_heap_;
 		DescriptorHeap smp_heap_;
 
-		Fence fence_;
-		UINT fence_value_ = 0;
 
 		FrameResource frame_resources_[kNumBackBuffers];
 
@@ -90,7 +89,10 @@ namespace argent::graphics
 	private:
 
 		RasterRenderer raster_renderer_;
+
+#if _USE_RAY_TRACER_
 		Raytracer raytracer_;
+#endif
 		bool on_raster_mode_ = false;
 
 

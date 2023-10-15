@@ -49,6 +49,8 @@ namespace argent::graphics
 		depth_stencil_view_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		graphics_device.GetDevice()->CreateDepthStencilView(depth_buffer_.Get(), &depth_stencil_view_desc,
 			dsv_descriptor.cpu_handle_);
+
+		resource_object_->SetName(L"Frame Resource");
 	}
 
 	void FrameResource::Activate(const GraphicsCommandList& command_list) const

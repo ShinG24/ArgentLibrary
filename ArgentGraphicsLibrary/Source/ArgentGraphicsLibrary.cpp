@@ -47,26 +47,31 @@ namespace argent::graphics
 			static_cast<FLOAT>(rect.bottom - rect.top), 0.0f, 1.0f);
 		scissor_rect_ = D3D12_RECT(rect);
 
-		raster_renderer_.Awake(graphics_device_);
+		//raster_renderer_.Awake(graphics_device_);
 
 		resource_upload_command_list_.Activate();
+#if _USE_RAY_TRACER_
 		raytracer_.Awake(graphics_device_, resource_upload_command_list_,
-			resource_upload_queue_, fence_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
+			resource_upload_queue_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
 			cbv_srv_uav_heap_);
-
+#endif
 		ImguiAwake();
 	}
 
 	void GraphicsLibrary::Shutdown()
 	{
 		ImguiShutdown();
-		INT last_back_buffer_index = static_cast<INT>(back_buffer_index_) - 1;
+		/*INT last_back_buffer_index = static_cast<INT>(back_buffer_index_) - 1;
 		if(last_back_buffer_index < 0) { last_back_buffer_index = kNumBackBuffers; }
-		fence_.WaitForGpu(last_back_buffer_index);
+		fence_.WaitForGpu(last_back_buffer_index);*/
+		main_rendering_queue_.WaitForGpu();
+		resource_upload_queue_.WaitForGpu();
 	}
 
 	void GraphicsLibrary::FrameBegin()
 	{
+		main_rendering_queue_.WaitForGpu(back_buffer_index_);
+
 		HRESULT hr = graphics_device_.GetLatestDevice()->GetDeviceRemovedReason();
 		if(FAILED(hr))
 		{
@@ -104,19 +109,22 @@ namespace argent::graphics
 		{
 			command_list.GetCommandList()
 		};
-		main_rendering_queue_.Execute(1u, command_lists);
+		main_rendering_queue_.Execute(1u, command_lists, back_buffer_index_);
+		
 
-		main_rendering_queue_.GetCommandQueue()->Signal(fence_.GetFence(), ++fence_value_);
+		//fence_.PutUpFence(main_rendering_queue_);
+		//main_rendering_queue_.GetCommandQueue()->Signal(fence_.GetFence(), ++fence_value_);
 
-		if(fence_.GetFence()->GetCompletedValue() < fence_value_)
-		{
-			HANDLE event_handler{};
-			fence_.GetFence()->SetEventOnCompletion(fence_value_, event_handler);
-			WaitForSingleObject(event_handler, INFINITE);
-		}
+		//if(fence_.GetFence()->GetCompletedValue() < fence_value_)
+		//{
+		//	HANDLE event_handler{};
+		//	fence_.GetFence()->SetEventOnCompletion(fence_value_, event_handler);
+		//	WaitForSingleObject(event_handler, INFINITE);
+		//}
 
 		swap_chain_.Present();
 		back_buffer_index_ = swap_chain_.GetCurrentBackBufferIndex();
+		
 	}
 
 	void GraphicsLibrary::OnRender()
@@ -124,10 +132,11 @@ namespace argent::graphics
 		const auto command_list = graphics_command_list_[back_buffer_index_].GetCommandList();
 		if(on_raster_mode_)
 		{
-			raster_renderer_.OnRender(command_list);
+			//raster_renderer_.OnRender(command_list);
 		}
 		else
 		{
+#if _USE_RAY_TRACER_
 			//raster_renderer_.OnRender(command_list);
 			raytracer_.OnRender(graphics_command_list_[back_buffer_index_]);
 
@@ -147,6 +156,7 @@ namespace argent::graphics
 			resource_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 			resource_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 			command_list->ResourceBarrier(1u, &resource_barrier);
+#endif
 		}
 	}
 
@@ -166,10 +176,6 @@ namespace argent::graphics
 		{
 			frame_resources_[i].Awake(graphics_device_, swap_chain_, i, rtv_heap_.PopDescriptor(), dsv_heap_.PopDescriptor());
 		}
-
-		fence_.Awake(graphics_device_);
-
-
 		//Create Raytracing Objects
 	}
 

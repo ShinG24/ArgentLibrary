@@ -27,7 +27,6 @@ int main()
 		if(!platform.ProcessSystemEventQueue())
 		{
 			timer.Tick();
-			timer.ShowFrameTime(platform.GetHwnd());
 #ifdef _DEBUG
 			timer.ShowFrameTime(platform.GetHwnd());
 #endif

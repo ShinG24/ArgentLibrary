@@ -23,23 +23,28 @@ namespace argent::graphics
 		D3D12_DESCRIPTOR_HEAP_FLAGS heap_flags{};
 		D3D12_DESCRIPTOR_HEAP_TYPE descriptor_heap_type{};
 
+		LPCWSTR name{};
 		switch (heap_type_)
 		{
 		case HeapType::CbvSrvUav:
 			heap_flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 			descriptor_heap_type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+			name = L"Cbv Srv Uav Heap";
 			break;
 		case HeapType::Rtv:
 			heap_flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 			descriptor_heap_type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			name = L"Rtv Heap";
 			break;
 		case HeapType::Dsv:
 			heap_flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 			descriptor_heap_type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+			name = L"Dsv Heap";
 			break;
 		case HeapType::Smp:
 			heap_flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 			descriptor_heap_type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+			name = L"Smp Heap";
 			break;
 		case HeapType::Count:
 			_ASSERT_EXPR(FALSE, L"Specified Invalied Descriptor Heap Type");
@@ -54,6 +59,8 @@ namespace argent::graphics
 		{
 			gpu_handle_start_ = descriptor_heap_object_->GetGPUDescriptorHandleForHeapStart();
 		}
+
+		descriptor_heap_object_->SetName(name);
 	}
 
 	Descriptor DescriptorHeap::PopDescriptor()

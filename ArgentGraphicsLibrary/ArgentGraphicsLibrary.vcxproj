@@ -31,7 +31,6 @@
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
     <ClInclude Include="Inc\ConstantBuffer.h" />
     <ClInclude Include="Inc\DescriptorHeap.h" />
-    <ClInclude Include="Inc\Fence.h" />
     <ClInclude Include="Inc\FrameResource.h" />
     <ClInclude Include="Inc\GraphicsCommandList.h" />
     <ClInclude Include="Inc\CommandQueue.h" />
@@ -62,7 +61,6 @@
     <ClCompile Include="ShaderBindingTableGenerator.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
-    <ClCompile Include="Source\Fence.cpp" />
     <ClCompile Include="Source\FrameResource.cpp" />
     <ClCompile Include="Source\GraphicsCommandList.cpp" />
     <ClCompile Include="Source\CommandQueue.cpp" />

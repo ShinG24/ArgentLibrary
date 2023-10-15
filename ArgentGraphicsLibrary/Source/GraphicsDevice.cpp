@@ -61,6 +61,9 @@ namespace argent::graphics
 		{
 			latest_device_ = nullptr;
 		}
+
+		device_->SetName(L"Device");
+		latest_device_->SetName(L"Latest Device");
 	}
 
 	HRESULT GraphicsDevice::CreateDescriptorHeap(ID3D12DescriptorHeap** pp_descriptor_heap,

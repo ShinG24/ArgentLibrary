@@ -54,7 +54,6 @@ namespace argent::graphics
 	class GraphicsDevice;
 	class GraphicsCommandList;
 	class CommandQueue;
-	class Fence;
 
 	class Raytracer
 	{
@@ -68,8 +67,8 @@ namespace argent::graphics
 		Raytracer& operator=(Raytracer&&) = delete;
 
 		void Awake(const GraphicsDevice& graphics_device, 
-			GraphicsCommandList& command_list, const CommandQueue& command_queue,
-			Fence& fence, UINT64 width, UINT height, 
+			GraphicsCommandList& command_list, CommandQueue& command_queue,
+			UINT64 width, UINT height, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap);
 
 		void OnRender(const GraphicsCommandList& command_list);
@@ -82,8 +81,7 @@ namespace argent::graphics
 
 		void BuildGeometry(const GraphicsDevice& graphics_device);
 		void CreateAS(const GraphicsDevice& graphics_device, 
-		GraphicsCommandList& command_list, const CommandQueue& command_queue, 
-		Fence& fence);
+		GraphicsCommandList& command_list, CommandQueue& command_queue);
 
 		void CreatePipeline(const GraphicsDevice& graphics_device);
 

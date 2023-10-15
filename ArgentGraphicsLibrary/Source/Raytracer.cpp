@@ -9,7 +9,6 @@
 #include "../Inc/GraphicsDevice.h"
 #include "../Inc/GraphicsCommandList.h"
 #include "../Inc/CommandQueue.h"
-#include "../Inc/Fence.h"
 
 #include "../Inc/ShaderCompiler.h"
 
@@ -23,7 +22,7 @@
 namespace argent::graphics
 {
 	void Raytracer::Awake(const GraphicsDevice& graphics_device, GraphicsCommandList& command_list,
-		const CommandQueue& command_queue, Fence& fence, UINT64 width, UINT height, 
+		CommandQueue& command_queue, UINT64 width, UINT height, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
 		width_ = width;
@@ -34,7 +33,7 @@ namespace argent::graphics
 		cube_vertex_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		cube_index_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
-		CreateAS(graphics_device, command_list, command_queue, fence);
+		CreateAS(graphics_device, command_list, command_queue);
 		CreatePipeline(graphics_device);
 		CreateOutputBuffer(graphics_device, width, height);
 		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
@@ -287,8 +286,7 @@ namespace argent::graphics
 	}
 
 	void Raytracer::CreateAS(const GraphicsDevice& graphics_device, 
-	                         GraphicsCommandList& command_list, const CommandQueue& command_queue, 
-	                         Fence& fence)
+	                         GraphicsCommandList& command_list, CommandQueue& command_queue)
 	{
 		BuildGeometry(graphics_device);
 
@@ -324,7 +322,7 @@ namespace argent::graphics
 			bottom_level_buffer2 = buffers;
 		}
 
-		DirectX::XMFLOAT3 pos{ 0.0f, -10.0f, 0.0f };
+		DirectX::XMFLOAT3 pos{ 0.0f, -3.0f, 0.0f };
 		DirectX::XMFLOAT3 scale{ 100.0f, 100.0f, 100.0f };
 
 		DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
@@ -344,9 +342,10 @@ namespace argent::graphics
 			command_list.GetCommandList(),
 		};
 		command_queue.Execute(1u, command_lists);
+		command_queue.WaitForGpu();
 
-		fence.PutUpFence(command_queue);
-		fence.WaitForGpuInCurrentFrame();
+		//fence.PutUpFence(command_queue);
+		//fence.WaitForGpu();
 	}
 
 	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)

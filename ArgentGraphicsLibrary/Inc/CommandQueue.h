@@ -3,17 +3,19 @@
 #include <d3d12.h>
 #include <wrl.h>
 
+#include "GraphicsCommon.h"
+
 
 namespace argent::graphics
 {
 	class Fence;
 
 	//Wrap class of ID3D12CommandQueue
-	//Some Fucntion are Wraped.
+	//Some Function are Wrapped.
 	class CommandQueue
 	{
 	public:
-		CommandQueue() = default;
+		CommandQueue();
 		~CommandQueue() = default;
 
 		CommandQueue(CommandQueue&) = delete;
@@ -24,7 +26,7 @@ namespace argent::graphics
 		/**
 		 * \brief Create ID3D12CommandQueueObject.
 		 * \param device ID3D12Device object.
-		 * \param name : Object name. Usefull for Debugging.
+		 * \param name : Object name. Useful for Debugging.
 		 * \param command_list_type : command_list_type.
 		 * \param command_queue_priority : the priority of this command_queu.
 		 * \param command_queue_flags : do not specify expect trying some unique program
@@ -39,17 +41,35 @@ namespace argent::graphics
 		 * \brief Execute Command List.
 		 * \param num_command_lists : num command lists
 		 * \param command_lists : pointer to the command list array.
+		 * \param back_buffer_index	: back_buffer_index
 		 */
-		void Execute(UINT num_command_lists, ID3D12CommandList* command_lists[]) const;
+		void Execute(UINT num_command_lists, ID3D12CommandList* command_lists[], UINT back_buffer_index);
 
 		/**
-		 * \brief Issue a Fecne.
-		 * \param fence : fence
+		 * \brief Execute Command List without store the fence value on the array of value.
+		 * \param num_command_lists : num command list.
+		 * \param command_lists : pointer to the command list array.
 		 */
-		void Signal(const Fence& fence) const;
+		void Execute(UINT num_command_lists, ID3D12CommandList* command_lists[]);
+
+		/**
+		 * \brief Wait for Gpu until complete the specified index fence values 
+		 * \param back_buffer_index : back_buffer_index
+		 */
+		void WaitForGpu(UINT back_buffer_index) const;
+
+		/**
+		 * \brief Wait for the Gpu until complete the last fence value
+		 */
+		void WaitForGpu() const;
 
 		ID3D12CommandQueue* GetCommandQueue() const { return command_queue_object_.Get(); }
 	private:
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> command_queue_object_;
+
+		Microsoft::WRL::ComPtr<ID3D12Fence> fence_object_;
+		UINT fence_values_[kNumBackBuffers];
+		UINT last_fence_value_;
+		HANDLE event_handle_;
 	};
 }
