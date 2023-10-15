@@ -38,7 +38,6 @@ namespace argent::graphics
 		CreateOutputBuffer(graphics_device, width, height);
 		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
 		CreateShaderBindingTable(graphics_device);
-
 	}
 
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list)
@@ -345,8 +344,6 @@ namespace argent::graphics
 		command_queue.Signal();
 		command_queue.WaitForGpu();
 
-		//fence.PutUpFence(command_queue);
-		//fence.WaitForGpu();
 	}
 
 	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)

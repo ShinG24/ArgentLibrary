@@ -21,6 +21,7 @@
 
 #include "RasterRenderer.h"
 #include "Raytracer.h"
+#include "ImGuiWrapper.h"
 
 #define _USE_RAY_TRACER_ 1
 
@@ -55,13 +56,6 @@ namespace argent::graphics
 		void CreateDeviceDependencyObjects();
 
 		void OnDebugLayer() const;
-
-		//For Imgui
-		void ImguiAwake();
-		void ImguiShutdown();
-
-		void ImguiFrameBegin();
-		void ImguiFrameEnd();
 
 	private:
 		HWND hwnd_;	//Window handle
@@ -99,5 +93,6 @@ namespace argent::graphics
 	private:
 		//For imgui
 		Descriptor imgui_font_srv_descriptor_;
+		ImGuiWrapper imgui_wrapper_;
 	};
 }

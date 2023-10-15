@@ -26,7 +26,7 @@ namespace argent::graphics
 
 		/**
 		 * \brief Create ID3D12Device Object.
-		 * Call this funcion only once.
+		 * Call this function only once.
 		 * \param idxgi_factory a pointer to IDXGIFactory6 object
 		 */
 		void Awake(IDXGIFactory6* idxgi_factory);
@@ -46,10 +46,6 @@ namespace argent::graphics
 		HRESULT CreateDescriptorHeap(ID3D12DescriptorHeap** pp_descriptor_heap,
 		                             D3D12_DESCRIPTOR_HEAP_FLAGS heap_flags, D3D12_DESCRIPTOR_HEAP_TYPE heap_type, UINT num_descriptors,
 		                             UINT node_mask = 0) const;
-
-		//Under developement
-		HRESULT CreateRenderTarget();
-		HRESULT CreateFence(ID3D12Fence** pp_fence, UINT64 initial_fence_value = 0, D3D12_FENCE_FLAGS fence_flags = D3D12_FENCE_FLAG_NONE) const;
 
 		void CreateRTV(ID3D12Resource* p_resource, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
 

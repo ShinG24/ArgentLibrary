@@ -42,7 +42,6 @@ namespace argent::graphics
 
 		RECT rect{};
 		GetClientRect(hwnd_, &rect);
-		//GetWindowRect(hwnd_, &rect);
 		viewport_ = D3D12_VIEWPORT(0.0f, 0.0f, static_cast<FLOAT>(rect.right - rect.left), 
 			static_cast<FLOAT>(rect.bottom - rect.top), 0.0f, 1.0f);
 		scissor_rect_ = D3D12_RECT(rect);
@@ -55,12 +54,13 @@ namespace argent::graphics
 			resource_upload_queue_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
 			cbv_srv_uav_heap_);
 #endif
-		ImguiAwake();
+
+		imgui_wrapper_.Awake(&graphics_device_, &cbv_srv_uav_heap_, hwnd_);
 	}
 
 	void GraphicsLibrary::Shutdown()
 	{
-		ImguiShutdown();
+		imgui_wrapper_.Shutdown();
 		main_rendering_queue_.WaitForGpu();
 		resource_upload_queue_.WaitForGpu();
 	}
@@ -84,26 +84,21 @@ namespace argent::graphics
 		std::vector heaps = { cbv_srv_uav_heap_.GetDescriptorHeapObject() };
 		command_list.GetCommandList()->SetDescriptorHeaps(1u, heaps.data());
 
-		//For ImGui
-		ImguiFrameBegin();
+		imgui_wrapper_.FrameBegin();
 
 		OnRender();
 	}
 
 	void GraphicsLibrary::FrameEnd()
 	{
-		ImguiFrameEnd();
-
 		auto& command_list = graphics_command_list_[back_buffer_index_];
+		imgui_wrapper_.FrameEnd(command_list.GetCommandList());
 
 		frame_resources_[back_buffer_index_].Deactivate(command_list);
 
 		command_list.Deactivate();
 
-		ID3D12CommandList* command_lists[]
-		{
-			command_list.GetCommandList()
-		};
+		ID3D12CommandList* command_lists[]{ command_list.GetCommandList() };
 		main_rendering_queue_.Execute(1u, command_lists);
 
 		swap_chain_.Present();
@@ -125,7 +120,6 @@ namespace argent::graphics
 		{
 #if _USE_RAY_TRACER_
 			raytracer_.OnRender(graphics_command_list_[back_buffer_index_]);
-
 
 			//return;
 			D3D12_RESOURCE_BARRIER resource_barrier{};
@@ -174,66 +168,5 @@ namespace argent::graphics
 
 		debugLayer->EnableDebugLayer();
 		debugLayer->Release();
-	}
-
-	void GraphicsLibrary::ImguiAwake()
-	{
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO();
-
-		//Add Font file
-		io.Fonts->AddFontFromFileTTF("Assets/Fonts/HGRMB.TTC", 16.0f, nullptr);
-
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	//	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-		ImGui::StyleColorsLight();
-
-		ImGuiStyle& style = ImGui::GetStyle();
-		if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_ModalWindowDimBg].w = 1.0f;
-		}
-		style.Colors[ImGuiCol_WindowBg].w = 0.7f;
-		style.Colors[ImGuiCol_FrameBg].w = 0.7f;
-		style.Colors[ImGuiCol_TitleBgActive].w = 0.7f;
-
-
-		imgui_font_srv_descriptor_ = cbv_srv_uav_heap_.PopDescriptor();
-		ImGui_ImplWin32_Init(hwnd_);
-		ImGui_ImplDX12_Init(graphics_device_.GetDevice(), kNumBackBuffers, DXGI_FORMAT_R8G8B8A8_UNORM, 
-			cbv_srv_uav_heap_.GetDescriptorHeapObject(), imgui_font_srv_descriptor_.cpu_handle_, 
-			imgui_font_srv_descriptor_.gpu_handle_);
-
-	}
-
-	void GraphicsLibrary::ImguiShutdown()
-	{
-		ImGui_ImplDX12_Shutdown();
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
-	}
-
-	void GraphicsLibrary::ImguiFrameBegin()
-	{
-		ImGui_ImplDX12_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_::ImGuiCond_Once);
-		ImGui::SetNextWindowSize(ImVec2(300.0f, 500.0f), ImGuiCond_::ImGuiCond_Once);
-
-		ImGui::Begin("Imgui");
-	}
-
-
-	void GraphicsLibrary::ImguiFrameEnd()
-	{
-		ImGui::End();
-		ImGui::Render();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), graphics_command_list_[back_buffer_index_].GetCommandList());
 	}
 }

@@ -37,6 +37,7 @@
     <ClInclude Include="Inc\DxgiFactory.h" />
     <ClInclude Include="Inc\GraphicsCommon.h" />
     <ClInclude Include="Inc\GraphicsDevice.h" />
+    <ClInclude Include="Inc\ImGuiWrapper.h" />
     <ClInclude Include="Inc\Platform.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
     <ClInclude Include="Inc\Raytracer.h" />
@@ -66,6 +67,7 @@
     <ClCompile Include="Source\CommandQueue.cpp" />
     <ClCompile Include="Source\DxgiFactory.cpp" />
     <ClCompile Include="Source\GraphicsDevice.cpp" />
+    <ClCompile Include="Source\ImGuiWrapper.cpp" />
     <ClCompile Include="Source\Platform.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
     <ClCompile Include="Source\Raytracer.cpp" />

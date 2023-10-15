@@ -80,19 +80,6 @@ namespace argent::graphics
 		return hr;
 	}
 
-	//Under developement
-	HRESULT GraphicsDevice::CreateRenderTarget()
-	{
-		return E_FAIL;
-	}
-
-	HRESULT GraphicsDevice::CreateFence(ID3D12Fence** pp_fence, UINT64 initial_fence_value, D3D12_FENCE_FLAGS fence_flags) const
-	{
-	 	const HRESULT hr = device_->CreateFence(initial_fence_value, fence_flags, IID_PPV_ARGS(pp_fence));
-		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create ID3D12Fence");
-		return hr;
-	}
-
 	void GraphicsDevice::CreateRTV(ID3D12Resource* p_resource, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC desc{};
@@ -178,6 +165,5 @@ namespace argent::graphics
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Call ID3D12Device::CheckFeatureSupport()");
 
 		return feature_support_data.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
-
 	}
 }
