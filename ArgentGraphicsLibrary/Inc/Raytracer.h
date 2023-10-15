@@ -73,6 +73,7 @@ namespace argent::graphics
 			UINT64 width, UINT height, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap);
 
+		void Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue);
 		void OnRender(const GraphicsCommandList& command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle);
 
 		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
@@ -183,5 +184,18 @@ namespace argent::graphics
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_0_;
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_1_;
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_2_;
+
+		UINT64 tlas_result_size_;
+		UINT64 tlas_scratch_size_;
+		UINT64 tlas_instance_size_;
+
+		struct Transform
+		{
+			DirectX::XMFLOAT3 position_{};
+			DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
+			DirectX::XMFLOAT3 rotation_{};
+		};
+
+		Transform cube_transform_;
 	};
 }

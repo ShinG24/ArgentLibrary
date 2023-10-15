@@ -39,6 +39,37 @@ namespace argent::graphics
 		CreateShaderBindingTable(graphics_device);
 	}
 
+	void Raytracer::Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue)
+	{
+		graphics_command_list->Activate();
+		//Imgui
+		{
+			if(ImGui::TreeNode("Cube"))
+			{
+				ImGui::DragFloat3("Position", &cube_transform_.position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+				ImGui::DragFloat3("Scaling", &cube_transform_.scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
+				ImGui::DragFloat3("Rotation", &cube_transform_.rotation_.x, 3.14 / 180 * 0.1f, -FLT_MAX, FLT_MAX);
+				ImGui::TreePop();
+			}
+		}
+		XMMATRIX S = XMMatrixScaling(cube_transform_.scaling_.x, cube_transform_.scaling_.y, cube_transform_.scaling_.z);
+		XMMATRIX R = XMMatrixRotationRollPitchYaw(cube_transform_.rotation_.x, cube_transform_.rotation_.y, cube_transform_.rotation_.z);
+		XMMATRIX T = XMMatrixTranslation(cube_transform_.position_.x, cube_transform_.position_.y, cube_transform_.position_.z);
+		XMMATRIX M = S * R * T;
+
+		instances_.at(2).second = M;
+
+		top_level_as_generator_.Generate(graphics_command_list->GetCommandList4(), top_level_as_buffer_.pScratch.Get(),
+			top_level_as_buffer_.pResult.Get(), top_level_as_buffer_.pInstanceDesc.Get(),
+			true, top_level_as_buffer_.pResult.Get());
+
+		graphics_command_list->Deactivate();
+		ID3D12CommandList* command_lists[]{ graphics_command_list->GetCommandList() };
+		upload_command_queue->Execute(1u, command_lists);
+		upload_command_queue->Signal();
+		upload_command_queue->WaitForGpu();
+	}
+
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle)
 	{
 		auto command_list = graphics_command_list.GetCommandList4();
@@ -690,20 +721,20 @@ namespace argent::graphics
 				instances[i].second, static_cast<UINT>(i), static_cast<UINT>(i));
 		}
 
-		UINT64 scratch_size, result_size, instance_desc_size;
 		top_level_as_generator_.ComputeASBufferSizes(graphics_device.GetLatestDevice(), 
-			true, &scratch_size, &result_size, &instance_desc_size);
+			true, &tlas_scratch_size_,
+			&tlas_result_size_, &tlas_instance_size_);
 
 
 		graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			static_cast<UINT>(scratch_size), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, top_level_as_buffer_.pScratch.ReleaseAndGetAddressOf());
+			static_cast<UINT>(tlas_scratch_size_), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, top_level_as_buffer_.pScratch.ReleaseAndGetAddressOf());
 		
 		graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			static_cast<UINT>(result_size), D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+			static_cast<UINT>(tlas_result_size_), D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
 			top_level_as_buffer_.pResult.ReleaseAndGetAddressOf());
 		
 		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
-			static_cast<UINT>(instance_desc_size), D3D12_RESOURCE_STATE_GENERIC_READ, 
+			static_cast<UINT>(tlas_instance_size_), D3D12_RESOURCE_STATE_GENERIC_READ,
 			top_level_as_buffer_.pInstanceDesc.ReleaseAndGetAddressOf());
 
 		top_level_as_generator_.Generate(command_list, 

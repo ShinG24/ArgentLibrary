@@ -137,6 +137,7 @@ namespace argent::graphics
 		else
 		{
 #if _USE_RAY_TRACER_
+			raytracer_.Update(&resource_upload_command_list_, &resource_upload_queue_);
 			raytracer_.OnRender(graphics_command_list_[back_buffer_index_], scene_constant_buffer_.GetGpuHandle(back_buffer_index_));
 
 			command_list.SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
