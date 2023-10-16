@@ -20,6 +20,9 @@
 
 #define _USE_BLAS_GENERATOR_ 0
 
+
+
+
 namespace argent::graphics
 {
 	void Raytracer::Awake(const GraphicsDevice& graphics_device, GraphicsCommandList& command_list,
@@ -139,6 +142,8 @@ namespace argent::graphics
 	        {{-0.25f, -0.6f, 0.5f}, {}}
 			};
 
+#if _USE_VERTEX_CLASS_
+
 			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
 				vertex_buffer_.ReleaseAndGetAddressOf(), vertex_buffer_view_);
 
@@ -150,6 +155,10 @@ namespace argent::graphics
 			map[2] = vertices[2];
 
 			vertex_buffer_->Unmap(0u, nullptr);
+
+#else
+			vertex_buffer0_ = std::make_unique<VertexBuffer<Vertex>>(&graphics_device, vertices, 3);
+#endif
 		}
 
 		//Plane
@@ -165,7 +174,7 @@ namespace argent::graphics
 				{{ 1.0f, 0.0f, -1.0f }, {}},
 			};
 
-
+#if _USE_VERTEX_CLASS_
 			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 6, 
 				vertex_buffer1_.ReleaseAndGetAddressOf(), vertex_buffer_view1_);
 
@@ -180,6 +189,9 @@ namespace argent::graphics
 			map1[5] = vertices1[5];
 
 			vertex_buffer1_->Unmap(0u, nullptr);
+#else
+			vertex_buffer1_ = std::make_unique<VertexBuffer<Vertex>>(&graphics_device, vertices1, 6u);
+#endif
 		}
 
 		//Cube
@@ -239,6 +251,7 @@ namespace argent::graphics
 		        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
 		    };
 
+#if _USE_VERTEX_CLASS_
 
 			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 24, vertex_buffer2_.ReleaseAndGetAddressOf(), vertex_buffer_view2_);
 			graphics_device.CreateIndexBufferAndView(sizeof(UINT32), 36, DXGI_FORMAT_R16_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
@@ -269,6 +282,29 @@ namespace argent::graphics
 			desc.Buffer.StructureByteStride = 4;
 			//desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
 			graphics_device.GetDevice()->CreateShaderResourceView(index_buffer_.Get(), &desc, cube_index_descriptor_.cpu_handle_);
+#else
+
+			vertex_buffer2_ = std::make_unique<VertexBuffer<Vertex>>(&graphics_device, vertices, 24u);
+			index_buffer_ = std::make_unique<IndexBuffer>(&graphics_device, indices, 36u);
+
+			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+			desc.Format = DXGI_FORMAT_UNKNOWN;
+			desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+			desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+			desc.Buffer.NumElements = vertex_buffer2_->GetVertexCounts();
+			desc.Buffer.StructureByteStride = sizeof(Vertex);
+			graphics_device.GetDevice()->CreateShaderResourceView(vertex_buffer2_->GetBufferObject(), &desc, cube_vertex_descriptor_.cpu_handle_);
+			
+			//desc.Format = DXGI_FORMAT_R32_TYPELESS;
+			desc.Buffer.FirstElement = 0u;
+			desc.Buffer.NumElements = index_buffer_->GetIndexCounts();
+
+			desc.Buffer.StructureByteStride = 4;
+
+			graphics_device.GetDevice()->CreateShaderResourceView(index_buffer_->GetBufferObject(), &desc, cube_index_descriptor_.cpu_handle_);
+#endif
+
 		}
 	}
 
@@ -310,6 +346,8 @@ namespace argent::graphics
 			bottom_level_buffer2 = buffers;
 		}
 #else
+
+#if _USE_VERTEX_CLASS_
 		bottom_level_0_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
 			&command_list, vertex_buffer_.Get(), 3u, sizeof(Vertex), nullptr, 0u);
 
@@ -319,6 +357,18 @@ namespace argent::graphics
 		bottom_level_2_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
 			&command_list, vertex_buffer2_.Get(), 24u, sizeof(Vertex), 
 			index_buffer_.Get(), 36u);
+
+#else
+			bottom_level_0_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
+			&command_list, vertex_buffer0_->GetBufferObject(), vertex_buffer0_->GetVertexCounts(), sizeof(Vertex), nullptr, 0u);
+
+		bottom_level_1_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
+			&command_list, vertex_buffer1_->GetBufferObject(), vertex_buffer1_->GetVertexCounts(), sizeof(Vertex), nullptr, 0u);
+
+		bottom_level_2_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
+			&command_list, vertex_buffer2_->GetBufferObject(), vertex_buffer2_->GetVertexCounts(), sizeof(Vertex), 
+			index_buffer_->GetBufferObject(), index_buffer_->GetIndexCounts());
+#endif
 
 
 #endif

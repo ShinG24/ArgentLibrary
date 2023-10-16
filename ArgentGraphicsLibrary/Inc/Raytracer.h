@@ -20,6 +20,11 @@
 
 #include "BottomLevelAccelerationStructure.h"
 
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+
+#define _USE_VERTEX_CLASS_ 0
+
 using namespace DirectX;
 
 using float2 = DirectX::XMFLOAT2;
@@ -112,7 +117,13 @@ namespace argent::graphics
 		D3D12_HIT_GROUP_DESC hit_group_desc_;
 		RootSignatureAssociation hit_association_;
 
+		struct Vertex
+		{
+			float3 position_;
+			float3 normal_;
+		};
 
+#if  _USE_VERTEX_CLASS_ 0
 		//Vertex
 
 		//Polygon
@@ -128,6 +139,16 @@ namespace argent::graphics
 		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view2_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> index_buffer_;
 		D3D12_INDEX_BUFFER_VIEW index_buffer_view_;
+
+#else
+
+
+		std::unique_ptr<VertexBuffer<Vertex>> vertex_buffer0_; 
+		std::unique_ptr<VertexBuffer<Vertex>> vertex_buffer1_; 
+		std::unique_ptr<VertexBuffer<Vertex>> vertex_buffer2_;
+		std::unique_ptr<IndexBuffer> index_buffer_;
+#endif
+
 		Descriptor cube_vertex_descriptor_;
 		Descriptor cube_index_descriptor_;
 
@@ -154,11 +175,7 @@ namespace argent::graphics
 		UINT64 width_;
 		UINT height_;
 
-		struct Vertex
-		{
-			float3 position_;
-			float3 normal_;
-		};
+		
 
 
 		//In Tutorial

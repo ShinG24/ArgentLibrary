@@ -39,12 +39,14 @@
     <ClInclude Include="Inc\GraphicsCommon.h" />
     <ClInclude Include="Inc\GraphicsDevice.h" />
     <ClInclude Include="Inc\ImGuiWrapper.h" />
+    <ClInclude Include="Inc\IndexBuffer.h" />
     <ClInclude Include="Inc\Platform.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
     <ClInclude Include="Inc\Raytracer.h" />
     <ClInclude Include="Inc\RootSignature.h" />
     <ClInclude Include="Inc\ShaderCompiler.h" />
     <ClInclude Include="Inc\SwapChain.h" />
+    <ClInclude Include="Inc\VertexBuffer.h" />
     <ClInclude Include="RaytracingPipelineGenerator.h" />
     <ClInclude Include="RootSignatureGenerator.h" />
     <ClInclude Include="ShaderBindingTableGenerator.h" />
@@ -70,6 +72,7 @@
     <ClCompile Include="Source\DxgiFactory.cpp" />
     <ClCompile Include="Source\GraphicsDevice.cpp" />
     <ClCompile Include="Source\ImGuiWrapper.cpp" />
+    <ClCompile Include="Source\IndexBuffer.cpp" />
     <ClCompile Include="Source\Platform.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
     <ClCompile Include="Source\Raytracer.cpp" />

@@ -81,6 +81,12 @@
     <ClInclude Include="Inc\BottomLevelAccelerationStructure.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\VertexBuffer.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\IndexBuffer.h">
+      <Filter>Direct3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -152,6 +158,9 @@
     <ClCompile Include="Source\ImGuiWrapper.cpp" />
     <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp">
       <Filter>Direct3D12\DXR</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IndexBuffer.cpp">
+      <Filter>Direct3D12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
