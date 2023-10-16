@@ -34,6 +34,7 @@ namespace argent::graphics
 
 		cube_vertex_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		cube_index_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		object_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
 		CreateAS(graphics_device, command_list, command_queue);
 		CreatePipeline(graphics_device);
@@ -79,6 +80,18 @@ namespace argent::graphics
 		upload_command_queue->Execute(1u, command_lists);
 		upload_command_queue->Signal();
 		upload_command_queue->WaitForGpu();
+
+
+		{
+			DirectX::XMFLOAT4X4* map;
+			object_world_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+			DirectX::XMFLOAT4X4 m;
+			DirectX::XMStoreFloat4x4(&m, M);
+			memcpy(map, &m, sizeof(DirectX::XMFLOAT4X4));
+
+			object_world_buffer_->Unmap(0u, nullptr);
+		}
 	}
 
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle)
@@ -363,6 +376,7 @@ namespace argent::graphics
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 			rsc.AddHeapRangesParameter({{0u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
+			rsc.AddHeapRangesParameter({{2u, 1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
 			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
 		}
 
@@ -428,6 +442,29 @@ namespace argent::graphics
 #endif
 		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
 			tlas_result_descriptor_.cpu_handle_);
+
+
+		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(DirectX::XMFLOAT4X4), 
+			D3D12_RESOURCE_STATE_GENERIC_READ, object_world_buffer_.ReleaseAndGetAddressOf());
+
+		srv_desc = {};
+		srv_desc.Format = DXGI_FORMAT_UNKNOWN;
+		srv_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srv_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		srv_desc.Buffer.NumElements = 1u;
+		srv_desc.Buffer.StructureByteStride = sizeof(DirectX::XMFLOAT4X4);
+		graphics_device.GetDevice()->CreateShaderResourceView(object_world_buffer_.Get(), &srv_desc, 
+			object_descriptor_.cpu_handle_);
+
+		DirectX::XMFLOAT4X4* map;
+		object_world_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+		DirectX::XMFLOAT4X4 m;
+		DirectX::XMStoreFloat4x4(&m, DirectX::XMMatrixIdentity());
+		memcpy(map, &m, sizeof(DirectX::XMFLOAT4X4));
+
+		object_world_buffer_->Unmap(0u, nullptr);
 	}
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
@@ -553,8 +590,9 @@ namespace argent::graphics
 				//Not Entry directly
 				//memcpy(map, reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle.ptr), 8) does not
 				//act my assumption.
-				std::vector<void*> data(1);
+				std::vector<void*> data(2);
 				data.at(0) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
+				data.at(1) = reinterpret_cast<void*>(object_descriptor_.gpu_handle_.ptr);
 
 				//Map Resource
 				memcpy(map, data.data(), data.size() * 8);

@@ -183,5 +183,8 @@ namespace argent::graphics
 		};
 
 		Transform cube_transform_;
+
+		Descriptor object_descriptor_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> object_world_buffer_;
 	};
 }

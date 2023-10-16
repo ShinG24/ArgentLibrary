@@ -14,12 +14,16 @@ ByteAddressBuffer Indices : register(t2);
 
 #else
 
-
+struct ObjectConstant
+{
+    row_major float4x4 world_;
+};
 RaytracingAccelerationStructure SceneBVH : register(t0);
 RWTexture2D<float4> gOutput : register(u0);
 
 StructuredBuffer<Vertex> vertices : register(t0, space1);
 ByteAddressBuffer Indices : register(t1, space1);
+StructuredBuffer<ObjectConstant> object_constant : register(t2, space1);
 
 #endif
 
@@ -104,11 +108,11 @@ uint3 Load3x32BitIndices()
     attrib.bary.x * (vertex_normal[1] - vertex_normal[0]) +
     attrib.bary.y * (vertex_normal[2] - vertex_normal[0]);
 
+    triangle_normal = mul(float4(triangle_normal, 0.0f), object_constant[0].world_).xyz;
+
     //float3 light_direction = float3(1.0, -1.0, 1.0);
     //float3 light_direction = normalize(float3(1.0f, -1.0f, 1.0f));
     //float3 pixel_to_light = normalize(scene_constant.light_position_ - hit_position);
-
-    
 
     float fNDotL = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
     //float fNDotL = max(0.0f, dot(pixel_to_light, triangle_normal));
