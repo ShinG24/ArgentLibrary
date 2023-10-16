@@ -25,7 +25,9 @@ namespace argent::graphics
 		void Generate(const GraphicsDevice* graphics_device,
 		const GraphicsCommandList* graphics_command_list);
 
-		void Update();
+		void SetMatrix(const DirectX::XMMATRIX& m, UINT instance_index) { instances_.at(instance_index).m_ = m; }
+
+		void Update(const GraphicsCommandList* graphics_command_list);
 
 		ID3D12Resource* GetResultBuffer() const { return result_buffer_object_.Get(); }
 

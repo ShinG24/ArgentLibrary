@@ -44,7 +44,6 @@ namespace argent::graphics
 
 	void Raytracer::Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue)
 	{
-#if _USE_TLAS_GENERATOR_
 		graphics_command_list->Activate();
 		//Imgui
 		{
@@ -60,6 +59,7 @@ namespace argent::graphics
 		XMMATRIX R = XMMatrixRotationRollPitchYaw(cube_transform_.rotation_.x, cube_transform_.rotation_.y, cube_transform_.rotation_.z);
 		XMMATRIX T = XMMatrixTranslation(cube_transform_.position_.x, cube_transform_.position_.y, cube_transform_.position_.z);
 		XMMATRIX M = S * R * T;
+#if _USE_TLAS_GENERATOR_
 
 		instances_.at(2).second = M;
 
@@ -67,12 +67,18 @@ namespace argent::graphics
 			top_level_as_buffer_.pResult.Get(), top_level_as_buffer_.pInstanceDesc.Get(),
 			true, top_level_as_buffer_.pResult.Get());
 
+
+#else
+
+		top_level_acceleration_structure_.SetMatrix(M, 2u);
+		top_level_acceleration_structure_.Update(graphics_command_list);
+
+#endif
 		graphics_command_list->Deactivate();
 		ID3D12CommandList* command_lists[]{ graphics_command_list->GetCommandList() };
 		upload_command_queue->Execute(1u, command_lists);
 		upload_command_queue->Signal();
 		upload_command_queue->WaitForGpu();
-#endif
 	}
 
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle)
@@ -594,6 +600,7 @@ namespace argent::graphics
 		ID3D12GraphicsCommandList4* command_list,
 		const std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>>& instances)
 	{
+#if _USE_TLAS_GENERATOR_
 		for(size_t i = 0; i < instances.size(); ++i)
 		{
 			top_level_as_generator_.AddInstance(instances[i].first.Get(), 
@@ -620,5 +627,6 @@ namespace argent::graphics
 			top_level_as_buffer_.pScratch.Get(), 
 			top_level_as_buffer_.pResult.Get(),
 			top_level_as_buffer_.pInstanceDesc.Get());
+#endif
 	}
 }
