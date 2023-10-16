@@ -19,7 +19,7 @@ namespace argent::graphics
 		IndexBuffer& operator=(const IndexBuffer&) = delete;
 		IndexBuffer& operator=(const IndexBuffer&&) = delete;
 
-		D3D12_INDEX_BUFFER_VIEW GetBufferView() const { return buffer_view_; }
+		D3D12_INDEX_BUFFER_VIEW GetView() const { return buffer_view_; }
 		ID3D12Resource* GetBufferObject() const { return buffer_object_.Get(); }
 		UINT GetIndexCounts() const { return buffer_view_.SizeInBytes / sizeof(UINT32); }
 	private:

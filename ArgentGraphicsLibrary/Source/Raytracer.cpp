@@ -279,14 +279,17 @@ namespace argent::graphics
 #else
 
 		bottom_level_0_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
-			&command_list, vertex_buffer0_->GetBufferObject(), vertex_buffer0_->GetVertexCounts(), sizeof(Vertex), nullptr, 0u);
+			&command_list, vertex_buffer0_.get());
 
 		bottom_level_1_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
-			&command_list, vertex_buffer1_->GetBufferObject(), vertex_buffer1_->GetVertexCounts(), sizeof(Vertex), nullptr, 0u);
+			&command_list, vertex_buffer1_.get());
+
+		BLASBuildDesc build_desc{};
+		build_desc.vertex_buffer_vec_ = { vertex_buffer2_.get() };
+		build_desc.index_buffer_vec_ = { index_buffer_.get() };
 
 		bottom_level_2_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
-			&command_list, vertex_buffer2_->GetBufferObject(), vertex_buffer2_->GetVertexCounts(), sizeof(Vertex), 
-			index_buffer_->GetBufferObject(), index_buffer_->GetIndexCounts());
+			&command_list, &build_desc);
 
 #endif
 		DirectX::XMFLOAT3 pos{ 0.0f, -3.0f, 0.0f };

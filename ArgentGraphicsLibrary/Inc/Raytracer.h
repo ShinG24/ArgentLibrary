@@ -121,7 +121,6 @@ namespace argent::graphics
 			float3 position_;
 			float3 normal_;
 		};
-		
 
 		std::unique_ptr<VertexBuffer> vertex_buffer0_; 
 		std::unique_ptr<VertexBuffer> vertex_buffer1_; 
@@ -153,8 +152,6 @@ namespace argent::graphics
 		
 		UINT64 width_;
 		UINT height_;
-
-		
 
 
 		//In Tutorial
