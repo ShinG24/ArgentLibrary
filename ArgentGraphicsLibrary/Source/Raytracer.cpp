@@ -20,7 +20,7 @@
 
 #define _USE_BLAS_GENERATOR_ 0
 
-
+#define _USE_TLAS_GENERATOR_ 0
 
 
 namespace argent::graphics
@@ -44,6 +44,7 @@ namespace argent::graphics
 
 	void Raytracer::Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue)
 	{
+#if _USE_TLAS_GENERATOR_
 		graphics_command_list->Activate();
 		//Imgui
 		{
@@ -71,6 +72,7 @@ namespace argent::graphics
 		upload_command_queue->Execute(1u, command_lists);
 		upload_command_queue->Signal();
 		upload_command_queue->WaitForGpu();
+#endif
 	}
 
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle)
@@ -244,40 +246,6 @@ namespace argent::graphics
 	{
 		BuildGeometry(graphics_device);
 
-#if _USE_BLAS_GENERATOR_
-		AccelerationStructureBuffers bottom_level_buffer = 
-		CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
-			{{vertex_buffer_.Get(), 3}});
-		AccelerationStructureBuffers bottom_level_buffer1 = CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(),
-			{  {vertex_buffer1_.Get(), 6} });
-
-		AccelerationStructureBuffers bottom_level_buffer2/* = CreateBottomLevelAs(graphics_device, command_list.GetCommandList4(), 
-			{{vertex_buffer2_.Get(), 24}})*/;
-		{
-			nv_helpers_dx12::BottomLevelASGenerator bottom_level_as;
-
-			bottom_level_as.AddVertexBuffer(vertex_buffer2_.Get(), 0u, 24,
-					sizeof(Vertex), index_buffer_.Get(), 0u, 36, nullptr, 0u);
-			
-			UINT64 scratch_size_in_bytes = 0u;
-			UINT64 result_size_in_bytes = 0u;
-
-			bottom_level_as.ComputeASBufferSizes(graphics_device.GetLatestDevice(), 
-				false, &scratch_size_in_bytes, &result_size_in_bytes);
-
-			AccelerationStructureBuffers buffers;
-			graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-				static_cast<UINT>(scratch_size_in_bytes), D3D12_RESOURCE_STATE_COMMON,buffers.pScratch.ReleaseAndGetAddressOf());
-			graphics_device.CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-				static_cast<UINT>(result_size_in_bytes), D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, 
-				buffers.pResult.ReleaseAndGetAddressOf());
-
-			bottom_level_as.Generate(command_list.GetCommandList4(), buffers.pScratch.Get(), 
-				buffers.pResult.Get(), false, nullptr);
-			bottom_level_buffer2 = buffers;
-		}
-#else
-
 		bottom_level_0_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
 			&command_list, vertex_buffer0_.get());
 
@@ -291,7 +259,6 @@ namespace argent::graphics
 		bottom_level_2_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
 			&command_list, &build_desc);
 
-#endif
 		DirectX::XMFLOAT3 pos{ 0.0f, -3.0f, 0.0f };
 		DirectX::XMFLOAT3 scale{ 100.0f, 100.0f, 100.0f };
 
@@ -301,15 +268,26 @@ namespace argent::graphics
 		DirectX::XMFLOAT3 pos1{3.0f, 0.0f, 0.0f};
 		DirectX::XMMATRIX T1 = DirectX::XMMatrixTranslation(pos1.x, pos1.y, pos1.z);
 
-#if _USE_BLAS_GENERATOR_
-		instances_ = {{bottom_level_buffer.pResult, XMMatrixIdentity() }, { bottom_level_buffer1.pResult, S * T},{ bottom_level_buffer2.pResult, T1}, };
-#else
+
+#if _USE_TLAS_GENERATOR_
 		instances_ = {{bottom_level_0_->GetResultBuffer(), XMMatrixIdentity() },
 			{ bottom_level_1_->GetResultBuffer(), S * T},
 			{ bottom_level_2_->GetResultBuffer(), T1}, };
-#endif
+
 		CreateTopLevelAs(graphics_device, command_list.GetCommandList4(), instances_);
 
+#else
+		top_level_acceleration_structure_.AddInstance(bottom_level_0_.get(), XMMatrixIdentity(),
+			0u);
+		top_level_acceleration_structure_.AddInstance(bottom_level_1_.get(), S * T,
+			1u);
+		top_level_acceleration_structure_.AddInstance(bottom_level_2_.get(), T1,
+			2u);
+
+		top_level_acceleration_structure_.Generate(&graphics_device, &command_list);
+
+
+#endif
 		//Execute Command list
 		command_list.Deactivate();
 
@@ -320,26 +298,12 @@ namespace argent::graphics
 		command_queue.Execute(1u, command_lists);
 		command_queue.Signal();
 		command_queue.WaitForGpu();
-
 	}
 
 	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)
 	{
 		//Create Dummy Root Signature
 		{
-#if 0
-			D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
-			root_signature_desc.NumParameters = 0u;
-			root_signature_desc.pParameters = nullptr;
-			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-
-			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
-				dummy_global_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
-
-			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
-				dummy_local_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
-#else
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 
 			rsc.AddHeapRangesParameter(
@@ -366,7 +330,6 @@ namespace argent::graphics
 			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
 			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
 				dummy_local_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
-#endif
 		}
 
 		nv_helpers_dx12::RayTracingPipelineGenerator pipeline(graphics_device.GetLatestDevice());
@@ -403,56 +366,17 @@ namespace argent::graphics
 
 		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"RayGen"});
 
-#if 1
 		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"Miss"});
 		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}});
 		pipeline.AddRootSignatureAssociation(hit_local_root_signature_.Get(), { {L"HitGroup2"}});
 
-#else
-
-		pipeline.AddRootSignatureAssociation(miss_signature_.Get(), {L"Miss"});
-		pipeline.AddRootSignatureAssociation(hit_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}});
-
-#endif
-	//	pipeline.AddRootSignatureAssociation(hit1_signature_.Get(), {L"HitGroup1"});
-
 		pipeline.SetMaxPayloadSize(sizeof(RayPayload) / 4 * sizeof(float));
-		//pipeline.SetMaxPayloadSize(5 * sizeof(float));
 		pipeline.SetMaxAttributeSize(2 * sizeof(float));
 		pipeline.SetMaxRecursionDepth(_MAX_REFLECTION_);
 
 		raytracing_state_object_ = pipeline.Generate(dummy_global_root_signature_.Get(), dummy_local_root_signature_.Get());
 		HRESULT hr = raytracing_state_object_->QueryInterface(IID_PPV_ARGS(raytracing_state_object_properties_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Query Interface");
-	}
-
-	void Raytracer::BuildShaderExportList(std::vector<std::wstring> exported_symbols)
-	{
-		//Build a list containing the export symbols for the ray generation shaders,
-		//miss shaders, and hit group name
-
-		//Get all names from libraries
-		//Get names associated to hit groups
-		//Return list of libraries + hit group name - shaders in hit groups
-
-		std::unordered_set<std::wstring> exports;
-
-		//In truth need to check that no name is exported more than once
-		//But in this I do not code.
-		exports.insert(ray_gen_library_data_.exported_symbols_.at(0));
-		exports.insert(miss_library_data_.exported_symbols_.at(0));
-		exports.insert(hit_library_data_.exported_symbols_.at(0));
-
-		//In truth it's need to verify that the hit groups do not reference an
-		//unknown shader name, but i do not code.
-
-		exports.erase(L"ClosestHit");
-		exports.insert(L"HitGroup");
-
-		for(const auto& name : exports)
-		{
-			exported_symbols.push_back(name);
-		}
 	}
 
 	void Raytracer::CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height)
@@ -479,40 +403,25 @@ namespace argent::graphics
 	{
 		output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
-#if 0
-
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
-		uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
-			nullptr, &uav_desc, srv_handle);
-
-#else
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
 		uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		graphics_device.GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
 			nullptr, &uav_desc, output_descriptor_.cpu_handle_);
 
-#endif
-
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
 		srv_desc.Format = DXGI_FORMAT_UNKNOWN;
 		srv_desc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+#if _USE_TLAS_GENERATOR_
 		srv_desc.RaytracingAccelerationStructure.Location = top_level_as_buffer_.pResult->GetGPUVirtualAddress();
 
-
-#if 0
-		srv_handle.ptr += graphics_device.GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
-			srv_handle);
-
 #else
+		srv_desc.RaytracingAccelerationStructure.Location = top_level_acceleration_structure_.GetResultBuffer()->GetGPUVirtualAddress();
+#endif
 		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
 			tlas_result_descriptor_.cpu_handle_);
-
-#endif
 	}
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)

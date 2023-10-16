@@ -19,6 +19,7 @@
 #include "DescriptorHeap.h"
 
 #include "BottomLevelAccelerationStructure.h"
+#include "TopLevelAccelerationStructure.h"
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -102,19 +103,10 @@ namespace argent::graphics
 	private:
 		//Shader
 		Microsoft::WRL::ComPtr<IDxcBlob> ray_gen_library_;
-		Library ray_gen_library_data_;
-		RootSignatureAssociation ray_gen_association_;
-
 		Microsoft::WRL::ComPtr<IDxcBlob> miss_library_;
-		Library miss_library_data_;
-		RootSignatureAssociation miss_association_;
-
 		Microsoft::WRL::ComPtr<IDxcBlob> hit_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> hit1_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> hit2_library_;
-		Library hit_library_data_;
-		D3D12_HIT_GROUP_DESC hit_group_desc_;
-		RootSignatureAssociation hit_association_;
 
 		struct Vertex
 		{
@@ -153,7 +145,6 @@ namespace argent::graphics
 		UINT64 width_;
 		UINT height_;
 
-
 		//In Tutorial
 		nv_helpers_dx12::TopLevelASGenerator top_level_as_generator_;
 		AccelerationStructureBuffers top_level_as_buffer_;
@@ -177,6 +168,8 @@ namespace argent::graphics
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_0_;
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_1_;
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_2_;
+
+		TopLevelAccelerationStructure top_level_acceleration_structure_;
 
 		UINT64 tlas_result_size_;
 		UINT64 tlas_scratch_size_;

@@ -189,7 +189,7 @@ void TopLevelASGenerator::Generate(
     // be accessible from outside
     instanceDescs[i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
     // Instance transform matrix
-    DirectX::XMMATRIX m = XMMatrixTranspose(
+  	DirectX::XMMATRIX m = XMMatrixTranspose(
         m_instances[i].transform); // GLM is column major, the INSTANCE_DESC is row major
     memcpy(instanceDescs[i].Transform, &m, sizeof(instanceDescs[i].Transform));
     // Get access to the bottom level

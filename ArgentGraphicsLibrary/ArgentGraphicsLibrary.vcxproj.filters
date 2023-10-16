@@ -87,6 +87,9 @@
     <ClInclude Include="Inc\IndexBuffer.h">
       <Filter>Direct3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\TopLevelAccelerationStructure.h">
+      <Filter>Direct3D12\DXR</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -164,6 +167,9 @@
     </ClCompile>
     <ClCompile Include="Source\VertexBuffer.cpp">
       <Filter>Direct3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TopLevelAccelerationStructure.cpp">
+      <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
