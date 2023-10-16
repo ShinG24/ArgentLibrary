@@ -13,7 +13,7 @@
 #include "../Inc/ShaderCompiler.h"
 
 
-#include "../../Common.hlsli";
+#include "../../Common.hlsli"
 
 
 #define _USE_SBT_GENERATOR_	0
@@ -51,7 +51,7 @@ namespace argent::graphics
 			{
 				ImGui::DragFloat3("Position", &cube_transform_.position_.x, 0.01f, -FLT_MAX, FLT_MAX);
 				ImGui::DragFloat3("Scaling", &cube_transform_.scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
-				ImGui::DragFloat3("Rotation", &cube_transform_.rotation_.x, 3.14 / 180 * 0.1f, -FLT_MAX, FLT_MAX);
+				ImGui::DragFloat3("Rotation", &cube_transform_.rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
 				ImGui::TreePop();
 			}
 		}
@@ -141,24 +141,7 @@ namespace argent::graphics
 	        {{0.25f, -0.6f, 0.5f}, {}},
 	        {{-0.25f, -0.6f, 0.5f}, {}}
 			};
-
-#if _USE_VERTEX_CLASS_
-
-			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 3, 
-				vertex_buffer_.ReleaseAndGetAddressOf(), vertex_buffer_view_);
-
-			Vertex* map;
-			vertex_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
-
-			map[0] = vertices[0];
-			map[1] = vertices[1];
-			map[2] = vertices[2];
-
-			vertex_buffer_->Unmap(0u, nullptr);
-
-#else
-			vertex_buffer0_ = std::make_unique<VertexBuffer<Vertex>>(&graphics_device, vertices, 3);
-#endif
+			vertex_buffer0_ = std::make_unique<VertexBuffer>(&graphics_device, vertices, sizeof(Vertex), 3);
 		}
 
 		//Plane
@@ -174,24 +157,7 @@ namespace argent::graphics
 				{{ 1.0f, 0.0f, -1.0f }, {}},
 			};
 
-#if _USE_VERTEX_CLASS_
-			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 6, 
-				vertex_buffer1_.ReleaseAndGetAddressOf(), vertex_buffer_view1_);
-
-			Vertex* map1;
-			vertex_buffer1_->Map(0u, nullptr, reinterpret_cast<void**>(&map1));
-
-			map1[0] = vertices1[0];
-			map1[1] = vertices1[1];
-			map1[2] = vertices1[2];
-			map1[3] = vertices1[3];
-			map1[4] = vertices1[4];
-			map1[5] = vertices1[5];
-
-			vertex_buffer1_->Unmap(0u, nullptr);
-#else
-			vertex_buffer1_ = std::make_unique<VertexBuffer<Vertex>>(&graphics_device, vertices1, 6u);
-#endif
+			vertex_buffer1_ = std::make_unique<VertexBuffer>(&graphics_device, vertices1, sizeof(Vertex), 6u);
 		}
 
 		//Cube
@@ -251,40 +217,7 @@ namespace argent::graphics
 		        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
 		    };
 
-#if _USE_VERTEX_CLASS_
-
-			graphics_device.CreateVertexBufferAndView(sizeof(Vertex), 24, vertex_buffer2_.ReleaseAndGetAddressOf(), vertex_buffer_view2_);
-			graphics_device.CreateIndexBufferAndView(sizeof(UINT32), 36, DXGI_FORMAT_R16_UINT, index_buffer_.ReleaseAndGetAddressOf(), index_buffer_view_);
-
-			Vertex* map;
-			vertex_buffer2_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
-			memcpy(map, vertices, sizeof(Vertex) * 24);
-			vertex_buffer2_->Unmap(0u, nullptr);
-
-			UINT32* i_map;
-			index_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&i_map));
-			memcpy(i_map, indices, sizeof(UINT32) * 36);
-			index_buffer_->Unmap(0u, nullptr);
-
-			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
-			desc.Format = DXGI_FORMAT_UNKNOWN;
-			desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-			desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-			desc.Buffer.NumElements = 24;
-			desc.Buffer.StructureByteStride = sizeof(Vertex);
-			graphics_device.GetDevice()->CreateShaderResourceView(vertex_buffer2_.Get(), &desc, cube_vertex_descriptor_.cpu_handle_);
-			
-			//desc.Format = DXGI_FORMAT_R32_TYPELESS;
-			desc.Buffer.FirstElement = 0u;
-			desc.Buffer.NumElements = 36;
-			//desc.Buffer.NumElements = 36;
-			desc.Buffer.StructureByteStride = 4;
-			//desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
-			graphics_device.GetDevice()->CreateShaderResourceView(index_buffer_.Get(), &desc, cube_index_descriptor_.cpu_handle_);
-#else
-
-			vertex_buffer2_ = std::make_unique<VertexBuffer<Vertex>>(&graphics_device, vertices, 24u);
+			vertex_buffer2_ = std::make_unique<VertexBuffer>(&graphics_device, vertices, sizeof(Vertex), 24u);
 			index_buffer_ = std::make_unique<IndexBuffer>(&graphics_device, indices, 36u);
 
 			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
@@ -303,8 +236,6 @@ namespace argent::graphics
 			desc.Buffer.StructureByteStride = 4;
 
 			graphics_device.GetDevice()->CreateShaderResourceView(index_buffer_->GetBufferObject(), &desc, cube_index_descriptor_.cpu_handle_);
-#endif
-
 		}
 	}
 
@@ -347,19 +278,7 @@ namespace argent::graphics
 		}
 #else
 
-#if _USE_VERTEX_CLASS_
 		bottom_level_0_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
-			&command_list, vertex_buffer_.Get(), 3u, sizeof(Vertex), nullptr, 0u);
-
-		bottom_level_1_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
-			&command_list, vertex_buffer1_.Get(), 6u, sizeof(Vertex), nullptr, 0u);
-
-		bottom_level_2_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
-			&command_list, vertex_buffer2_.Get(), 24u, sizeof(Vertex), 
-			index_buffer_.Get(), 36u);
-
-#else
-			bottom_level_0_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
 			&command_list, vertex_buffer0_->GetBufferObject(), vertex_buffer0_->GetVertexCounts(), sizeof(Vertex), nullptr, 0u);
 
 		bottom_level_1_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
@@ -368,8 +287,6 @@ namespace argent::graphics
 		bottom_level_2_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
 			&command_list, vertex_buffer2_->GetBufferObject(), vertex_buffer2_->GetVertexCounts(), sizeof(Vertex), 
 			index_buffer_->GetBufferObject(), index_buffer_->GetIndexCounts());
-#endif
-
 
 #endif
 		DirectX::XMFLOAT3 pos{ 0.0f, -3.0f, 0.0f };

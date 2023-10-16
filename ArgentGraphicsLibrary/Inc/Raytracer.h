@@ -23,7 +23,6 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
-#define _USE_VERTEX_CLASS_ 0
 
 using namespace DirectX;
 
@@ -122,32 +121,12 @@ namespace argent::graphics
 			float3 position_;
 			float3 normal_;
 		};
+		
 
-#if  _USE_VERTEX_CLASS_ 0
-		//Vertex
-
-		//Polygon
-		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer_;
-		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view_;
-
-		//Plane
-		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer1_;
-		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view1_;
-
-		//Cube
-		Microsoft::WRL::ComPtr<ID3D12Resource> vertex_buffer2_;
-		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view2_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> index_buffer_;
-		D3D12_INDEX_BUFFER_VIEW index_buffer_view_;
-
-#else
-
-
-		std::unique_ptr<VertexBuffer<Vertex>> vertex_buffer0_; 
-		std::unique_ptr<VertexBuffer<Vertex>> vertex_buffer1_; 
-		std::unique_ptr<VertexBuffer<Vertex>> vertex_buffer2_;
+		std::unique_ptr<VertexBuffer> vertex_buffer0_; 
+		std::unique_ptr<VertexBuffer> vertex_buffer1_; 
+		std::unique_ptr<VertexBuffer> vertex_buffer2_;
 		std::unique_ptr<IndexBuffer> index_buffer_;
-#endif
 
 		Descriptor cube_vertex_descriptor_;
 		Descriptor cube_index_descriptor_;

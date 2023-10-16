@@ -162,6 +162,9 @@
     <ClCompile Include="Source\IndexBuffer.cpp">
       <Filter>Direct3D12</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VertexBuffer.cpp">
+      <Filter>Direct3D12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Direct3D12">

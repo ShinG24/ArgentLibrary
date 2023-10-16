@@ -79,6 +79,7 @@
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\ShaderCompiler.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />
+    <ClCompile Include="Source\VertexBuffer.cpp" />
     <ClCompile Include="TopLevelASGenerator.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -4,6 +4,8 @@
 #include "../Inc/GraphicsCommon.h"
 #include "../Inc/GraphicsDevice.h"
 
+#include "../Inc/VertexBuffer.h"
+#include "../Inc/IndexBuffer.h"
 
 namespace argent::graphics
 {
@@ -60,4 +62,10 @@ namespace argent::graphics
 
 		graphics_command_list->SetUavBarrier(result_resource_object_.Get(), D3D12_RESOURCE_BARRIER_FLAG_NONE);
 	}
+
+	//BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device,
+	//	GraphicsCommandList* graphics_command_list, const VertexBuffer* vertex_buffer, const IndexBuffer* index_buffer)
+	//{
+
+	//}
 }

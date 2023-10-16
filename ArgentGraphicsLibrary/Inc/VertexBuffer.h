@@ -7,12 +7,10 @@
 
 namespace argent::graphics
 {
-
-	template<typename T>
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(const GraphicsDevice* graphics_device, const T* p_data, UINT vertex_counts, bool allow_update = false);
+		VertexBuffer(const GraphicsDevice* graphics_device, const void* p_data, UINT size_of_structure, UINT vertex_counts, bool allow_update = false);
 
 		~VertexBuffer()
 		{
@@ -32,21 +30,7 @@ namespace argent::graphics
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> buffer_object_{};
 		D3D12_VERTEX_BUFFER_VIEW buffer_view_{};
-		T* mapped_data_{};
+		void* mapped_data_{};
 		bool is_unmapped_;
 	};
-
-	template <typename T>
-	VertexBuffer<T>::VertexBuffer(const GraphicsDevice* graphics_device, const T* p_data, UINT vertex_counts, bool allow_update)
-	{
-		if(vertex_counts == 0u) _ASSERT_EXPR(FALSE, L"Vertex Counts need to be more than 1");
-		graphics_device->CreateVertexBufferAndView(sizeof(T), vertex_counts, buffer_object_.ReleaseAndGetAddressOf(), buffer_view_);
-
-		buffer_object_->Map(0u, nullptr, reinterpret_cast<void**>(&mapped_data_));
-
-		memcpy(mapped_data_, p_data, sizeof(T) * vertex_counts);
-
-		if(!allow_update) buffer_object_->Unmap(0u, nullptr);
-		is_unmapped_ = !allow_update;
-	}
 }
