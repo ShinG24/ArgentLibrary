@@ -79,7 +79,7 @@ namespace argent::graphics
 			DescriptorHeap& cbv_srv_uav_descriptor_heap);
 
 		void Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue);
-		void OnRender(const GraphicsCommandList& command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle);
+		void OnRender(const GraphicsCommandList& command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle);
 
 		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
 	private:

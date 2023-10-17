@@ -86,7 +86,8 @@ namespace argent::graphics
 
 	void GraphicsLibrary::InitializeScene()
 	{
-		scene_constant_buffer_.Awake(graphics_device_, cbv_srv_uav_heap_);
+		//scene_constant_buffer_.Awake(graphics_device_, cbv_srv_uav_heap_);
+		scene_constant_buffer_.Create(graphics_device_, kNumBackBuffers);
 
 		raster_renderer_.Awake(graphics_device_);
 
@@ -112,12 +113,12 @@ namespace argent::graphics
 			//Update camera forward direction by the rotation
 			DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
 			DirectX::XMVECTOR F = R.r[2];
-			F = DirectX::XMVector3Normalize(F);
+			F = DirectX::XMVector3Normalize(F) * 1000.0f;
 
 			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
 			DirectX::XMVECTOR Focus = Eye + F;
 			//Focus.m128_f32[2] += 1.0f;
-			DirectX::XMVECTOR Up{ 0, 1, 0, 0 };
+			DirectX::XMVECTOR Up = XMVector3Normalize(R.r[1]);
 			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
 			auto proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov_angle_), aspect_ratio_, near_z_, far_z_);
 
@@ -126,7 +127,7 @@ namespace argent::graphics
 			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
 			data.light_position_ = light_direction_;
 
-			scene_constant_buffer_.Update(data, back_buffer_index_);
+			scene_constant_buffer_.CopyToGpu(data, back_buffer_index_);
 		}
 
 		const auto& command_list = graphics_command_list_[back_buffer_index_];
@@ -138,7 +139,7 @@ namespace argent::graphics
 		{
 #if _USE_RAY_TRACER_
 			raytracer_.Update(&resource_upload_command_list_, &resource_upload_queue_);
-			raytracer_.OnRender(graphics_command_list_[back_buffer_index_], scene_constant_buffer_.GetGpuHandle(back_buffer_index_));
+			raytracer_.OnRender(graphics_command_list_[back_buffer_index_], scene_constant_buffer_.GetGpuVirtualAddress(back_buffer_index_));
 
 			command_list.SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
 

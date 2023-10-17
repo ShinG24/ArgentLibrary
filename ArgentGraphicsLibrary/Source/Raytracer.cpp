@@ -94,7 +94,7 @@ namespace argent::graphics
 		}
 	}
 
-	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_DESCRIPTOR_HANDLE scene_constant_gpu_handle)
+	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle)
 	{
 		auto command_list = graphics_command_list.GetCommandList4();
 
@@ -143,7 +143,8 @@ namespace argent::graphics
 			command_list->SetComputeRootSignature(dummy_global_root_signature_.Get());
 			//OutputBuffer & TLAS
 			command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
-			command_list->SetComputeRootDescriptorTable(1u, scene_constant_gpu_handle);
+			command_list->SetComputeRootConstantBufferView(1u, scene_constant_gpu_handle);
+	//		command_list->SetComputeRootDescriptorTable(1u, scene_constant_gpu_handle);
 		}
 
 		command_list->SetPipelineState1(raytracing_state_object_.Get());
@@ -333,7 +334,8 @@ namespace argent::graphics
 				}
 			);
 
-			rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
+			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
+			//rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
 			//rsc.AddHeapRangesParameter(
 			//	{
 			//		{ 1, 2u, 0u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
