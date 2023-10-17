@@ -33,8 +33,8 @@ RWTexture2D<float4> gOutput : register(u0);
 
     RayDesc ray;
     ray.Origin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-    ray.Direction = float3(0.0f, 1.0f, 0.0f);
-    ray.TMin = 0.0001f;
+    ray.Direction = reflect(WorldRayDirection(), float3(0, 1, 0));
+    ray.TMin = 0.f;
     ray.TMax = 1000.0f;
 
         // Trace the ray
@@ -47,6 +47,7 @@ RWTexture2D<float4> gOutput : register(u0);
 	      0xFF, 0, 1, 0, ray, payload);
     }
 
-    payload.colorAndDistance += payload.colorAndDistance * 0.3 + color * 0.5f;
+    float4 reflected_color = payload.colorAndDistance;
+    payload.colorAndDistance = reflected_color * 0.8 + color;
     payload.colorAndDistance.w = 1.0f;
 }

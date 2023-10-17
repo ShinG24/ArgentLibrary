@@ -159,9 +159,9 @@ namespace argent::graphics
 		{
 			Vertex vertices[3]
 			{
-				 {{0.0f, 0.6f, 0.5f}, {}},
-	        {{0.25f, -0.6f, 0.5f}, {}},
-	        {{-0.25f, -0.6f, 0.5f}, {}}
+				 {{0.0f, 3.0f, 0}, {}},
+	        {{0.0f, -3.0f, 3.0f}, {}},
+	        {{-0.0f, -3.0f, -3.0f}, {}}
 			};
 			vertex_buffer0_ = std::make_unique<VertexBuffer>(&graphics_device, vertices, sizeof(Vertex), 3);
 		}

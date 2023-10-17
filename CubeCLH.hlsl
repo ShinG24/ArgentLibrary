@@ -81,7 +81,7 @@ uint3 Load3x32BitIndices()
 [shader("closesthit")]void CubeHit(inout RayPayload payload,
                                        Attributes attrib)
 {
-    float3 hit_position = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+	float3 hit_position = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
 
     uint index_size_in_bytes = 2u;
     uint indices_per_triangle = 3u;
@@ -125,12 +125,12 @@ uint3 Load3x32BitIndices()
 
     RayDesc ray;
     ray.Origin = hit_position;
-    ray.Direction = float3(0.0f, -1.0f, 0.0f);
+    ray.Direction = reflect(WorldRayDirection(), triangle_normal);
     ray.TMax = 10000.0f;
-    ray.TMin = 0.0001f;
-#if 0
+    ray.TMin = 0.f;
+#if 1
 
-    if(payload.num_reflect_ < 2)
+    if(payload.num_reflect_ < 8)
     {
         payload.num_reflect_ += 1;
 	    // Trace the ray
@@ -140,8 +140,8 @@ uint3 Load3x32BitIndices()
     
 #endif
 
-    color += payload.colorAndDistance * 0.3f;
+    float4 reflected_color = payload.colorAndDistance;
+    payload.colorAndDistance = reflected_color * 0.5 + float4(color, 1.0f);
+    payload.colorAndDistance.w = 1.0f;
 
-    //gOutput[DispatchRaysIndex().xy] = float4(color.rgb, 1.0f);
-    payload.colorAndDistance = float4(color, 1.0f);
 }
