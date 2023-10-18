@@ -136,7 +136,7 @@ namespace argent::graphics
 
 		desc.Width = static_cast<UINT>(width_);
 		desc.Height = height_;
-		desc.Depth = _MAX_REFLECTION_;
+		desc.Depth = 1;
 
 		//Set Global Raytracing RootSignature Resource
 		{
