@@ -394,7 +394,7 @@ namespace argent::graphics
 
 		pipeline.SetMaxPayloadSize(sizeof(RayPayload) / 4 * sizeof(float));
 		pipeline.SetMaxAttributeSize(2 * sizeof(float));
-		pipeline.SetMaxRecursionDepth(_MAX_REFLECTION_);
+		pipeline.SetMaxRecursionDepth(_MAX_RECURSION_DEPTH_);
 
 		raytracing_state_object_ = pipeline.Generate(dummy_global_root_signature_.Get(), dummy_local_root_signature_.Get());
 		HRESULT hr = raytracing_state_object_->QueryInterface(IID_PPV_ARGS(raytracing_state_object_properties_.ReleaseAndGetAddressOf()));

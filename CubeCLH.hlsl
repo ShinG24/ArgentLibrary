@@ -18,24 +18,12 @@ struct ObjectConstant
 {
     row_major float4x4 world_;
 };
-RaytracingAccelerationStructure SceneBVH : register(t0);
-RWTexture2D<float4> gOutput : register(u0);
 
 StructuredBuffer<Vertex> vertices : register(t0, space1);
 ByteAddressBuffer Indices : register(t1, space1);
 StructuredBuffer<ObjectConstant> object_constant : register(t2, space1);
 
 #endif
-
-struct SceneConstant
-{
-    row_major float4x4 inv_view_projection_;
-    float4 camera_position_;
-    float4 light_position_;
-};
-
-ConstantBuffer<SceneConstant> scene_constant : register(b0);
-
 
 
 // Load three 16 bit indices from a byte addressed buffer.
@@ -81,7 +69,7 @@ uint3 Load3x32BitIndices()
 [shader("closesthit")]void CubeHit(inout RayPayload payload,
                                        Attributes attrib)
 {
-	float3 hit_position = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+	float3 hit_position = CalcHitPosition();
 
     uint index_size_in_bytes = 2u;
     uint indices_per_triangle = 3u;
@@ -94,8 +82,6 @@ uint3 Load3x32BitIndices()
 #else
     uint3 index = Load3x32BitIndices();
 #endif
-    //uint3 index = Indices.Load3(offset_index);
-
     
     float3 vertex_normal[3] =
     {
@@ -110,37 +96,15 @@ uint3 Load3x32BitIndices()
 
     triangle_normal = mul(float4(triangle_normal, 0.0f), object_constant[0].world_).xyz;
 
-    //float3 light_direction = float3(1.0, -1.0, 1.0);
-    //float3 light_direction = normalize(float3(1.0f, -1.0f, 1.0f));
-    //float3 pixel_to_light = normalize(scene_constant.light_position_ - hit_position);
+    float diffuse_factor = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
 
-    float fNDotL = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
-    //float fNDotL = max(0.0f, dot(pixel_to_light, triangle_normal));
+    float3 color = float3(0.4f, 0.8f, 1.0f) * diffuse_factor;
 
-    float3 color = float3(0.4f, 0.8f, 1.0f) * fNDotL;
+    Ray ray;
+    ray.origin_ = hit_position;
+    ray.direction_ = CalcReflectedRayDirection(triangle_normal);
 
-    payload.colorAndDistance = float4(color, RayTCurrent());
-
-
-
-    RayDesc ray;
-    ray.Origin = hit_position;
-    ray.Direction = reflect(WorldRayDirection(), triangle_normal);
-    ray.TMax = 10000.0f;
-    ray.TMin = 0.f;
-#if 1
-
-    if(payload.num_reflect_ < 8)
-    {
-        payload.num_reflect_ += 1;
-	    // Trace the ray
-	    TraceRay(SceneBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
-	      0xFF, 0, 1, 0, ray, payload);
-    }
-    
-#endif
-
-    float4 reflected_color = payload.colorAndDistance;
+    float4 reflected_color = TraceRadianceRay(ray, payload.recursion_depth_);
     payload.colorAndDistance = reflected_color * 0.5 + float4(color, 1.0f);
     payload.colorAndDistance.w = 1.0f;
 
