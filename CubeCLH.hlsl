@@ -64,39 +64,21 @@ uint3 Load3x32BitIndices()
     return Indices.Load3(offset_index);
 }
 
+float3 CalcNormal(uint3 index, float2 barycentrics)
+{
+	float3 vertex_normal[3] = { vertices[index[0]].normal_, vertices[index[1]].normal_, vertices[index[2]].normal_,};
+    float3 triangle_normal = vertex_normal[0] + barycentrics.x * (vertex_normal[1] - vertex_normal[0]) + barycentrics.y * (vertex_normal[2] - vertex_normal[0]);
+    return mul(float4(triangle_normal, 0.0f), object_constant[0].world_).xyz;
+}
 
 [shader("closesthit")]void CubeHit(inout RayPayload payload,
                                        in HitAttribute attr)
 {
-	float3 hit_position = CalcHitWorldPosition();
-
-    uint index_size_in_bytes = 2u;
-    uint indices_per_triangle = 3u;
-    uint triangle_index_stride = index_size_in_bytes * indices_per_triangle;
-    uint offset_index = PrimitiveIndex() * triangle_index_stride;
-
-
-#if 0
-    uint index = Load3x16BitIndices(offset_index);
-#else
     uint3 index = Load3x32BitIndices();
-#endif
-    
-    float3 vertex_normal[3] =
-    {
-        vertices[index[0]].normal_,
-        vertices[index[1]].normal_,
-        vertices[index[2]].normal_,
-    };
-
-    float3 triangle_normal = vertex_normal[0] +
-    attr.barycentrics.x * (vertex_normal[1] - vertex_normal[0]) +
-    attr.barycentrics.y * (vertex_normal[2] - vertex_normal[0]);
-
-    triangle_normal = mul(float4(triangle_normal, 0.0f), object_constant[0].world_).xyz;
+	float3 triangle_normal = CalcNormal(index, attr.barycentrics);
 
     Ray ray;
-    ray.origin_ = hit_position;
+    ray.origin_ = CalcHitWorldPosition();
     ray.direction_ = CalcReflectedRayDirection(triangle_normal);
 
     float4 reflection_color = TraceRadianceRay(ray, payload.recursion_depth_);
@@ -127,3 +109,10 @@ uint3 Load3x32BitIndices()
 #endif
 
 }
+
+
+
+//uint index_size_in_bytes = 2u;
+//uint indices_per_triangle = 3u;
+//uint triangle_index_stride = index_size_in_bytes * indices_per_triangle;
+//uint offset_index = PrimitiveIndex() * triangle_index_stride;

@@ -85,10 +85,10 @@ float4 CalcPhongLighting(in float4 albedo_color, in float3 surface_normal,
 						in float specular_power)
 {
     float3 hit_position = CalcHitWorldPosition();
-    //float3 light_position = scene_constant.light_position_;
-    //float3 incident_light_ray = normalize(hit_position - light_position);
+    float3 light_position = scene_constant.light_position_;
+    float3 incident_light_ray = normalize(hit_position - light_position);
 
-    float3 incident_light_ray = normalize(scene_constant.light_position_.xyz);
+   // float3 incident_light_ray = normalize(scene_constant.light_position_.xyz);
 
     //White Light
     float4 light_color = float4(1, 1, 1, 1);

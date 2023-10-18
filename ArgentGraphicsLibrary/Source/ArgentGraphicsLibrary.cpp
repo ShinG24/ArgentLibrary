@@ -107,7 +107,7 @@ namespace argent::graphics
 			{
 				ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
 				ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
-				ImGui::DragFloat3("Light", &light_direction_.x, 0.01f, -FLT_MAX, FLT_MAX);
+				ImGui::DragFloat3("Light", &light_position.x, 0.01f, -FLT_MAX, FLT_MAX);
 			}
 
 			//Update camera forward direction by the rotation
@@ -125,7 +125,7 @@ namespace argent::graphics
 			SceneConstant data{};
 			data.camera_position_ = camera_position_;
 			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
-			data.light_position_ = light_direction_;
+			data.light_position_ = light_position;
 
 			scene_constant_buffer_.CopyToGpu(data, back_buffer_index_);
 		}

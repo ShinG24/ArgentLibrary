@@ -106,7 +106,7 @@ namespace argent::graphics
 		float fov_angle_ = 60.0f;
 		float aspect_ratio_ = 16.0f / 9.0f;
 
-		DirectX::XMFLOAT4 light_direction_{ 1.0, -1.0f, 1.0f, 1.0f };
+		DirectX::XMFLOAT4 light_position{ 100.0, 100.0f, -100.0f, 1.0f };
 		
 
 		bool on_raster_mode_ = false;
