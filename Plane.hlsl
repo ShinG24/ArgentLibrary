@@ -2,13 +2,13 @@
 
 
 [shader("closesthit")]void CLHPlane(inout RayPayload payload,
-                                       Attributes attrib)
+                                       in HitAttribute attr)
 {
     float4 color = float4(0.8f, 0.8f, 0.8f, RayTCurrent());
 
 	// Trace the ray
     Ray ray;
-    ray.origin_ = CalcHitPosition();
+    ray.origin_ = CalcHitWorldPosition();
     ray.direction_ = CalcReflectedRayDirection(float3(0, 1, 0));
 
     float4 reflected_color = TraceRadianceRay(ray, payload.recursion_depth_);

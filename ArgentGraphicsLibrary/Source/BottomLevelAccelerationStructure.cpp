@@ -63,11 +63,18 @@ namespace argent::graphics
 	{
 		std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> geometry_desc(build_desc->vertex_buffer_vec_.size());
 
+		if(build_desc->vertex_buffer_vec_.size() != build_desc->index_buffer_vec_.size() &&
+			build_desc->index_buffer_vec_.size() != 0)
+		{
+			_ASSERT_EXPR(FALSE, L"BottomLevelAccelerationStrcutre Creation Error!\n"
+					   "vertex_buffer_vec.size() and index_buffer_vec.size() need to be same value or "
+						"index_buffer_vec.size() need to be 0");
+		}
+
 		for(size_t i = 0; i < geometry_desc.size(); ++i)
 		{
 			auto& desc = geometry_desc.at(i);
 			const auto& v = build_desc->vertex_buffer_vec_.at(i);
-			const auto& in = build_desc->index_buffer_vec_.at(i);
 
 			desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 			desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
@@ -75,9 +82,21 @@ namespace argent::graphics
 			desc.Triangles.VertexBuffer.StrideInBytes = v->GetView().StrideInBytes;
 			desc.Triangles.VertexCount = v->GetVertexCounts();
 			desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-			desc.Triangles.IndexBuffer = in->GetView().BufferLocation;
-			desc.Triangles.IndexCount = in->GetIndexCounts();
-			desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
+
+			if(build_desc->index_buffer_vec_.size() == 0)
+			{
+				desc.Triangles.IndexBuffer = 0u;
+				desc.Triangles.IndexCount = 0u;
+				desc.Triangles.IndexFormat = DXGI_FORMAT_UNKNOWN;
+			}
+			else
+			{
+				const auto& in = build_desc->index_buffer_vec_.at(i);
+				desc.Triangles.IndexBuffer = in->GetView().BufferLocation;
+				desc.Triangles.IndexCount = in->GetIndexCounts();
+				desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
+
+			}
 			desc.Triangles.Transform3x4 = 0u;
 		}
 

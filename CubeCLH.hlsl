@@ -58,7 +58,6 @@ uint3 Load3x16BitIndices(uint offsetBytes)
     return indices;
 }
 
-
 uint3 Load3x32BitIndices()
 {
     uint offset_index = PrimitiveIndex() * 4 * 3;
@@ -67,9 +66,9 @@ uint3 Load3x32BitIndices()
 
 
 [shader("closesthit")]void CubeHit(inout RayPayload payload,
-                                       Attributes attrib)
+                                       in HitAttribute attr)
 {
-	float3 hit_position = CalcHitPosition();
+	float3 hit_position = CalcHitWorldPosition();
 
     uint index_size_in_bytes = 2u;
     uint indices_per_triangle = 3u;
@@ -91,21 +90,40 @@ uint3 Load3x32BitIndices()
     };
 
     float3 triangle_normal = vertex_normal[0] +
-    attrib.bary.x * (vertex_normal[1] - vertex_normal[0]) +
-    attrib.bary.y * (vertex_normal[2] - vertex_normal[0]);
+    attr.barycentrics.x * (vertex_normal[1] - vertex_normal[0]) +
+    attr.barycentrics.y * (vertex_normal[2] - vertex_normal[0]);
 
     triangle_normal = mul(float4(triangle_normal, 0.0f), object_constant[0].world_).xyz;
-
-    float diffuse_factor = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
-
-    float3 color = float3(0.4f, 0.8f, 1.0f) * diffuse_factor;
 
     Ray ray;
     ray.origin_ = hit_position;
     ray.direction_ = CalcReflectedRayDirection(triangle_normal);
 
-    float4 reflected_color = TraceRadianceRay(ray, payload.recursion_depth_);
-    payload.colorAndDistance = reflected_color * 0.5 + float4(color, 1.0f);
+    float4 reflection_color = TraceRadianceRay(ray, payload.recursion_depth_);
+
+    float4 albedo_color = float4(0.0f, 0.0f, 1.0f, 1.0f);
+#if 0 
+    float diffuse_factor = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
+
+    float4 color = albedo_color * diffuse_factor;
+
+    
+    payload.colorAndDistance = reflected_color * 0.5 + float4(color.rgb, 1.0f);
     payload.colorAndDistance.w = 1.0f;
+#else
+
+    float reflectance_coefficient = 1.0f;
+    float3 fresnel_r = FresnelReflectanceSchlick(WorldRayDirection(), triangle_normal, albedo_color.xyz);
+    reflection_color = reflectance_coefficient * float4(fresnel_r, 1) * reflection_color;
+
+    float diffuse_coefficient = 0.3f;
+    float specular_coefficient = 1.0f;
+    float specular_power = 50.0f;
+    float4 phong_color = CalcPhongLighting(albedo_color, triangle_normal,
+						diffuse_coefficient, specular_coefficient, specular_power);
+    float4 color = phong_color + reflection_color;
+
+    payload.colorAndDistance = float4(color.rgb, 1.0f);
+#endif
 
 }

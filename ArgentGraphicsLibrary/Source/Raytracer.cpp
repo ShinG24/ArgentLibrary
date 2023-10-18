@@ -163,6 +163,7 @@ namespace argent::graphics
 	        {{0.0f, -3.0f, 3.0f}, {}},
 	        {{-0.0f, -3.0f, -3.0f}, {}}
 			};
+
 			vertex_buffer0_ = std::make_unique<VertexBuffer>(&graphics_device, vertices, sizeof(Vertex), 3);
 		}
 
@@ -271,6 +272,7 @@ namespace argent::graphics
 
 		bottom_level_1_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
 			&command_list, vertex_buffer1_.get());
+
 
 		BLASBuildDesc build_desc{};
 		build_desc.vertex_buffer_vec_ = { vertex_buffer2_.get() };

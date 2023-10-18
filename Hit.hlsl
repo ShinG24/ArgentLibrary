@@ -2,15 +2,14 @@
 
 
 [shader("closesthit")] void ClosestHit(inout RayPayload payload,
-                                       Attributes attrib)
+                                       in HitAttribute attr)
 {
-
-  payload.colorAndDistance = float4((attrib.bary), 1.0f, RayTCurrent());
+  payload.colorAndDistance = float4((attr.barycentrics), 1.0f, RayTCurrent());
 
     float4 color = float4(0.8f, 0.2f, 0.1f, RayTCurrent());
 
     Ray ray;
-    ray.origin_ = CalcHitPosition();
+    ray.origin_ = CalcHitWorldPosition();
     ray.direction_ = CalcReflectedRayDirection(float3(1, 0, 0));
 
 
