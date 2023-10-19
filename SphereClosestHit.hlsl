@@ -17,7 +17,7 @@ void SphereClosestHit(inout RayPayload payload, in SphereHitAttribute attr)
     reflection_color = reflectance_coefficient * float4(fresnel_r, 1) * reflection_color;
 
     float diffuse_coefficient = 0.0f;
-    float specular_coefficient = 1.0f;
+    float specular_coefficient = 0.0f;
     float specular_power = 50.0f;
 
     float4 phong_color = CalcPhongLighting(albedo_color, attr.normal_,

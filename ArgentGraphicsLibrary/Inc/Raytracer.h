@@ -149,21 +149,6 @@ namespace argent::graphics
 		UINT64 width_;
 		UINT height_;
 
-		//In Tutorial
-		nv_helpers_dx12::TopLevelASGenerator top_level_as_generator_;
-		AccelerationStructureBuffers top_level_as_buffer_;
-		std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>> instances_;
-
-		AccelerationStructureBuffers CreateBottomLevelAs(
-			const GraphicsDevice& graphics_device,
-		ID3D12GraphicsCommandList4* command_list,
-		std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vertex_buffers);
-
-		void CreateTopLevelAs(const GraphicsDevice& graphics_device,
-		ID3D12GraphicsCommandList4* command_list,
-		const std::vector<std::pair<ComPtr<ID3D12Resource>, XMMATRIX>>& instances);
-
-
 		Microsoft::WRL::ComPtr<ID3D12Resource> raygen_shader_table_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> miss_shader_table_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> hit_shader_table_;

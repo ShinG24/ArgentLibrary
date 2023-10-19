@@ -10,6 +10,11 @@
 #pragma comment(lib, "DXGI.lib")
 #pragma comment(lib, "D3D12.lib")
 
+//DirectX12 Agility SDK
+extern "C" { __declspec ( dllexport ) extern const UINT D3D12SDKVersion = 610 ;}
+extern "C" { __declspec ( dllexport ) extern const char8_t* D3D12SDKPath = u8"./D3D12/"; }
+
+
 namespace argent::graphics
 {
 	void GraphicsLibrary::Awake(HWND hwnd)

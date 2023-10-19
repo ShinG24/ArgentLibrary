@@ -110,8 +110,20 @@ bool IntersectRaySphere(in Ray ray, out float t_hit, out float t_max, out Sphere
 
 bool IntersectRaySpheres(in Ray ray, out float t_hit, out SphereHitAttribute attr)
 {
-    float3 center = float3(0, 0, 0);
-    float radius = 3.0f;
+    const int N = 3;
+    float3 centeres[N] =
+    {
+        float3(0, 0, 7),
+        float3(7, 0, 0),
+        float3(0, 7, 0),
+    };
+    float radius[N] =
+    {
+        3.0f,
+        2.0f,
+        1.0f,
+    };
+
     bool hit_found = false;
     t_hit = RayTCurrent();
 
@@ -119,13 +131,16 @@ bool IntersectRaySpheres(in Ray ray, out float t_hit, out SphereHitAttribute att
     float _t_max;
     SphereHitAttribute _attr = (SphereHitAttribute)0;
 
-    if(IntersectRaySphere(ray, _t_hit, _t_max, _attr, center, radius))
+    for (int i = 0; i < N; ++i)
     {
-	    if(_t_hit < t_hit)
-	    {
-            t_hit = _t_hit;
-            attr = _attr;
-            hit_found = true;
+        if (IntersectRaySphere(ray, _t_hit, _t_max, _attr, centeres[i], radius[i]))
+        {
+            if (_t_hit < t_hit)
+            {
+                t_hit = _t_hit;
+                attr = _attr;
+                hit_found = true;
+            }
         }
     }
     return hit_found;
