@@ -15,6 +15,21 @@ struct RayPayload
 
 #define HitAttribute   BuiltInTriangleIntersectionAttributes
 
+struct ObjectConstant
+{
+    row_major float4x4 world_;
+};
+
+struct Material
+{
+    float4 albedo_color_;
+    float diffuse_coefficient_;
+    float specular_coefficient_;
+    float reflectance_coefficient_;
+    float specular_power_;
+};
+
+
 struct SphereHitAttribute
 {
 	float3 normal_;

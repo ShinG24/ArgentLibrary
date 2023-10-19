@@ -1,11 +1,21 @@
 #include "Common.hlsli"
 
+ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
+ConstantBuffer<Material> material_constant : register(b1, space1);
 
 [shader("closesthit")]void CLHPlane(inout RayPayload payload,
                                        in HitAttribute attr)
 {
-    float4 albedo_color = float4(0.8f, 0.8f, 0.8f, RayTCurrent());
+    float4 albedo_color = material_constant.albedo_color_;
+    float reflectance_coefficient = material_constant.reflectance_coefficient_;
+    float diffuse_coefficient = material_constant.diffuse_coefficient_;
+    float specular_coefficient = material_constant.specular_coefficient_;
+    float specular_power = material_constant.specular_power_;
+
+    //float4 albedo_color = float4(0.8f, 0.8f, 0.8f, RayTCurrent());
     float3 surface_normal = float3(0, 1, 0);
+    surface_normal = mul(float4(surface_normal, 0), object_constant.world_).xyz;
+
 	// Trace the ray
     Ray ray;
     ray.origin_ = CalcHitWorldPosition();
@@ -18,13 +28,11 @@
     payload.colorAndDistance.w = 1.0f;
 #else
 
-    float reflectance_coefficient = 0.9f;
+    
     float3 fresnel_r = FresnelReflectanceSchlick(WorldRayDirection(), surface_normal, albedo_color.xyz);
     reflection_color = reflectance_coefficient * float4(fresnel_r, 1) * reflection_color;
 
-    float diffuse_coefficient = 1.0f;
-    float specular_coefficient = 0.8f;
-    float specular_power = 50.0f;
+    
     float4 phong_color = CalcPhongLighting(albedo_color, surface_normal,
 						diffuse_coefficient, specular_coefficient, specular_power);
     float4 color = phong_color + reflection_color;

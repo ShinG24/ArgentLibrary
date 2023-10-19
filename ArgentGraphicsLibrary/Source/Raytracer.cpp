@@ -48,33 +48,27 @@ namespace argent::graphics
 		auto& t = transforms_[GeometryType::Cube];
 		//Imgui
 		{
-			if(ImGui::TreeNode("Cube"))
+			for(int i = 0; i < GeometryTypeCount; ++i)
 			{
-				ImGui::DragFloat3("Position", &t.position_.x, 0.01f, -FLT_MAX, FLT_MAX);
-				ImGui::DragFloat3("Scaling", &t.scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
-				ImGui::DragFloat3("Rotation", &t.rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
-
-				if(ImGui::TreeNode("Material"))
+				if(ImGui::TreeNode(name[i].c_str()))
 				{
-					ImGui::ColorPicker3("Color", &material.albedo_color_.x);
-					ImGui::DragFloat("Diffuse Coef", &material.diffuse_coefficient_, 0.001f, 0.0f, 1.0f);
-					ImGui::DragFloat("Specular Coef", &material.specular_coefficient_, 0.001f, 0.0f, 1.0f);
-					ImGui::DragFloat("Reflectance Coef", &material.reflectance_coefficient_, 0.001f, 0.0f, 1.0f);
-					ImGui::DragFloat("Specular Power", &material.specular_power_, 0.1f, 0.0f, 100.0f);
+					transforms_[i].OnGui();
+					materials_[i].OnGui();
 					ImGui::TreePop();
 				}
-				ImGui::TreePop();
 			}
+			
 		}
 
-
 		graphics_command_list->Activate();
-		XMMATRIX S = XMMatrixScaling(t.scaling_.x, t.scaling_.y, t.scaling_.z);
-		XMMATRIX R = XMMatrixRotationRollPitchYaw(t.rotation_.x, t.rotation_.y, t.rotation_.z);
-		XMMATRIX T = XMMatrixTranslation(t.position_.x, t.position_.y, t.position_.z);
-		XMMATRIX M = S * R * T;
 
-		top_level_acceleration_structure_.SetMatrix(M, 2u);
+		for(int i = 0; i < GeometryTypeCount; ++i)
+		{
+			DirectX::XMMATRIX m = transforms_[i].CalcWorldMatrix();
+			top_level_acceleration_structure_.SetMatrix(m, i);
+			memcpy(world_mat_map_ + i * sizeof(DirectX::XMFLOAT4X4), &m, sizeof(DirectX::XMFLOAT4X4));
+			memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
+		}
 		top_level_acceleration_structure_.Update(graphics_command_list);
 
 
@@ -84,13 +78,6 @@ namespace argent::graphics
 		upload_command_queue->Signal();
 		upload_command_queue->WaitForGpu();
 
-		{
-			DirectX::XMFLOAT4X4 m;
-			DirectX::XMStoreFloat4x4(&m, M);
-			memcpy(world_mat_map_ + Cube * sizeof(DirectX::XMFLOAT4X4), &m, sizeof(DirectX::XMFLOAT4X4));
-
-			memcpy(map_material_, &material, sizeof(Material));
-		}
 	}
 
 	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle)
@@ -360,9 +347,9 @@ namespace argent::graphics
 
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
-			rsc.AddHeapRangesParameter({{0u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
+			rsc.AddHeapRangesParameter({{0u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
 			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
 		}
 
@@ -414,25 +401,15 @@ namespace argent::graphics
 		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
 			tlas_result_descriptor_.cpu_handle_);
 
-
-		//graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(DirectX::XMFLOAT4X4), 
-		//	D3D12_RESOURCE_STATE_GENERIC_READ, object_world_buffer_.ReleaseAndGetAddressOf());
-
-		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(Material), 
+		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
+			sizeof(Material) * top_level_acceleration_structure_.GetInstanceCounts(), 
 			D3D12_RESOURCE_STATE_GENERIC_READ, material_buffer_.ReleaseAndGetAddressOf());
 
-		material_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map_material_));
-		memcpy(map_material_, &material, sizeof(Material));
-		
-		/*DirectX::XMFLOAT4X4* map;
-		object_world_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
-
-		DirectX::XMFLOAT4X4 m;
-		DirectX::XMStoreFloat4x4(&m, DirectX::XMMatrixIdentity());
-		memcpy(map, &m, sizeof(DirectX::XMFLOAT4X4));
-
-		object_world_buffer_->Unmap(0u, nullptr);*/
-
+		material_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&material_map_));
+		for(int i = 0; i < GeometryTypeCount; ++i)
+		{
+			memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
+		}
 
 		//All Instance World Matrix Buffer
 		uint stride = sizeof(DirectX::XMFLOAT4X4);
@@ -444,7 +421,7 @@ namespace argent::graphics
 
 		world_matrix_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&world_mat_map_));
 
-		for(int i = 0; i < GeometryTypeCount - 1; ++i)
+		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
 			auto m = transforms_[i].CalcWorldMatrix();
 			DirectX::XMFLOAT4X4 f4x4;
@@ -517,7 +494,17 @@ namespace argent::graphics
 
 			id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup1");
 			memcpy(map, id, shader_record_size);
-			map += entry_size;
+
+			map += shader_record_size;
+
+			std::vector<void*> data(RootSignatureBinderCount);
+
+			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(DirectX::XMFLOAT4X4) * Plane);
+			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
+			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
+			memcpy(map, data.data(), data.size() * 8);
+
+			map += entry_size - shader_record_size;
 
 			id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup2");
 			memcpy(map, id, shader_record_size);
@@ -526,10 +513,9 @@ namespace argent::graphics
 			//Not Entry directly
 			//memcpy(map, reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle.ptr), 8) does not
 			//act my assumption.
-			std::vector<void*> data(3);
-			data.at(0) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
-			data.at(1) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(DirectX::XMFLOAT4X4) * Cube);
-			data.at(2) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress());
+			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(DirectX::XMFLOAT4X4) * Cube);
+			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
+			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
 			//data.at(1) = reinterpret_cast<void*>(object_descriptor_.gpu_handle_.ptr);
 
 			//Map Resource
@@ -539,7 +525,11 @@ namespace argent::graphics
 
 			id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroupSphere");
 			memcpy(map, id, shader_record_size);
-			map += entry_size;
+
+			map += shader_record_size;
+			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
+			memcpy(map, data.data(), data.size() * 8);
+			map += entry_size - shader_record_size;
 
 			hit_shader_table_->Unmap(0u, nullptr);
 		}

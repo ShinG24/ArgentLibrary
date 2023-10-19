@@ -10,6 +10,7 @@
 
 #include "../External/DXC/Inc/dxcapi.h"
 #include "../ShaderBindingTableGenerator.h"
+#include "../External/Imgui/imgui.h"
 
 #include "DescriptorHeap.h"
 
@@ -147,8 +148,26 @@ namespace argent::graphics
 				const auto T = DirectX::XMMatrixTranslation(position_.x, position_.y, position_.z);
 				return S * R * T;
 			}
+
+			void OnGui()
+			{
+				if (ImGui::TreeNode("Transform"))
+				{
+					ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+					ImGui::DragFloat3("Scaling", &scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
+					ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
+					ImGui::TreePop();
+				}
+			}
 		};
 
+		std::string name[GeometryTypeCount]
+		{
+			"Polygon",
+			"Plane",
+			"Cube",
+			"SphereAABB"
+		};
 		struct Material
 		{
 			float4 albedo_color_ = float4(1, 1, 1, 1);
@@ -156,8 +175,28 @@ namespace argent::graphics
 			float specular_coefficient_ = 0.2f;
 			float reflectance_coefficient_ = 0.2f;
 			float specular_power_ = 50.0f;
+
+			void OnGui()
+			{
+				if (ImGui::TreeNode("Material"))
+				{
+					ImGui::ColorPicker3("Color", &albedo_color_.x);
+					ImGui::DragFloat("Diffuse Coef", &diffuse_coefficient_, 0.001f, 0.0f, 1.0f);
+					ImGui::DragFloat("Specular Coef", &specular_coefficient_, 0.001f, 0.0f, 1.0f);
+					ImGui::DragFloat("Reflectance Coef", &reflectance_coefficient_, 0.001f, 0.0f, 1.0f);
+					ImGui::DragFloat("Specular Power", &specular_power_, 0.1f, 0.0f, 100.0f);
+					ImGui::TreePop();
+				}
+			}
 		};
 
+		enum RootSignatureBinder
+		{
+			ObjectWorld,
+			MaterialCB,
+			VertexBufferGpuDescriptorHandle,
+			RootSignatureBinderCount,
+		};
 		struct RootSignatureArgument
 		{
 			Material material_cb_;
@@ -173,9 +212,10 @@ namespace argent::graphics
 
 		Descriptor object_descriptor_;
 
+		uint8_t* material_map_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> material_buffer_;
-		Material material;
-		Material* map_material_;
+		Material materials_[GeometryTypeCount];
+
 
 		
 

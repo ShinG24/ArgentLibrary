@@ -14,20 +14,6 @@ ByteAddressBuffer Indices : register(t2);
 
 #else
 
-struct ObjectConstant
-{
-    row_major float4x4 world_;
-};
-
-struct Material
-{
-    float4 albedo_color_;
-    float diffuse_coefficient_;
-    float specular_coefficient_;
-    float reflectance_coefficient_;
-    float specular_power_;
-};
-
 
 StructuredBuffer<Vertex> vertices : register(t0, space1);
 ByteAddressBuffer Indices : register(t1, space1);
