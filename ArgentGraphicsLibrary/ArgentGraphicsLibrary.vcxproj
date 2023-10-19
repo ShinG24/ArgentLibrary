@@ -29,6 +29,7 @@
     <ClInclude Include="External\Imgui\imstb_rectpack.h" />
     <ClInclude Include="External\Imgui\imstb_textedit.h" />
     <ClInclude Include="External\Imgui\imstb_truetype.h" />
+    <ClInclude Include="Inc\AccelerationStructure.h" />
     <ClInclude Include="Inc\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
     <ClInclude Include="Inc\ConstantBuffer.h" />
@@ -44,6 +45,7 @@
     <ClInclude Include="Inc\Platform.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
     <ClInclude Include="Inc\Raytracer.h" />
+    <ClInclude Include="Inc\RaytracingShaderTable.h" />
     <ClInclude Include="Inc\RootSignature.h" />
     <ClInclude Include="Inc\ShaderCompiler.h" />
     <ClInclude Include="Inc\SwapChain.h" />
@@ -65,6 +67,7 @@
     <ClCompile Include="RaytracingPipelineGenerator.cpp" />
     <ClCompile Include="RootSignatureGenerator.cpp" />
     <ClCompile Include="ShaderBindingTableGenerator.cpp" />
+    <ClCompile Include="Source\AccelerationStructure.cpp" />
     <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
@@ -78,6 +81,7 @@
     <ClCompile Include="Source\Platform.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
     <ClCompile Include="Source\Raytracer.cpp" />
+    <ClCompile Include="Source\RaytracingShaderTable.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\ShaderCompiler.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />

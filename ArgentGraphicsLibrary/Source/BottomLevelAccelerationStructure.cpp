@@ -7,7 +7,7 @@
 #include "../Inc/VertexBuffer.h"
 #include "../Inc/IndexBuffer.h"
 
-namespace argent::graphics
+namespace argent::graphics::dxr
 {
 	BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device,
 		const GraphicsCommandList* graphics_command_list, 

@@ -12,7 +12,10 @@ namespace argent::graphics
 
 	class VertexBuffer;
 	class IndexBuffer;
+}
 
+namespace argent::graphics::dxr
+{
 	/**
 	 * \brief Under Development
 	 * vertex_buffer_vec_.size() need to the same value index_buffer_vec_.size()

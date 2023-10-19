@@ -9,12 +9,7 @@
 #include <string>
 
 #include "../External/DXC/Inc/dxcapi.h"
-
-#include "../RaytracingPipelineGenerator.h"
 #include "../ShaderBindingTableGenerator.h"
-#include "../RootSignatureGenerator.h"
-#include "../TopLevelASGenerator.h"
-#include "../BottomLevelASGenerator.h"
 
 #include "DescriptorHeap.h"
 
@@ -33,28 +28,7 @@ using float4 = DirectX::XMFLOAT4;
 
 using Microsoft::WRL::ComPtr;
 
-struct AccelerationStructureBuffers
-{
-    ComPtr<ID3D12Resource> pScratch;      // Scratch memory for AS builder
-    ComPtr<ID3D12Resource> pResult;       // Where the AS is
-    ComPtr<ID3D12Resource> pInstanceDesc; // Hold the matrices of the instances
-};
 
-struct Library
-{
-	std::vector<std::wstring> exported_symbols_{};
-	std::vector<D3D12_EXPORT_DESC> export_desc_{};
-	D3D12_DXIL_LIBRARY_DESC library_desc_{};
-};
-
-struct RootSignatureAssociation
-{
-	ID3D12RootSignature* root_signature_;
-	ID3D12RootSignature* root_signature_pointer_;
-	std::vector<std::wstring> symbols_;
-	std::vector<LPCWSTR> symbol_pointers_;
-	D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION association_{};
-};
 
 namespace argent::graphics
 {
@@ -85,15 +59,11 @@ namespace argent::graphics
 	private:
 
 
-	private:
-
 		void BuildGeometry(const GraphicsDevice& graphics_device);
 		void CreateAS(const GraphicsDevice& graphics_device, 
 		GraphicsCommandList& command_list, CommandQueue& command_queue);
 
 		void CreatePipeline(const GraphicsDevice& graphics_device);
-
-		void BuildShaderExportList(std::vector<std::wstring> exported_symbols);
 
 		void CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height);
 		void CreateShaderResourceHeap(const GraphicsDevice& graphics_device, 
@@ -154,12 +124,12 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<ID3D12Resource> hit_shader_table_;
 
 		//Bottom Level
-		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_0_;
-		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_1_;
-		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_2_;
-		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_sphere_;
-
-		TopLevelAccelerationStructure top_level_acceleration_structure_;
+		std::unique_ptr<dxr::BottomLevelAccelerationStructure> bottom_level_0_;
+		std::unique_ptr<dxr::BottomLevelAccelerationStructure> bottom_level_1_;
+		std::unique_ptr<dxr::BottomLevelAccelerationStructure> bottom_level_2_;
+		std::unique_ptr<dxr::BottomLevelAccelerationStructure> bottom_level_sphere_;
+		
+		dxr::TopLevelAccelerationStructure top_level_acceleration_structure_;
 
 		UINT64 tlas_result_size_;
 		UINT64 tlas_scratch_size_;
@@ -170,6 +140,27 @@ namespace argent::graphics
 			DirectX::XMFLOAT3 position_{};
 			DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
 			DirectX::XMFLOAT3 rotation_{};
+		};
+
+		struct Material
+		{
+			float4 albedo_color_;
+			float diffuse_coefficient_;
+			float specular_coefficient_;
+			float reflectance_coefficient_;
+			float specular_power_;
+		};
+
+		struct RootSignatureArgument
+		{
+			Material material_cb_;
+			UINT instance_index_;
+		};
+
+		enum RootSigParameters
+		{
+			Material,
+			InstanceIndex,
 		};
 
 		Transform cube_transform_;

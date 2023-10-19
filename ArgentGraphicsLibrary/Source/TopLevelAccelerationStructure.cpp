@@ -5,7 +5,7 @@
 #include "../Inc/GraphicsDevice.h"
 #include "../Inc/GraphicsCommandList.h"
 
-namespace argent::graphics
+namespace argent::graphics::dxr
 {
 	void TopLevelAccelerationStructure::AddInstance(BottomLevelAccelerationStructure* blas,
 		const DirectX::XMMATRIX& m, UINT hit_group_index)

@@ -90,6 +90,12 @@
     <ClInclude Include="Inc\TopLevelAccelerationStructure.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\RaytracingShaderTable.h">
+      <Filter>Direct3D12\DXR</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\AccelerationStructure.h">
+      <Filter>Direct3D12\DXR</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -169,6 +175,12 @@
       <Filter>Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\TopLevelAccelerationStructure.cpp">
+      <Filter>Direct3D12\DXR</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RaytracingShaderTable.cpp">
+      <Filter>Direct3D12\DXR</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AccelerationStructure.cpp">
       <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
   </ItemGroup>

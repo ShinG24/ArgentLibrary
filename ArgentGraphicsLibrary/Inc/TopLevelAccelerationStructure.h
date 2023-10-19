@@ -6,13 +6,18 @@
 
 #include <vector>
 
-
 namespace argent::graphics
 {
 	class GraphicsDevice;
 	class GraphicsCommandList;
 
+	
+}
+
+namespace argent::graphics::dxr
+{
 	class BottomLevelAccelerationStructure;
+
 	class TopLevelAccelerationStructure
 	{
 	public:
@@ -31,6 +36,7 @@ namespace argent::graphics
 
 		ID3D12Resource* GetResultBuffer() const { return result_buffer_object_.Get(); }
 
+		UINT GetInstanceCounts() const { return instances_.size(); }
 	private:
 		struct Instance
 		{
@@ -43,7 +49,7 @@ namespace argent::graphics
 		std::vector<BottomLevelAccelerationStructure*> blas_;
 		std::vector<Instance> instances_;
 
-			Microsoft::WRL::ComPtr<ID3D12Resource> scratch_buffer_object_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> scratch_buffer_object_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> result_buffer_object_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> instance_buffer_object_;
 

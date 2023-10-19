@@ -21,7 +21,7 @@ struct ObjectConstant
 
 StructuredBuffer<Vertex> vertices : register(t0, space1);
 ByteAddressBuffer Indices : register(t1, space1);
-StructuredBuffer<ObjectConstant> object_constant : register(t2, space1);
+ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
 
 #endif
 
@@ -68,7 +68,7 @@ float3 CalcNormal(uint3 index, float2 barycentrics)
 {
 	float3 vertex_normal[3] = { vertices[index[0]].normal_, vertices[index[1]].normal_, vertices[index[2]].normal_,};
     float3 triangle_normal = vertex_normal[0] + barycentrics.x * (vertex_normal[1] - vertex_normal[0]) + barycentrics.y * (vertex_normal[2] - vertex_normal[0]);
-    return mul(float4(triangle_normal, 0.0f), object_constant[0].world_).xyz;
+    return mul(float4(triangle_normal, 0.0f), object_constant.world_).xyz;
 }
 
 [shader("closesthit")]void CubeHit(inout RayPayload payload,
