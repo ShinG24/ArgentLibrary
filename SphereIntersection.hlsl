@@ -72,7 +72,7 @@ bool IntersectRaySphere(in Ray ray, out float t_hit, out float t_max, out Sphere
     float t0, t1;
 
     //Calculate the Intersection point
-    if (SolveRaySphereIntersectionEquation(ray, t0, t1, center, radius))
+    if (!SolveRaySphereIntersectionEquation(ray, t0, t1, center, radius))
         return false;
 
     t_max = t1;
@@ -139,10 +139,10 @@ void SphereIntersection()
     ray.direction_ = ObjectRayDirection();
     float t_hit;
 
-    SphereHitAttribute attr = (SphereHitAttribute)0;
+    SphereHitAttribute attr = (SphereHitAttribute) 0;
 
-    if(IntersectRaySpheres(ray, t_hit, attr))
+    if (IntersectRaySpheres(ray, t_hit, attr))
     {
-        ReportHit(t_hit, 0, attr);
+        ReportHit(t_hit, 1, attr);
     }
 }

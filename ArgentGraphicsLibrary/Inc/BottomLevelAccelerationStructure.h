@@ -27,10 +27,10 @@ namespace argent::graphics
 	{
 	public:
 		BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device, const GraphicsCommandList* graphics_command_list, 
-			const VertexBuffer* vertex_buffer, const IndexBuffer* index_buffer = nullptr);
+			const VertexBuffer* vertex_buffer, const IndexBuffer* index_buffer = nullptr, bool is_triangle = true);
 
 		BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device, const GraphicsCommandList* graphics_command_list, 
-			const BLASBuildDesc* build_desc);
+			const BLASBuildDesc* build_desc, bool is_triangle = true);
 
 		~BottomLevelAccelerationStructure() = default;
 

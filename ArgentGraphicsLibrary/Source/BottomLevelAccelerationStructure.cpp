@@ -10,19 +10,34 @@
 namespace argent::graphics
 {
 	BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device,
-		const GraphicsCommandList* graphics_command_list, const VertexBuffer* vertex_buffer, const IndexBuffer* index_buffer)
+		const GraphicsCommandList* graphics_command_list, 
+		const VertexBuffer* vertex_buffer, const IndexBuffer* index_buffer, 
+		bool is_triangle)
 	{
 		D3D12_RAYTRACING_GEOMETRY_DESC geometry_desc{};
 		geometry_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
-		geometry_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-		geometry_desc.Triangles.VertexBuffer.StartAddress = vertex_buffer->GetView().BufferLocation;
-		geometry_desc.Triangles.VertexBuffer.StrideInBytes = vertex_buffer->GetView().StrideInBytes;
-		geometry_desc.Triangles.VertexCount = vertex_buffer->GetVertexCounts();
-		geometry_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-		geometry_desc.Triangles.IndexBuffer = index_buffer ? index_buffer->GetView().BufferLocation : 0;
-		geometry_desc.Triangles.IndexCount = index_buffer ? index_buffer->GetIndexCounts() : 0;
-		geometry_desc.Triangles.IndexFormat = index_buffer ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_UNKNOWN;
-		geometry_desc.Triangles.Transform3x4 = 0u;
+		geometry_desc.Type = is_triangle ? 
+			D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES :
+		D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+
+
+		if(!is_triangle)
+		{
+			geometry_desc.AABBs.AABBCount = 1u;
+			geometry_desc.AABBs.AABBs.StartAddress = vertex_buffer->GetBufferObject()->GetGPUVirtualAddress();
+			geometry_desc.AABBs.AABBs.StrideInBytes = vertex_buffer->GetView().StrideInBytes;
+		}
+		else
+		{
+			geometry_desc.Triangles.VertexBuffer.StartAddress = vertex_buffer->GetView().BufferLocation;
+			geometry_desc.Triangles.VertexBuffer.StrideInBytes = vertex_buffer->GetView().StrideInBytes;
+			geometry_desc.Triangles.VertexCount = vertex_buffer->GetVertexCounts();
+			geometry_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			geometry_desc.Triangles.IndexBuffer = index_buffer ? index_buffer->GetView().BufferLocation : 0;
+			geometry_desc.Triangles.IndexCount = index_buffer ? index_buffer->GetIndexCounts() : 0;
+			geometry_desc.Triangles.IndexFormat = index_buffer ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_UNKNOWN;
+			geometry_desc.Triangles.Transform3x4 = 0u;
+		}
 
 		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS as_inputs{};
 		as_inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
@@ -59,7 +74,8 @@ namespace argent::graphics
 	}
 
 	BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device,
-		const GraphicsCommandList* graphics_command_list, const BLASBuildDesc* build_desc)
+		const GraphicsCommandList* graphics_command_list, const BLASBuildDesc* build_desc,
+		bool is_triangle)
 	{
 		std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> geometry_desc(build_desc->vertex_buffer_vec_.size());
 
@@ -77,11 +93,25 @@ namespace argent::graphics
 			const auto& v = build_desc->vertex_buffer_vec_.at(i);
 
 			desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
-			desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-			desc.Triangles.VertexBuffer.StartAddress =  v->GetView().BufferLocation;
-			desc.Triangles.VertexBuffer.StrideInBytes = v->GetView().StrideInBytes;
-			desc.Triangles.VertexCount = v->GetVertexCounts();
-			desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+
+			//TODO Geometry Type does not need to change the same bottom level??
+			desc.Type = is_triangle ? 
+			D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES :
+			D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+
+			if(!is_triangle)
+			{
+				desc.AABBs.AABBs.StartAddress = v->GetView().BufferLocation;
+				desc.AABBs.AABBs.StrideInBytes = v->GetView().StrideInBytes;
+				desc.AABBs.AABBCount = 1u;	
+			}
+			else
+			{
+				desc.Triangles.VertexBuffer.StartAddress =  v->GetView().BufferLocation;
+				desc.Triangles.VertexBuffer.StrideInBytes = v->GetView().StrideInBytes;
+				desc.Triangles.VertexCount = v->GetVertexCounts();
+				desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			}
 
 			if(build_desc->index_buffer_vec_.size() == 0)
 			{

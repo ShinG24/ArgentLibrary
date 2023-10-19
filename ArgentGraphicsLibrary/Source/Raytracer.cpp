@@ -15,6 +15,8 @@
 
 #include "../../Common.hlsli"
 
+#define _DRAW_CUBE_ 0
+
 
 #define _USE_SBT_GENERATOR_	0
 
@@ -129,8 +131,8 @@ namespace argent::graphics
 		desc.MissShaderTable.StrideInBytes = 32u;
 
 		desc.HitGroupTable.StartAddress = hit_shader_table_->GetGPUVirtualAddress();
-		desc.HitGroupTable.SizeInBytes = 192u;
-		desc.HitGroupTable.StrideInBytes = 64u;
+		desc.HitGroupTable.SizeInBytes = hit_shader_table_size_;
+		desc.HitGroupTable.StrideInBytes = hit_shader_table_stride_;
 
 #endif
 
@@ -260,6 +262,36 @@ namespace argent::graphics
 
 			graphics_device.GetDevice()->CreateShaderResourceView(index_buffer_->GetBufferObject(), &desc, cube_index_descriptor_.cpu_handle_);
 		}
+
+		//AABB
+		{
+			Microsoft::WRL::ComPtr<ID3D12Resource> aabb_buffer_;
+			D3D12_RAYTRACING_AABB rt_aabb;
+			float aabb_width = 3.0f;
+			float aabb_height = 3.0f;
+			float aabb_depth = 3.0f;
+
+			rt_aabb.MaxX = aabb_width;
+			rt_aabb.MaxY = aabb_height;
+			rt_aabb.MaxZ = aabb_depth;
+			rt_aabb.MinX = 
+			rt_aabb.MinY = 
+			rt_aabb.MinZ = -aabb_width;
+
+			//graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(rt_aabb), 
+			//	D3D12_RESOURCE_STATE_GENERIC_READ, aabb_buffer_.ReleaseAndGetAddressOf());
+
+			//D3D12_RAYTRACING_AABB* map;
+			//aabb_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
+
+			//memcpy(map, &rt_aabb, sizeof(rt_aabb));
+			//aabb_buffer_->Unmap(0u, nullptr);
+
+			aabb_vertex_buffer_ = std::make_unique<VertexBuffer>(&graphics_device, 
+				&rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
+
+
+		}
 	}
 
 	void Raytracer::CreateAS(const GraphicsDevice& graphics_device, 
@@ -280,6 +312,9 @@ namespace argent::graphics
 
 		bottom_level_2_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
 			&command_list, &build_desc);
+
+		bottom_level_sphere_ = std::make_unique<BottomLevelAccelerationStructure>(&graphics_device,
+			&command_list, aabb_vertex_buffer_.get(), nullptr, false);
 
 		DirectX::XMFLOAT3 pos{ 0.0f, -3.0f, 0.0f };
 		DirectX::XMFLOAT3 scale{ 100.0f, 100.0f, 100.0f };
@@ -305,6 +340,12 @@ namespace argent::graphics
 			1u);
 		top_level_acceleration_structure_.AddInstance(bottom_level_2_.get(), T1,
 			2u);
+
+		top_level_acceleration_structure_.AddInstance(bottom_level_sphere_.get(), XMMatrixIdentity(),
+			3u);
+
+		//top_level_acceleration_structure_.AddInstance(bottom_level_0_.get(), XMMatrixIdentity(),
+		//	3u);
 
 		top_level_acceleration_structure_.Generate(&graphics_device, &command_list);
 
@@ -375,6 +416,9 @@ namespace argent::graphics
 		pipeline.AddLibrary(hit1_library_.Get(), {L"CLHPlane"});
 		pipeline.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
 
+		pipeline.AddLibrary(sphere_closest_hit_library_.Get(), {L"SphereClosestHit"});
+		pipeline.AddLibrary(sphere_intersection_library_.Get(), {L"SphereIntersection"});
+
 		//Shared root signature
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
@@ -391,15 +435,17 @@ namespace argent::graphics
 		pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
 		pipeline.AddHitGroup(L"HitGroup1", L"CLHPlane");
 		pipeline.AddHitGroup(L"HitGroup2", L"CubeHit");
+		pipeline.AddHitGroup(L"HitGroupSphere", L"SphereClosestHit", L"", L"SphereIntersection");
 
 		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"RayGen"});
 
 		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"Miss"});
 		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}});
 		pipeline.AddRootSignatureAssociation(hit_local_root_signature_.Get(), { {L"HitGroup2"}});
+		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), { {L"HitGroupSphere"}});
 
 		pipeline.SetMaxPayloadSize(sizeof(RayPayload) / 4 * sizeof(float));
-		pipeline.SetMaxAttributeSize(2 * sizeof(float));
+		pipeline.SetMaxAttributeSize(3 * sizeof(float));
 		pipeline.SetMaxRecursionDepth(_MAX_RECURSION_DEPTH_);
 
 		raytracing_state_object_ = pipeline.Generate(dummy_global_root_signature_.Get(), dummy_local_root_signature_.Get());
@@ -570,11 +616,13 @@ namespace argent::graphics
 				//Need to use only one Entry size.
 				//if  hit1 shader use 32bit entry size, hit2 use 64bit, and hit3 use 128bit,
 				//then you have to use 128bit for all entry size.
-				uint num_hit_group = 3;
-				uint entry_size = shader_record_size + 8u;
+				uint num_hit_group = 4;
+				uint entry_size = shader_record_size + 8 * 2;
 				entry_size = _ALIGNMENT_(entry_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+				hit_shader_table_stride_ = entry_size;
 				uint resource_size = entry_size * num_hit_group;
-				//resource_size = _ALIGNMENT_(resource_size, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+				resource_size = _ALIGNMENT_(resource_size, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+				hit_shader_table_size_ = resource_size;
 				graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, resource_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
 					hit_shader_table_.ReleaseAndGetAddressOf());
 
@@ -604,6 +652,12 @@ namespace argent::graphics
 
 				//Map Resource
 				memcpy(map, data.data(), data.size() * 8);
+
+				map += entry_size - shader_record_size;
+
+				id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroupSphere");
+				memcpy(map, id, shader_record_size);
+				map += entry_size;
 
 				hit_shader_table_->Unmap(0u, nullptr);
 			}

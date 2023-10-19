@@ -24,7 +24,4 @@ void SphereClosestHit(inout RayPayload payload, in SphereHitAttribute attr)
     diffuse_coefficient, specular_coefficient, specular_power);
     float4 color = phong_color + reflection_color;
     payload.colorAndDistance = float4(color.rgb, 1.0f);
-
-
-    payload.colorAndDistance = float4(1, 1, 1, 1);
 }

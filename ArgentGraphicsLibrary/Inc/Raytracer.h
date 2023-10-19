@@ -121,6 +121,7 @@ namespace argent::graphics
 		std::unique_ptr<VertexBuffer> vertex_buffer1_; 
 		std::unique_ptr<VertexBuffer> vertex_buffer2_;
 		std::unique_ptr<IndexBuffer> index_buffer_;
+		std::unique_ptr<VertexBuffer> aabb_vertex_buffer_;
 
 		Descriptor cube_vertex_descriptor_;
 		Descriptor cube_index_descriptor_;
@@ -171,6 +172,7 @@ namespace argent::graphics
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_0_;
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_1_;
 		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_2_;
+		std::unique_ptr<BottomLevelAccelerationStructure> bottom_level_sphere_;
 
 		TopLevelAccelerationStructure top_level_acceleration_structure_;
 
@@ -189,5 +191,8 @@ namespace argent::graphics
 
 		Descriptor object_descriptor_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> object_world_buffer_;
+
+		UINT hit_shader_table_size_;
+		UINT hit_shader_table_stride_;
 	};
 }
