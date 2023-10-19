@@ -15,6 +15,11 @@ struct RayPayload
 
 #define HitAttribute   BuiltInTriangleIntersectionAttributes
 
+struct SphereHitAttribute
+{
+	float3 normal_;
+};
+
 struct Ray
 {
     float3 origin_;

@@ -365,6 +365,10 @@ namespace argent::graphics
 		shader_compiler.CompileShaderLibrary(L"Plane.hlsl", hit1_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"CubeCLH.hlsl", hit2_library_.ReleaseAndGetAddressOf());
 
+		//Sphere Intersection Demo
+		shader_compiler.CompileShaderLibrary(L"SphereClosestHit.hlsl", sphere_closest_hit_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"SphereIntersection.hlsl", sphere_intersection_library_.ReleaseAndGetAddressOf());
+
 		pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
 		pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
 		pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});

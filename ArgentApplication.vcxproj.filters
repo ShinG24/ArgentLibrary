@@ -33,5 +33,11 @@
     <None Include="Common.hlsli">
       <Filter>Shader</Filter>
     </None>
+    <None Include="SphereClosestHit.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="SphereIntersection.hlsl">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

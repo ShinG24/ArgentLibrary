@@ -108,6 +108,9 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<IDxcBlob> hit1_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> hit2_library_;
 
+		Microsoft::WRL::ComPtr<IDxcBlob> sphere_intersection_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> sphere_closest_hit_library_;
+
 		struct Vertex
 		{
 			float3 position_;
