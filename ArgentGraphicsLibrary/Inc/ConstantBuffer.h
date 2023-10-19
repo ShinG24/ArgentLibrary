@@ -6,7 +6,6 @@
 #include "GraphicsCommon.h"
 
 #include "GraphicsDevice.h"
-#include "DescriptorHeap.h"
 
 namespace argent::graphics
 {

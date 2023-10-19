@@ -107,9 +107,10 @@ namespace argent::graphics
 		index_buffer_view.SizeInBytes = size_of_data_type * num_data;
 	}
 
-	HRESULT GraphicsDevice::CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, 
-	                                     D3D12_RESOURCE_FLAGS resource_flags, UINT size, 
-	                                     D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const
+	HRESULT GraphicsDevice::CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop,
+										 D3D12_RESOURCE_FLAGS resource_flags, 
+										 UINT size, D3D12_RESOURCE_STATES initial_state, 
+										 ID3D12Resource** pp_resource) const
 	{
 		D3D12_RESOURCE_DESC res_desc{};
 		res_desc.Alignment = 0u;
@@ -127,6 +128,28 @@ namespace argent::graphics
 		const HRESULT hr = device_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &res_desc, 
 			initial_state, nullptr, IID_PPV_ARGS(pp_resource));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Buffer");
+		return hr;
+	}
+
+	HRESULT GraphicsDevice::CreateTexture2D(D3D12_HEAP_PROPERTIES heap_prop, 
+		D3D12_RESOURCE_FLAGS resource_flags, DXGI_FORMAT format,
+		UINT width, UINT height, D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const
+	{
+		D3D12_RESOURCE_DESC desc{};
+		desc.Alignment = 0u;
+		desc.DepthOrArraySize = 1u;
+		desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		desc.Flags = resource_flags;
+		desc.Format = format;
+		desc.Height = height;
+		desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		desc.MipLevels = 1u;
+		desc.SampleDesc.Count = 1u;
+		desc.SampleDesc.Quality = 0u;
+		desc.Width = width;
+		const HRESULT hr = device_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &desc,
+			initial_state, nullptr, IID_PPV_ARGS(pp_resource));
+		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Texture2D");
 		return hr;
 	}
 

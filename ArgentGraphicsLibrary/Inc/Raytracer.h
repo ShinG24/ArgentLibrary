@@ -20,6 +20,7 @@
 #include "IndexBuffer.h"
 
 
+
 using namespace DirectX;
 
 using float2 = DirectX::XMFLOAT2;
@@ -81,21 +82,6 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_intersection_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_closest_hit_library_;
 
-		struct Vertex
-		{
-			float3 position_;
-			float3 normal_;
-		};
-
-		std::unique_ptr<VertexBuffer> vertex_buffer0_; 
-		std::unique_ptr<VertexBuffer> vertex_buffer1_; 
-		std::unique_ptr<VertexBuffer> vertex_buffer2_;
-		std::unique_ptr<IndexBuffer> index_buffer_;
-		std::unique_ptr<VertexBuffer> aabb_vertex_buffer_;
-
-		Descriptor cube_vertex_descriptor_;
-		Descriptor cube_index_descriptor_;
-
 		//Root Signature
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> shared_local_root_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_local_root_signature_;
@@ -123,23 +109,44 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<ID3D12Resource> miss_shader_table_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> hit_shader_table_;
 
-		//Bottom Level
-		std::unique_ptr<dxr::BottomLevelAccelerationStructure> bottom_level_0_;
-		std::unique_ptr<dxr::BottomLevelAccelerationStructure> bottom_level_1_;
-		std::unique_ptr<dxr::BottomLevelAccelerationStructure> bottom_level_2_;
-		std::unique_ptr<dxr::BottomLevelAccelerationStructure> bottom_level_sphere_;
-		
-		dxr::TopLevelAccelerationStructure top_level_acceleration_structure_;
+		enum GeometryType
+		{
+			Polygon,
+			Plane,
+			Cube,
+			SphereAABB,
+			GeometryTypeCount,
+		};
 
-		UINT64 tlas_result_size_;
-		UINT64 tlas_scratch_size_;
-		UINT64 tlas_instance_size_;
+		struct Vertex
+		{
+			float3 position_;
+			float3 normal_;
+		};
+
+		std::unique_ptr<VertexBuffer> vertex_buffers_[GeometryTypeCount];
+		std::unique_ptr<IndexBuffer> index_buffers_[GeometryTypeCount];
+
+		Descriptor cube_vertex_descriptor_;
+		Descriptor cube_index_descriptor_;
+
+		//Bottom Level
+		std::unique_ptr<dxr::BottomLevelAccelerationStructure> blas_[GeometryTypeCount];		
+		dxr::TopLevelAccelerationStructure top_level_acceleration_structure_;
 
 		struct Transform
 		{
 			DirectX::XMFLOAT3 position_{};
 			DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
 			DirectX::XMFLOAT3 rotation_{};
+
+			DirectX::XMMATRIX CalcWorldMatrix() const
+			{
+				const auto S = DirectX::XMMatrixScaling(scaling_.x, scaling_.y, scaling_.z);
+				const auto R = DirectX::XMMatrixRotationRollPitchYaw(rotation_.x, rotation_.y, rotation_.z);
+				const auto T = DirectX::XMMatrixTranslation(position_.x, position_.y, position_.z);
+				return S * R * T;
+			}
 		};
 
 		struct Material
@@ -155,16 +162,22 @@ namespace argent::graphics
 		{
 			Material material_cb_;
 			UINT instance_index_;
+			D3D12_GPU_DESCRIPTOR_HANDLE vertex_buffer_handle_;
 		};
 
-		Transform cube_transform_;
+		
+
+		Transform transforms_[GeometryType::GeometryTypeCount];
+		uint8_t* world_mat_map_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> world_matrix_buffer_;
 
 		Descriptor object_descriptor_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> object_world_buffer_;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> material_buffer_;
 		Material material;
 		Material* map_material_;
+
+		
 
 		UINT hit_shader_table_size_;
 		UINT hit_shader_table_stride_;

@@ -39,5 +39,6 @@
     <None Include="SphereIntersection.hlsl">
       <Filter>Shader</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

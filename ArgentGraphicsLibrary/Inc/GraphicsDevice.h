@@ -53,8 +53,12 @@ namespace argent::graphics
 			ID3D12Resource** pp_vertex_buffer, D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const;
 		void CreateIndexBufferAndView(UINT size_of_data_type, UINT num_data, DXGI_FORMAT format, ID3D12Resource** pp_resource, D3D12_INDEX_BUFFER_VIEW& index_buffer_view) const;
 
-		HRESULT CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_FLAGS resource_flags, 
-			UINT size, D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const;
+		HRESULT CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_FLAGS resource_flags,
+			UINT size, D3D12_RESOURCE_STATES initial_state,
+			ID3D12Resource** pp_resource) const;
+		HRESULT CreateTexture2D(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_FLAGS resource_flags,
+			DXGI_FORMAT format, UINT width, UINT height, D3D12_RESOURCE_STATES initial_state, 
+			ID3D12Resource** pp_resource) const;
 
 		void CreateCBV(ID3D12Resource* constant_buffer, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
 
