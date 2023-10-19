@@ -49,6 +49,16 @@ namespace argent::graphics
 				ImGui::DragFloat3("Position", &cube_transform_.position_.x, 0.01f, -FLT_MAX, FLT_MAX);
 				ImGui::DragFloat3("Scaling", &cube_transform_.scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
 				ImGui::DragFloat3("Rotation", &cube_transform_.rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
+
+				if(ImGui::TreeNode("Material"))
+				{
+					ImGui::ColorPicker3("Color", &material.albedo_color_.x);
+					ImGui::DragFloat("Diffuse Coef", &material.diffuse_coefficient_, 0.001f, 0.0f, 1.0f);
+					ImGui::DragFloat("Specular Coef", &material.specular_coefficient_, 0.001f, 0.0f, 1.0f);
+					ImGui::DragFloat("Reflectance Coef", &material.reflectance_coefficient_, 0.001f, 0.0f, 1.0f);
+					ImGui::DragFloat("Specular Power", &material.specular_power_, 0.1f, 0.0f, 100.0f);
+					ImGui::TreePop();
+				}
 				ImGui::TreePop();
 			}
 		}
@@ -77,6 +87,9 @@ namespace argent::graphics
 			memcpy(map, &m, sizeof(DirectX::XMFLOAT4X4));
 
 			object_world_buffer_->Unmap(0u, nullptr);
+
+
+			memcpy(map_material_, &material, sizeof(Material));
 		}
 	}
 
@@ -367,6 +380,7 @@ namespace argent::graphics
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 			rsc.AddHeapRangesParameter({{0u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);
+			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);
 		//	rsc.AddHeapRangesParameter({{0u, 1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 0u}});
 			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
 		}
@@ -435,6 +449,13 @@ namespace argent::graphics
 		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(DirectX::XMFLOAT4X4), 
 			D3D12_RESOURCE_STATE_GENERIC_READ, object_world_buffer_.ReleaseAndGetAddressOf());
 
+		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(Material), 
+			D3D12_RESOURCE_STATE_GENERIC_READ, material_buffer_.ReleaseAndGetAddressOf());
+
+		material_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map_material_));
+		memcpy(map_material_, &material, sizeof(Material));
+		
+
 		//srv_desc = {};
 		//srv_desc.Format = DXGI_FORMAT_UNKNOWN;
 		//srv_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
@@ -496,7 +517,7 @@ namespace argent::graphics
 			//if  hit1 shader use 32bit entry size, hit2 use 64bit, and hit3 use 128bit,
 			//then you have to use 128bit for all entry size.
 			uint num_hit_group = 4;
-			uint entry_size = shader_record_size + 8 * 2;
+			uint entry_size = shader_record_size + 8 * 3;
 			entry_size = _ALIGNMENT_(entry_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
 			hit_shader_table_stride_ = entry_size;
 			uint resource_size = entry_size * num_hit_group;
@@ -525,9 +546,10 @@ namespace argent::graphics
 			//Not Entry directly
 			//memcpy(map, reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle.ptr), 8) does not
 			//act my assumption.
-			std::vector<void*> data(2);
+			std::vector<void*> data(3);
 			data.at(0) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
 			data.at(1) = reinterpret_cast<void*>(object_world_buffer_->GetGPUVirtualAddress());
+			data.at(2) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress());
 			//data.at(1) = reinterpret_cast<void*>(object_descriptor_.gpu_handle_.ptr);
 
 			//Map Resource

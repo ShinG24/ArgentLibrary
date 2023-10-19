@@ -144,11 +144,11 @@ namespace argent::graphics
 
 		struct Material
 		{
-			float4 albedo_color_;
-			float diffuse_coefficient_;
-			float specular_coefficient_;
-			float reflectance_coefficient_;
-			float specular_power_;
+			float4 albedo_color_ = float4(1, 1, 1, 1);
+			float diffuse_coefficient_ = 0.8f;
+			float specular_coefficient_ = 0.2f;
+			float reflectance_coefficient_ = 0.2f;
+			float specular_power_ = 50.0f;
 		};
 
 		struct RootSignatureArgument
@@ -157,16 +157,14 @@ namespace argent::graphics
 			UINT instance_index_;
 		};
 
-		enum RootSigParameters
-		{
-			Material,
-			InstanceIndex,
-		};
-
 		Transform cube_transform_;
 
 		Descriptor object_descriptor_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> object_world_buffer_;
+
+		Microsoft::WRL::ComPtr<ID3D12Resource> material_buffer_;
+		Material material;
+		Material* map_material_;
 
 		UINT hit_shader_table_size_;
 		UINT hit_shader_table_stride_;
