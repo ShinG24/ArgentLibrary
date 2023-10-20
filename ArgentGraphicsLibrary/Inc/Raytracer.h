@@ -22,6 +22,8 @@
 #include "IndexBuffer.h"
 
 
+#include "Texture.h"
+
 using namespace DirectX;
 
 using float2 = DirectX::XMFLOAT2;
@@ -228,5 +230,8 @@ namespace argent::graphics
 
 		dxr::AccelerationStructureManager as_manager_;
 		UINT tlas_unique_id_[GeometryTypeCount];
+
+
+		std::unique_ptr<Texture> texture_;
 	};
 }

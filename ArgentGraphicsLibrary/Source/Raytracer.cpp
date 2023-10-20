@@ -26,6 +26,7 @@ namespace argent::graphics
 		CommandQueue& command_queue, UINT64 width, UINT height, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
+		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap);
 		width_ = width;
 		height_ = height;
 

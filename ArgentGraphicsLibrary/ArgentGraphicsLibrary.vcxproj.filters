@@ -96,6 +96,7 @@
     <ClInclude Include="Inc\AccelerationStructureManager.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -183,6 +184,7 @@
     <ClCompile Include="Source\AccelerationStructureManager.cpp">
       <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Direct3D12">
