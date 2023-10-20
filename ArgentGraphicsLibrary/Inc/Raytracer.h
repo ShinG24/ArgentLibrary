@@ -68,6 +68,8 @@ namespace argent::graphics
 			DescriptorHeap& cbv_srv_uav_descriptor_heap);
 
 		void CreateShaderBindingTable(const GraphicsDevice& graphics_device);
+
+		void FbxLoader();
 	private:
 		//Shader
 		Microsoft::WRL::ComPtr<IDxcBlob> ray_gen_library_;

@@ -2,6 +2,9 @@
 
 #include <vector>
 
+#include <fbxsdk.h>
+#include <functional>
+
 #include "../RaytracingPipelineGenerator.h"
 #include "../RootSignatureGenerator.h"
 
@@ -551,5 +554,72 @@ namespace argent::graphics
 
 			hit_shader_table_->Unmap(0u, nullptr);
 		}
+	}
+
+	struct Scene
+	{
+		struct Node
+		{
+			uint64_t unique_id_{};
+			std::string name_;
+			FbxNodeAttribute::EType attribute_{};
+			int64_t parent_index_{ -1 };
+		};
+
+		std::vector<Node> nodes_;
+		int64_t IndexOf(uint64_t unique_id) const
+		{
+			int64_t index{ 0 };
+			for(const auto& node : nodes_)
+			{
+				if(node.unique_id_ == unique_id)
+					return index;
+				++index;
+			}
+			return -1;
+		}
+	};
+
+	class SkeletalMesh
+	{
+	public:
+
+	private:
+		Scene scene_view_;
+	};
+
+		Scene scene_view;
+	void Raytracer::FbxLoader()
+	{
+		FbxManager* fbx_manager{ FbxManager::Create() };
+		FbxScene* fbx_scene{ FbxScene::Create(fbx_manager, "") };
+
+		FbxImporter* fbx_importer{ FbxImporter::Create(fbx_manager, "") };
+		bool import_status{ false };
+		import_status = fbx_importer->Initialize("");
+		_ASSERT_EXPR(import_status, L"Failed to Import Model");
+
+		import_status = fbx_importer->Import(fbx_scene);
+		_ASSERT_EXPR(import_status, L"Failed to Import Model");
+
+		FbxGeometryConverter fbx_converter(fbx_manager);
+
+		std::function<void(FbxNode*)> Traverse{[&](FbxNode* fbx_node)
+		{
+			Scene::Node& node{ scene_view.nodes_.emplace_back() };
+			node.attribute_ = fbx_node->GetNodeAttribute() ?
+				fbx_node->GetNodeAttribute()->GetAttributeType() : FbxNodeAttribute::EType::eUnknown;
+			node.name_ = fbx_node->GetName();
+			node.unique_id_ = fbx_node->GetUniqueID();
+			node.parent_index_ = scene_view.IndexOf(fbx_node->GetParent() ? 
+				fbx_node->GetParent()->GetUniqueID() : 0);
+			for(int child_index = 0; child_index < fbx_node->GetChildCount(); ++child_index)
+			{
+				Traverse(fbx_node->GetChild(child_index));
+			}
+		}};
+		Traverse(fbx_scene->GetRootNode());
+
+		fbx_manager->Destroy();
 	}
 }
