@@ -364,7 +364,9 @@ namespace argent::graphics
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
-			rsc.AddHeapRangesParameter({{0u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});
+			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0u, 1u, 1u);	//For Abledo
+			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1u, 1u, 1u);	//For Normal
+			rsc.AddHeapRangesParameter({{2u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});	//For Vertex Buffer and Index Buffer
 			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
 		}
 
@@ -489,7 +491,7 @@ namespace argent::graphics
 			//if  hit1 shader use 32bit entry size, hit2 use 64bit, and hit3 use 128bit,
 			//then you have to use 128bit for all entry size.
 			uint num_hit_group = 4;
-			uint entry_size = shader_record_size + 8 * 3;
+			uint entry_size = shader_record_size + 8 * RootSignatureBinderCount;
 			entry_size = _ALIGNMENT_(entry_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
 			hit_shader_table_stride_ = entry_size;
 			uint resource_size = entry_size * num_hit_group;
@@ -514,8 +516,8 @@ namespace argent::graphics
 
 			std::vector<void*> data(RootSignatureBinderCount);
 
-			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
-			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
+			data.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
+			data.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
 			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
 			memcpy(map, data.data(), data.size() * 8);
 
@@ -528,8 +530,8 @@ namespace argent::graphics
 			//Not Entry directly
 			//memcpy(map, reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle.ptr), 8) does not
 			//act my assumption.
-			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
-			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
+			data.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
+			data.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
 			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
 			//data.at(1) = reinterpret_cast<void*>(object_descriptor_.gpu_handle_.ptr);
 
@@ -542,8 +544,8 @@ namespace argent::graphics
 			memcpy(map, id, shader_record_size);
 
 			map += shader_record_size;
-			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
-			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
+			data.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
+			data.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
 			memcpy(map, data.data(), data.size() * 8);
 			map += entry_size - shader_record_size;
 

@@ -181,7 +181,17 @@ namespace argent::graphics
 			{
 				if (ImGui::TreeNode("Material"))
 				{
-					ImGui::ColorPicker3("Color", &albedo_color_.x);
+					ImGuiColorEditFlags flags =
+						ImGuiColorEditFlags_PickerHueWheel |
+						ImGuiColorEditFlags_NoInputs |
+						ImGuiColorEditFlags_NoAlpha |
+						ImGuiColorEditFlags_NoOptions |
+						ImGuiColorEditFlags_NoTooltip |
+						ImGuiColorEditFlags_NoSidePreview |
+						ImGuiColorEditFlags_NoDragDrop |
+						ImGuiColorEditFlags_NoBorder
+						;
+					ImGui::ColorEdit3("Color Edit", &albedo_color_.x, flags);
 					ImGui::DragFloat("Diffuse Coef", &diffuse_coefficient_, 0.001f, 0.0f, 1.0f);
 					ImGui::DragFloat("Specular Coef", &specular_coefficient_, 0.001f, 0.0f, 1.0f);
 					ImGui::DragFloat("Reflectance Coef", &reflectance_coefficient_, 0.001f, 0.0f, 1.0f);
@@ -193,9 +203,11 @@ namespace argent::graphics
 
 		enum RootSignatureBinder
 		{
-			ObjectWorld,
-			MaterialCB,
-			VertexBufferGpuDescriptorHandle,
+			ObjectCbv,		//CBV
+			MaterialCbv,	//CBV
+			AlbedoTexture,		//SRV
+			NormalTexture,		//SRV
+			VertexBufferGpuDescriptorHandle,	//SRV
 			RootSignatureBinderCount,
 		};
 

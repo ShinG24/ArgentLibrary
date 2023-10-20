@@ -16,8 +16,8 @@ ByteAddressBuffer Indices : register(t2);
 #else
 
 
-StructuredBuffer<Vertex> vertices : register(t0, space1);
-ByteAddressBuffer Indices : register(t1, space1);
+StructuredBuffer<Vertex> vertices : register(t2, space1);
+ByteAddressBuffer Indices : register(t3, space1);
 ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
 ConstantBuffer<Material> material_constant : register(b1, space1);
 

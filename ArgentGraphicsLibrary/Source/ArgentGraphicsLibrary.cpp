@@ -140,8 +140,8 @@ namespace argent::graphics
 						if (keyboard->GetKey(D)/* Keyboard D */) right_input += 1.0f;
 
 						//ã‰º
-						if (keyboard->GetKey(Q)/* Keyboard Q */) up_input += 1.0f;
-						if (keyboard->GetKey(E)/* Keyboard E */) up_input -= 1.0f;
+						if (keyboard->GetKey(Q)/* Keyboard Q */) up_input -= 1.0f;
+						if (keyboard->GetKey(E)/* Keyboard E */) up_input += 1.0f;
 
 						using namespace DirectX;
 
