@@ -123,6 +123,7 @@ namespace argent::graphics
 		{
 			float3 position_;
 			float3 normal_;
+			float2 texcoord_;
 		};
 
 		std::unique_ptr<VertexBuffer> vertex_buffers_[GeometryTypeCount];
@@ -168,6 +169,13 @@ namespace argent::graphics
 			"Cube",
 			"SphereAABB"
 		};
+
+		struct ObjectConstant
+		{
+			DirectX::XMFLOAT4X4 world_;
+			DirectX::XMFLOAT4X4 inv_world_;
+		};
+
 		struct Material
 		{
 			float4 albedo_color_ = float4(1, 1, 1, 1);

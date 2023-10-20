@@ -5,12 +5,16 @@ VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentApplication", "ArgentApplication.vcxproj", "{E9434475-C25B-48C9-B899-107F74068222}"
 	ProjectSection(ProjectDependencies) = postProject
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893} = {0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}
+		{205A738B-050E-4AAA-9899-6E7FB328A9CE} = {205A738B-050E-4AAA-9899-6E7FB328A9CE}
 		{6755F871-61D5-4800-9525-6DADE6685D06} = {6755F871-61D5-4800-9525-6DADE6685D06}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentGraphicsLibrary", "ArgentGraphicsLibrary\ArgentGraphicsLibrary.vcxproj", "{6755F871-61D5-4800-9525-6DADE6685D06}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentUtilityLibrary", "ArgentUtilityLibrary\ArgentUtilityLibrary.vcxproj", "{205A738B-050E-4AAA-9899-6E7FB328A9CE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentInputLibrary", "ArgentInputLibrary\ArgentInputLibrary.vcxproj", "{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +48,14 @@ Global
 		{205A738B-050E-4AAA-9899-6E7FB328A9CE}.Release|x64.Build.0 = Release|x64
 		{205A738B-050E-4AAA-9899-6E7FB328A9CE}.Release|x86.ActiveCfg = Release|Win32
 		{205A738B-050E-4AAA-9899-6E7FB328A9CE}.Release|x86.Build.0 = Release|Win32
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Debug|x64.ActiveCfg = Debug|x64
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Debug|x64.Build.0 = Debug|x64
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Debug|x86.ActiveCfg = Debug|Win32
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Debug|x86.Build.0 = Debug|Win32
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Release|x64.ActiveCfg = Release|x64
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Release|x64.Build.0 = Release|x64
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Release|x86.ActiveCfg = Release|Win32
+		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -36,6 +36,7 @@ namespace argent::graphics
 		transforms_[Plane].position_.y = -5.0f;
 		transforms_[Plane].scaling_ = DirectX::XMFLOAT3(50.0f, 1.0f, 50.0f);
 
+
 		CreateAS(graphics_device, command_list, command_queue);
 		CreatePipeline(graphics_device);
 		CreateOutputBuffer(graphics_device, width, height);
@@ -66,7 +67,11 @@ namespace argent::graphics
 		{
 			DirectX::XMMATRIX m = transforms_[i].CalcWorldMatrix();
 			top_level_acceleration_structure_.SetMatrix(m, i);
-			memcpy(world_mat_map_ + i * sizeof(DirectX::XMFLOAT4X4), &m, sizeof(DirectX::XMFLOAT4X4));
+
+			ObjectConstant obj_constant;
+			DirectX::XMStoreFloat4x4(&obj_constant.world_, m);
+			DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
+			memcpy(world_mat_map_ + i * sizeof(ObjectConstant), &obj_constant, sizeof(ObjectConstant));
 			memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
 		}
 		top_level_acceleration_structure_.Update(graphics_command_list);
@@ -412,7 +417,7 @@ namespace argent::graphics
 		}
 
 		//All Instance World Matrix Buffer
-		uint stride = sizeof(DirectX::XMFLOAT4X4);
+		uint stride = sizeof(ObjectConstant);
 		uint num = top_level_acceleration_structure_.GetInstanceCounts();
 
 		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
@@ -424,10 +429,11 @@ namespace argent::graphics
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
 			auto m = transforms_[i].CalcWorldMatrix();
-			DirectX::XMFLOAT4X4 f4x4;
-			DirectX::XMStoreFloat4x4(&f4x4, m);
+			ObjectConstant data;
+			DirectX::XMStoreFloat4x4(&data.world_, m);
+			DirectX::XMStoreFloat4x4(&data.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
 			//memcpy_s(map, stride * num, &f4x4, stride);
-			memcpy(world_mat_map_, &f4x4, stride);
+			memcpy(world_mat_map_, &data, stride);
 		}
 
 		world_matrix_buffer_->Unmap(0u, nullptr);
@@ -499,7 +505,7 @@ namespace argent::graphics
 
 			std::vector<void*> data(RootSignatureBinderCount);
 
-			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(DirectX::XMFLOAT4X4) * Plane);
+			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
 			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
 			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
 			memcpy(map, data.data(), data.size() * 8);
@@ -513,7 +519,7 @@ namespace argent::graphics
 			//Not Entry directly
 			//memcpy(map, reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle.ptr), 8) does not
 			//act my assumption.
-			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(DirectX::XMFLOAT4X4) * Cube);
+			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
 			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
 			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
 			//data.at(1) = reinterpret_cast<void*>(object_descriptor_.gpu_handle_.ptr);
@@ -528,6 +534,7 @@ namespace argent::graphics
 
 			map += shader_record_size;
 			data.at(MaterialCB) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
+			data.at(ObjectWorld) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
 			memcpy(map, data.data(), data.size() * 8);
 			map += entry_size - shader_record_size;
 

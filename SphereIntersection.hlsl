@@ -1,5 +1,8 @@
 #include "Common.hlsli"
 
+ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
+
+
 void Swap(inout float a, inout float b)
 {
     float tmp = a;
@@ -150,14 +153,20 @@ bool IntersectRaySpheres(in Ray ray, out float t_hit, out SphereHitAttribute att
 void SphereIntersection()
 {
     Ray ray;
-    ray.origin_ = ObjectRayOrigin();
-    ray.direction_ = ObjectRayDirection();
+    ray.origin_ = mul(float4(WorldRayOrigin(), 1), object_constant.inv_world_);
+    ray.direction_ = mul(float4(WorldRayDirection(), 0), object_constant.inv_world_);
+    //ray.origin_ = mul(float4(ObjectRayOrigin(), 1), object_constant.inv_world_);
+    //ray.direction_ = mul(ObjectRayDirection(), (float3x3)object_constant.inv_world_);
     float t_hit;
 
     SphereHitAttribute attr = (SphereHitAttribute) 0;
 
     if (IntersectRaySpheres(ray, t_hit, attr))
     {
+        attr.normal_ = mul(attr.normal_, (float3x3) object_constant.world_);
+        attr.normal_ = normalize(attr.normal_);
+        //attr.normal_ = normalize(mul((float3x3) ObjectToWorld3x4(), attr.normal_));
+
         ReportHit(t_hit, 1, attr);
     }
 }

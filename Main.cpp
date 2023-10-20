@@ -4,6 +4,7 @@
 #include "ArgentGraphicsLibrary/Inc/ArgentGraphicsLibrary.h"
 #include "ArgentGraphicsLibrary/Inc/Platform.h"
 #include "ArgentUtilityLibrary/Inc/Timer.h"
+#include "ArgentInputLibrary/Inc/InputManager.h"
 
 
 int main()
@@ -21,11 +22,14 @@ int main()
 	graphics_library.Awake(platform.GetHwnd());
 	argent::Timer timer;
 	timer.Awake();
+	argent::input::InputManager input_manager;
+	input_manager.Awake(platform.GetHwnd());
 
 	while (!platform.GetRequestShutdown())
 	{
 		if(!platform.ProcessSystemEventQueue())
 		{
+			input_manager.Update();
 			timer.Tick();
 #ifdef _DEBUG
 			timer.ShowFrameTime(platform.GetHwnd());

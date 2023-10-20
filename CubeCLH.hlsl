@@ -4,6 +4,7 @@ struct Vertex
 {
     float3 position_;
     float3 normal_;
+    float2 texcoord_;
 };
 
 #define _USE_LOCAL_ROOT_SIGNATURE 0

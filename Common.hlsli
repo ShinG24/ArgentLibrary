@@ -18,6 +18,7 @@ struct RayPayload
 struct ObjectConstant
 {
     row_major float4x4 world_;
+    row_major float4x4 inv_world_;
 };
 
 struct Material
