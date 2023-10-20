@@ -58,7 +58,6 @@ namespace argent::graphics
 					ImGui::TreePop();
 				}
 			}
-			
 		}
 
 		graphics_command_list->Activate();

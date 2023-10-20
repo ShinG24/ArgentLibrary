@@ -10,12 +10,19 @@
 
 namespace argent::graphics::dxr
 {
-	class AccelerationStructure
+	class AccelerationStructureManager
 	{
 	public:
-		AccelerationStructure();
+		AccelerationStructureManager();
 
+		UINT AddBottomLevelAS(GraphicsDevice* graphics_device, 
+		GraphicsCommandList* graphics_command_list, BLASBuildDesc* build_desc);
+		void RegisterTopLevelAS();
 
+		void GetBottomLevelAS(UINT unique_id);
+
+	private:
+		static UINT GenerateUniqueID();
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> tlas_transform_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> blas_transform_;

@@ -212,8 +212,6 @@ namespace argent::graphics
 			D3D12_GPU_DESCRIPTOR_HANDLE vertex_buffer_handle_;
 		};
 
-		
-
 		Transform transforms_[GeometryType::GeometryTypeCount];
 		uint8_t* world_mat_map_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> world_matrix_buffer_;
@@ -223,9 +221,6 @@ namespace argent::graphics
 		uint8_t* material_map_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> material_buffer_;
 		Material materials_[GeometryTypeCount];
-
-
-		
 
 		UINT hit_shader_table_size_;
 		UINT hit_shader_table_stride_;

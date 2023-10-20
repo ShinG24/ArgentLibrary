@@ -8,6 +8,7 @@ namespace argent::graphics
 	class GraphicsDevice;
 }
 
+//TODO Shader Table Under Development
 namespace argent::graphics::dxr
 {
 	class RaytracingShaderTable

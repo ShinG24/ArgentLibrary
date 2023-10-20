@@ -93,7 +93,7 @@
     <ClInclude Include="Inc\RaytracingShaderTable.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
-    <ClInclude Include="Inc\AccelerationStructure.h">
+    <ClInclude Include="Inc\AccelerationStructureManager.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
   </ItemGroup>
@@ -180,7 +180,7 @@
     <ClCompile Include="Source\RaytracingShaderTable.cpp">
       <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AccelerationStructure.cpp">
+    <ClCompile Include="Source\AccelerationStructureManager.cpp">
       <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
   </ItemGroup>

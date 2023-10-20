@@ -17,3 +17,5 @@ packages/
 ArgentGraphicsLibrary/packages.config
 ArgentInputLibrary/Obj/
 ArgentInputLibrary/Bin/
+ArgentGraphicsLibrary/External/DirectXTK12/Lib/Debug/DirectXTK12.lib
+ArgentGraphicsLibrary/External/DirectXTK12/Lib/
