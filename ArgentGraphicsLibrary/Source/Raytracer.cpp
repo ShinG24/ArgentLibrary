@@ -17,6 +17,7 @@
 
 #include "../../Common.hlsli"
 
+#define _USE_AS_MANAGER_	0
 
 #define _USE_SBT_GENERATOR_	0
 
@@ -251,6 +252,20 @@ namespace argent::graphics
 	{
 		BuildGeometry(graphics_device);
 
+#if _USE_AS_MANAGER_
+		uint unique_id[GeometryTypeCount];
+
+		for(int i = 0; i < GeometryTypeCount; ++i)
+		{
+			bool triangle = true;
+			if(i == SphereAABB) triangle = false;
+			dxr::BLASBuildDesc build_desc;
+			build_desc.vertex_buffer_vec_.emplace_back(vertex_buffers_[i].get());
+			build_desc.index_buffer_vec_.emplace_back(index_buffers_[i].get());
+			unique_id[i] = as_manager_.AddBottomLevelAS(&graphics_device, &command_list, &build_desc);
+		}
+
+#else
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
 			bool triangle = true;
@@ -258,6 +273,7 @@ namespace argent::graphics
 			blas_[i] = std::make_unique<dxr::BottomLevelAccelerationStructure>(&graphics_device,
 				&command_list, vertex_buffers_[i].get(), index_buffers_[i].get(), triangle);
 		}
+
 
 		DirectX::XMFLOAT3 pos{ 0.0f, -3.0f, 0.0f };
 		DirectX::XMFLOAT3 scale{ 100.0f, 100.0f, 100.0f };
@@ -275,6 +291,7 @@ namespace argent::graphics
 
 		top_level_acceleration_structure_.Generate(&graphics_device, &command_list);
 
+#endif
 		//Execute Command list
 		command_list.Deactivate();
 

@@ -16,6 +16,7 @@
 
 #include "BottomLevelAccelerationStructure.h"
 #include "TopLevelAccelerationStructure.h"
+#include "AccelerationStructureManager.h"
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -27,9 +28,6 @@ using namespace DirectX;
 using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
 using float4 = DirectX::XMFLOAT4;
-
-using Microsoft::WRL::ComPtr;
-
 
 
 namespace argent::graphics
@@ -224,5 +222,6 @@ namespace argent::graphics
 
 		UINT hit_shader_table_size_;
 		UINT hit_shader_table_stride_;
+		dxr::AccelerationStructureManager as_manager_;
 	};
 }

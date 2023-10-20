@@ -35,6 +35,9 @@ namespace argent::graphics::dxr
 		BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device, const GraphicsCommandList* graphics_command_list, 
 			const BLASBuildDesc* build_desc, bool is_triangle = true);
 
+		BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device, const GraphicsCommandList* graphics_command_list, 
+			const BLASBuildDesc* build_desc, UINT unique_id, bool is_triangle = true);
+
 		~BottomLevelAccelerationStructure() = default;
 
 		BottomLevelAccelerationStructure(const BottomLevelAccelerationStructure&) = delete;
@@ -42,8 +45,10 @@ namespace argent::graphics::dxr
 		BottomLevelAccelerationStructure& operator=(const BottomLevelAccelerationStructure&&) = delete;
 		BottomLevelAccelerationStructure& operator=(const BottomLevelAccelerationStructure&) = delete;
 
+		UINT GetUniqueID() const { return unique_id_; }
 		ID3D12Resource* GetResultBuffer() const { return result_buffer_object_.Get(); }
 	private:
+		UINT unique_id_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> scratch_buffer_object_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> result_buffer_object_;
 
