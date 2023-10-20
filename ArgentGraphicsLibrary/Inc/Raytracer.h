@@ -21,7 +21,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
-
+#define _USE_AS_MANAGER_	1
 
 using namespace DirectX;
 
@@ -130,10 +130,7 @@ namespace argent::graphics
 		Descriptor cube_vertex_descriptor_;
 		Descriptor cube_index_descriptor_;
 
-		//Bottom Level
-		std::unique_ptr<dxr::BottomLevelAccelerationStructure> blas_[GeometryTypeCount];		
-		dxr::TopLevelAccelerationStructure top_level_acceleration_structure_;
-
+		
 		struct Transform
 		{
 			DirectX::XMFLOAT3 position_{};
@@ -222,6 +219,15 @@ namespace argent::graphics
 
 		UINT hit_shader_table_size_;
 		UINT hit_shader_table_stride_;
+
+#if _USE_AS_MANAGER_
 		dxr::AccelerationStructureManager as_manager_;
+		UINT tlas_unique_id_[GeometryTypeCount];
+#else
+		//Bottom Level
+		std::unique_ptr<dxr::BottomLevelAccelerationStructure> blas_[GeometryTypeCount];		
+		dxr::TopLevelAccelerationStructure top_level_acceleration_structure_;
+
+#endif
 	};
 }

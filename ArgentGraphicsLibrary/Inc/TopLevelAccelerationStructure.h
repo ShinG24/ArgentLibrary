@@ -41,6 +41,7 @@ namespace argent::graphics::dxr
 		UINT GetInstanceCounts() const { return instances_.size(); }
 
 		D3D12_RAYTRACING_INSTANCE_DESC GetD3D12InstanceDesc() const { return instance_desc_; }
+		void SetWorld(const DirectX::XMFLOAT4X4& world);
 	private:
 		struct Instance
 		{

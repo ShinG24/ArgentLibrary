@@ -14,12 +14,12 @@ namespace argent::graphics::dxr
 	,	hit_group_index_(hit_group_index)
 	,	world_matrix_(world_matrix)
 	{
-		DirectX::XMMATRIX m = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&world_matrix_));
 		instance_desc_.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 		instance_desc_.AccelerationStructure = blas_gpu_address;
 		instance_desc_.InstanceContributionToHitGroupIndex = hit_group_index_;
 		instance_desc_.InstanceID = unique_id_;
 		instance_desc_.InstanceMask = 0xFF;
+		DirectX::XMMATRIX m = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&world_matrix_));
 		memcpy(&instance_desc_.Transform, &m, sizeof(instance_desc_.Transform));
 	}
 
@@ -146,5 +146,12 @@ namespace argent::graphics::dxr
 		graphics_command_list->GetCommandList4()->BuildRaytracingAccelerationStructure(&build_desc, 0u, nullptr);
 		graphics_command_list->SetUavBarrier(result_buffer_object_.Get(), D3D12_RESOURCE_BARRIER_FLAG_NONE);
 
+	}
+
+	void TopLevelAccelerationStructure::SetWorld(const DirectX::XMFLOAT4X4& world)
+	{
+		world_matrix_ = world;
+		DirectX::XMMATRIX m = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&world_matrix_));
+		memcpy(&instance_desc_.Transform, &m, sizeof(instance_desc_.Transform));
 	}
 }

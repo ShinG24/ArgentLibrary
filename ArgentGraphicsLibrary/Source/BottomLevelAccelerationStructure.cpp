@@ -199,23 +199,24 @@ namespace argent::graphics::dxr
 				desc.Triangles.VertexBuffer.StrideInBytes = v->GetView().StrideInBytes;
 				desc.Triangles.VertexCount = v->GetVertexCounts();
 				desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+				desc.Triangles.Transform3x4 = 0u;
+				if(build_desc->index_buffer_vec_.size() == 0)
+				{
+					desc.Triangles.IndexBuffer = 0u;
+					desc.Triangles.IndexCount = 0u;
+					desc.Triangles.IndexFormat = DXGI_FORMAT_UNKNOWN;
+				}
+				else
+				{
+					const auto& in = build_desc->index_buffer_vec_.at(i);
+					desc.Triangles.IndexBuffer = in->GetView().BufferLocation;
+					desc.Triangles.IndexCount = in->GetIndexCounts();
+					desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
+				}
 			}
 
-			if(build_desc->index_buffer_vec_.size() == 0)
-			{
-				desc.Triangles.IndexBuffer = 0u;
-				desc.Triangles.IndexCount = 0u;
-				desc.Triangles.IndexFormat = DXGI_FORMAT_UNKNOWN;
-			}
-			else
-			{
-				const auto& in = build_desc->index_buffer_vec_.at(i);
-				desc.Triangles.IndexBuffer = in->GetView().BufferLocation;
-				desc.Triangles.IndexCount = in->GetIndexCounts();
-				desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
-
-			}
-			desc.Triangles.Transform3x4 = 0u;
+			
+			
 		}
 
 		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS as_input{};

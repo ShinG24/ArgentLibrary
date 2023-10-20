@@ -7,20 +7,23 @@
 namespace argent::graphics::dxr
 {
 	UINT AccelerationStructureManager::AddBottomLevelAS(const GraphicsDevice* graphics_device, 
-		const GraphicsCommandList* graphics_command_list, BLASBuildDesc* build_desc)
+		const GraphicsCommandList* graphics_command_list, BLASBuildDesc* build_desc, bool is_triangle)
 	{
 		UINT unique_id = GenerateUniqueID();
 		blas_vec_.emplace_back(std::make_unique<BottomLevelAccelerationStructure>(graphics_device, graphics_command_list, 
-			build_desc, unique_id));
+			build_desc, unique_id, is_triangle));
 		return unique_id;
 	}
 
-	void AccelerationStructureManager::RegisterTopLevelAS(UINT blas_unique_id, 
-		UINT hit_group_index, const DirectX::XMFLOAT4X4& world) const
+	UINT AccelerationStructureManager::RegisterTopLevelAS(UINT blas_unique_id, 
+		UINT hit_group_index, const DirectX::XMFLOAT4X4& world)
 	{
-		auto a = std::make_unique<TopLevelAccelerationStructure>(GenerateUniqueID(), 
+		UINT unique_id = GenerateUniqueID();
+
+		tlas_un_map_.emplace(unique_id, std::make_unique<TopLevelAccelerationStructure>(unique_id, 
 			blas_unique_id, GetBottomLevelAS(blas_unique_id)->GetResultBuffer()->GetGPUVirtualAddress(),
-			hit_group_index, world);
+			hit_group_index, world));
+		return unique_id;
 	}
 
 	BottomLevelAccelerationStructure* AccelerationStructureManager::GetBottomLevelAS(UINT unique_id) const 
@@ -41,11 +44,13 @@ namespace argent::graphics::dxr
 		HRESULT hr = instance_desc_buffer_object_->Map(0u, nullptr, reinterpret_cast<void**>(&instance_desc));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Map");
 
-		const UINT instance_counts = static_cast<UINT>(tlas_vec_.size());
+		const UINT instance_counts = static_cast<UINT>(tlas_un_map_.size());
 
-		for(UINT i = 0; i < instance_counts; ++i)
+		UINT i = 0; 
+		for(const auto& t : tlas_un_map_)
 		{
-			instance_desc[i] = tlas_vec_.at(i)->GetD3D12InstanceDesc();
+			instance_desc[i] = t.second->GetD3D12InstanceDesc();
+			++i;
 		}
 
 		instance_desc_buffer_object_->Unmap(0u, nullptr);
@@ -70,7 +75,7 @@ namespace argent::graphics::dxr
 		//Compute Buffer size
 		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS as_input{};
 		as_input.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-		as_input.NumDescs = static_cast<UINT>(tlas_vec_.size());
+		as_input.NumDescs = static_cast<UINT>(tlas_un_map_.size());
 		as_input.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
 		as_input.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 
@@ -80,7 +85,7 @@ namespace argent::graphics::dxr
 		scratch_buffer_size_ = _ALIGNMENT_(as_info.ScratchDataSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 		result_buffer_size_ = _ALIGNMENT_(as_info.ResultDataMaxSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-		instance_desc_buffer_size_ = _ALIGNMENT_(sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * tlas_vec_.size(), 
+		instance_desc_buffer_size_ = _ALIGNMENT_(sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * tlas_un_map_.size(), 
 			D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
 		graphics_device->CreateBuffer(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
@@ -97,13 +102,15 @@ namespace argent::graphics::dxr
 		HRESULT hr = instance_desc_buffer_object_->Map(0u, nullptr, reinterpret_cast<void**>(&instance_desc));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Map");
 
-		const UINT instance_counts = static_cast<UINT>(tlas_vec_.size());
+		const UINT instance_counts = static_cast<UINT>(tlas_un_map_.size());
 
 		SecureZeroMemory(instance_desc, instance_desc_buffer_size_);
 
-		for(UINT i = 0; i < instance_counts; ++i)
+		UINT i = 0; 
+		for(const auto& t : tlas_un_map_)
 		{
-			instance_desc[i] = tlas_vec_.at(i)->GetD3D12InstanceDesc();
+			instance_desc[i] = t.second->GetD3D12InstanceDesc();
+			++i;
 		}
 
 		instance_desc_buffer_object_->Unmap(0u, nullptr);
@@ -120,6 +127,11 @@ namespace argent::graphics::dxr
 		
 		graphics_command_list->GetCommandList4()->BuildRaytracingAccelerationStructure(&build_desc, 0u, nullptr);
 		graphics_command_list->SetUavBarrier(result_buffer_object_.Get(), D3D12_RESOURCE_BARRIER_FLAG_NONE);
+	}
+
+	void AccelerationStructureManager::SetWorld(const DirectX::XMFLOAT4X4& world, UINT tlas_unique_id)
+	{
+		tlas_un_map_[tlas_unique_id]->SetWorld(world);
 	}
 
 	UINT AccelerationStructureManager::GenerateUniqueID()
