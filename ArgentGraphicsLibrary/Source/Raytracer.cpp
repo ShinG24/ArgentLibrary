@@ -13,11 +13,7 @@
 #include "../Inc/CommandQueue.h"
 
 #include "../Inc/ShaderCompiler.h"
-
-
 #include "../../Common.hlsli"
-
-
 
 #define _USE_SBT_GENERATOR_	0
 
@@ -73,16 +69,13 @@ namespace argent::graphics
 
 	void Raytracer::Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue)
 	{
-		//Imgui
+		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
-			for(int i = 0; i < GeometryTypeCount; ++i)
+			if(ImGui::TreeNode(name[i].c_str()))
 			{
-				if(ImGui::TreeNode(name[i].c_str()))
-				{
-					transforms_[i].OnGui();
-					materials_[i].OnGui();
-					ImGui::TreePop();
-				}
+				transforms_[i].OnGui();
+				materials_[i].OnGui();
+				ImGui::TreePop();
 			}
 		}
 
@@ -92,25 +85,15 @@ namespace argent::graphics
 		{
 			DirectX::XMMATRIX m = transforms_[i].CalcWorldMatrix();
 
-			ObjectConstant obj_constant;
+			ObjectConstant obj_constant{};
 			DirectX::XMStoreFloat4x4(&obj_constant.world_, m);
 			DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
 			memcpy(world_mat_map_ + i * sizeof(ObjectConstant), &obj_constant, sizeof(ObjectConstant));
 			memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
-
-#if _USE_AS_MANAGER_
+			
 			as_manager_.SetWorld(obj_constant.world_, tlas_unique_id_[i]);
-#else
-			top_level_acceleration_structure_.SetMatrix(m, i);
-#endif
 		}
-
-#if _USE_AS_MANAGER_
 		as_manager_.Update(graphics_command_list);
-#else
-		top_level_acceleration_structure_.Update(graphics_command_list);
-#endif
-		
 
 		graphics_command_list->Deactivate();
 		ID3D12CommandList* command_lists[]{ graphics_command_list->GetCommandList() };
@@ -286,21 +269,17 @@ namespace argent::graphics
 	{
 		BuildGeometry(graphics_device);
 
-#if _USE_AS_MANAGER_
 		uint unique_id[GeometryTypeCount];
 
 		//Add Bottom Level
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
-			bool triangle = true;
-			if(i == SphereAABB) triangle = false;
+			bool triangle = i != SphereAABB ? true : false;
 			dxr::BLASBuildDesc build_desc;
 			build_desc.vertex_buffer_vec_.emplace_back(vertex_buffers_[i].get());
-
 			if(i == Cube)
-			{
 				build_desc.index_buffer_vec_.emplace_back(index_buffers_[i].get());
-			}
+			
 			unique_id[i] = as_manager_.AddBottomLevelAS(&graphics_device, &command_list, &build_desc, triangle);
 		}
 
@@ -313,24 +292,6 @@ namespace argent::graphics
 
 		as_manager_.Generate(&graphics_device, &command_list);
 
-
-#else
-		for(int i = 0; i < GeometryTypeCount; ++i)
-		{
-			bool triangle = true;
-			if (i == SphereAABB) triangle = false;
-			blas_[i] = std::make_unique<dxr::BottomLevelAccelerationStructure>(&graphics_device,
-				&command_list, vertex_buffers_[i].get(), index_buffers_[i].get(), triangle);
-		}
-
-		for(int i = 0; i < GeometryTypeCount; ++i)
-		{
-			top_level_acceleration_structure_.AddInstance(blas_[i].get(), transforms_[i].CalcWorldMatrix(), i);
-		}
-
-		top_level_acceleration_structure_.Generate(&graphics_device, &command_list);
-
-#endif
 		//Execute Command list
 		command_list.Deactivate();
 
@@ -358,14 +319,8 @@ namespace argent::graphics
 			);
 
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
-			//rsc.AddHeapRangesParameter({{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});
-			//rsc.AddHeapRangesParameter(
-			//	{
-			//		{ 1, 2u, 0u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			//});
 
 			dummy_global_root_signature_ = rsc.Generate(graphics_device.GetDevice(), false);
-
 
 			D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
 			root_signature_desc.NumParameters = 0u;
@@ -456,27 +411,14 @@ namespace argent::graphics
 		srv_desc.Format = DXGI_FORMAT_UNKNOWN;
 		srv_desc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-#if _USE_AS_MANAGER_
-
 		srv_desc.RaytracingAccelerationStructure.Location = as_manager_.GetResultResourceObject()->GetGPUVirtualAddress();
+
 		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
 			sizeof(Material) * as_manager_.GetInstanceCounts(), 
 			D3D12_RESOURCE_STATE_GENERIC_READ, material_buffer_.ReleaseAndGetAddressOf());
 
-
-#else
-		srv_desc.RaytracingAccelerationStructure.Location = top_level_acceleration_structure_.GetResultBuffer()->GetGPUVirtualAddress();
-
-
-		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
-			sizeof(Material) * top_level_acceleration_structure_.GetInstanceCounts(), 
-			D3D12_RESOURCE_STATE_GENERIC_READ, material_buffer_.ReleaseAndGetAddressOf());
-#endif
-
 		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
 			tlas_result_descriptor_.cpu_handle_);
-
 
 		material_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&material_map_));
 		for(int i = 0; i < GeometryTypeCount; ++i)
@@ -486,12 +428,7 @@ namespace argent::graphics
 
 		//All Instance World Matrix Buffer
 		uint stride = sizeof(ObjectConstant);
-
-#if _USE_AS_MANAGER_
 		uint num = as_manager_.GetInstanceCounts();
-#else
-		uint num = top_level_acceleration_structure_.GetInstanceCounts();
-#endif
 
 		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
 			stride * num,
@@ -514,7 +451,6 @@ namespace argent::graphics
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
 	{
-
 		//The size Shader Identifier
 		uint shader_record_size =  D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
 

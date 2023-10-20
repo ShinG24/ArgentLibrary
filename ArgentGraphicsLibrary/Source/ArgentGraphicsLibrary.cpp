@@ -163,7 +163,6 @@ namespace argent::graphics
 						camera_rotation_.y += y_d_angle;
 					}
 				}
-
 			}
 
 			//Draw on ImGui

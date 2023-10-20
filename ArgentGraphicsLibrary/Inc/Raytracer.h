@@ -21,7 +21,6 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
-#define _USE_AS_MANAGER_	1
 
 using namespace DirectX;
 
@@ -57,7 +56,6 @@ namespace argent::graphics
 
 		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
 	private:
-
 
 		void BuildGeometry(const GraphicsDevice& graphics_device);
 		void CreateAS(const GraphicsDevice& graphics_device, 
@@ -200,12 +198,6 @@ namespace argent::graphics
 			VertexBufferGpuDescriptorHandle,
 			RootSignatureBinderCount,
 		};
-		struct RootSignatureArgument
-		{
-			Material material_cb_;
-			UINT instance_index_;
-			D3D12_GPU_DESCRIPTOR_HANDLE vertex_buffer_handle_;
-		};
 
 		Transform transforms_[GeometryType::GeometryTypeCount];
 		uint8_t* world_mat_map_;
@@ -220,14 +212,7 @@ namespace argent::graphics
 		UINT hit_shader_table_size_;
 		UINT hit_shader_table_stride_;
 
-#if _USE_AS_MANAGER_
 		dxr::AccelerationStructureManager as_manager_;
 		UINT tlas_unique_id_[GeometryTypeCount];
-#else
-		//Bottom Level
-		std::unique_ptr<dxr::BottomLevelAccelerationStructure> blas_[GeometryTypeCount];		
-		dxr::TopLevelAccelerationStructure top_level_acceleration_structure_;
-
-#endif
 	};
 }
