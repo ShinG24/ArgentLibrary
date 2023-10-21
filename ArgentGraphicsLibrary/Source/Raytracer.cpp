@@ -21,7 +21,7 @@
 #define _USE_SBT_GENERATOR_	0
 
 
-#define _USE_CUBE_	1
+#define _USE_CUBE_	0
 
 namespace argent::graphics
 {
@@ -94,6 +94,12 @@ namespace argent::graphics
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
 			DirectX::XMMATRIX m = transforms_[i].CalcWorldMatrix();
+
+			if(i == Cube)
+			{
+				DirectX::XMFLOAT4X4 t{ -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+				m = DirectX::XMLoadFloat4x4(&t) * m;
+			}
 
 			ObjectConstant obj_constant{};
 			DirectX::XMStoreFloat4x4(&obj_constant.world_, m);

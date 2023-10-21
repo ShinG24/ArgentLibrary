@@ -88,7 +88,7 @@ float4 TraceRadianceRay(in Ray ray, in uint current_recursion_depth)
     TraceRay(scene, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
     kInstanceMask, 0, 1, 0, ray_desc, payload);
 #else
-    TraceRay(scene, RAY_FLAG_NONE,
+    TraceRay(scene, RAY_FLAG_CULL_FRONT_FACING_TRIANGLES,
     kInstanceMask, 0, 1, 0, ray_desc, payload);
 #endif
 
