@@ -7,21 +7,11 @@ struct Vertex
     float2 texcoord_;
 };
 
-#define _USE_LOCAL_ROOT_SIGNATURE 0
-
-#if _USE_LOCAL_ROOT_SIGNATURE
-StructuredBuffer<Vertex> vertices : register(t1);
-ByteAddressBuffer Indices : register(t2);
-
-#else
-
 
 StructuredBuffer<Vertex> vertices : register(t2, space1);
 ByteAddressBuffer Indices : register(t3, space1);
 ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
 ConstantBuffer<Material> material_constant : register(b1, space1);
-
-#endif
 
 
 // Load three 16 bit indices from a byte addressed buffer.
@@ -64,7 +54,7 @@ uint3 Load3x32BitIndices()
 
 float3 CalcNormal(uint3 index, float2 barycentrics)
 {
-	float3 vertex_normal[3] = { vertices[index[0]].normal_, vertices[index[1]].normal_, vertices[index[2]].normal_,};
+    float3 vertex_normal[3] = { vertices[index[0]].normal_.xyz, vertices[index[1]].normal_.xyz, vertices[index[2]].normal_.xyz, };
     float3 triangle_normal = vertex_normal[0] + barycentrics.x * (vertex_normal[1] - vertex_normal[0]) + barycentrics.y * (vertex_normal[2] - vertex_normal[0]);
     return mul(float4(triangle_normal, 0.0f), object_constant.world_).xyz;
 }
@@ -76,6 +66,7 @@ float3 CalcNormal(uint3 index, float2 barycentrics)
                                        in HitAttribute attr)
 {
     uint3 index = Load3x32BitIndices();
+    index = index.xyz;
 	float3 triangle_normal = CalcNormal(index, attr.barycentrics);
 
     Ray ray;
@@ -84,34 +75,14 @@ float3 CalcNormal(uint3 index, float2 barycentrics)
 
     float4 reflection_color = TraceRadianceRay(ray, payload.recursion_depth_);
 
-#if _USE_MATERIAL_CONSTANT_
+
     float4 albedo_color = material_constant.albedo_color_;
-#else
 
-    float4 albedo_color = float4(0.0f, 0.0f, 1.0f, 1.0f);
-
-#endif
-#if 0 
-    float diffuse_factor = max(0.0f, dot(normalize(-scene_constant.light_position_), triangle_normal));
-
-    float4 color = albedo_color * diffuse_factor;
-
-    
-    payload.colorAndDistance = reflected_color * 0.5 + float4(color.rgb, 1.0f);
-    payload.colorAndDistance.w = 1.0f;
-#else
-
-#if _USE_MATERIAL_CONSTANT_
     float reflectance_coefficient = material_constant.reflectance_coefficient_;
     float diffuse_coefficient = material_constant.diffuse_coefficient_;
     float specular_coefficient = material_constant.specular_coefficient_;
     float specular_power = material_constant.specular_power_;
-#else
-    float reflectance_coefficient = 1.0f;
-    float diffuse_coefficient = 0.3f;
-    float specular_coefficient = 1.0f;
-    float specular_power = 50.0f;
-#endif
+
     float3 fresnel_r = FresnelReflectanceSchlick(WorldRayDirection(), triangle_normal, albedo_color.xyz);
     reflection_color = reflectance_coefficient * float4(fresnel_r, 1) * reflection_color;
 
@@ -120,8 +91,6 @@ float3 CalcNormal(uint3 index, float2 barycentrics)
     float4 color = phong_color + reflection_color;
 
     payload.colorAndDistance = float4(color.rgb, 1.0f);
-#endif
-
 }
 
 

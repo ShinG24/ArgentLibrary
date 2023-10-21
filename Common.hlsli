@@ -9,7 +9,7 @@ struct RayPayload
 };
 
 
-#define _MAX_RECURSION_DEPTH_ 3
+#define _MAX_RECURSION_DEPTH_ 5
 
 #ifndef __cplusplus
 
@@ -84,8 +84,13 @@ float4 TraceRadianceRay(in Ray ray, in uint current_recursion_depth)
 	payload.colorAndDistance = float4(0, 0, 0, 0);
     payload.recursion_depth_ = current_recursion_depth + 1;
 
+#if 1
     TraceRay(scene, RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
     kInstanceMask, 0, 1, 0, ray_desc, payload);
+#else
+    TraceRay(scene, RAY_FLAG_NONE,
+    kInstanceMask, 0, 1, 0, ray_desc, payload);
+#endif
 
     return payload.colorAndDistance;
 }

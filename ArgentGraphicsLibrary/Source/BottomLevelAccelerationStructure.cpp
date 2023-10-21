@@ -30,6 +30,7 @@ namespace argent::graphics::dxr
 			const auto& v = build_desc->vertex_buffer_vec_.at(i);
 
 			desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+			//desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 
 			//TODO Geometry Type does not need to change the same bottom level??
 			desc.Type = is_triangle ? 
@@ -48,7 +49,16 @@ namespace argent::graphics::dxr
 				desc.Triangles.VertexBuffer.StrideInBytes = v->GetView().StrideInBytes;
 				desc.Triangles.VertexCount = v->GetVertexCounts();
 				desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-				desc.Triangles.Transform3x4 = 0u;
+
+				if(build_desc->transform_vec_.size() == 0)
+				{
+					desc.Triangles.Transform3x4 = 0u;
+				}
+				else
+				{
+					desc.Triangles.Transform3x4 = build_desc->transform_vec_.at(i);
+				}
+
 				if(build_desc->index_buffer_vec_.size() == 0)
 				{
 					desc.Triangles.IndexBuffer = 0u;

@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 
+
 #include "../External/DXC/Inc/dxcapi.h"
 #include "../ShaderBindingTableGenerator.h"
 #include "../External/Imgui/imgui.h"
@@ -30,12 +31,19 @@ using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
 using float4 = DirectX::XMFLOAT4;
 
+struct Vertex
+{
+	float3 position_;
+	float3 normal_;
+	float2 texcoord_;
+};
 
 namespace argent::graphics
 {
 	class GraphicsDevice;
 	class GraphicsCommandList;
 	class CommandQueue;
+	
 
 	class Raytracer
 	{
@@ -71,7 +79,7 @@ namespace argent::graphics
 
 		void CreateShaderBindingTable(const GraphicsDevice& graphics_device);
 
-		void FbxLoader();
+		void FbxLoader(const char* filename);
 	private:
 		//Shader
 		Microsoft::WRL::ComPtr<IDxcBlob> ray_gen_library_;
@@ -119,12 +127,7 @@ namespace argent::graphics
 			GeometryTypeCount,
 		};
 
-		struct Vertex
-		{
-			float3 position_;
-			float3 normal_;
-			float2 texcoord_;
-		};
+		
 
 		std::unique_ptr<VertexBuffer> vertex_buffers_[GeometryTypeCount];
 		std::unique_ptr<IndexBuffer> index_buffers_[GeometryTypeCount];
@@ -233,5 +236,29 @@ namespace argent::graphics
 
 
 		std::unique_ptr<Texture> texture_;
+
+
+
+	public:
+
+		struct Mesh
+		{
+			uint64_t unique_id_{};
+			std::string name_;
+			int64_t node_index_{};
+
+			std::vector<Vertex> vertices_;
+			std::vector<uint32_t> indices_;
+
+			std::unique_ptr<VertexBuffer> vertex_buffer_;
+			std::unique_ptr<IndexBuffer> index_buffer_;
+		};
+
+	private:
+		
+
+		Microsoft::WRL::ComPtr<ID3D12Resource> blas_transform_cube_;
+		std::vector<Mesh> meshes_;
+		
 	};
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <d3d12.h>
+#include <DirectXMath.h>
 #include <wrl.h>
 
 #include <vector>
@@ -24,6 +25,7 @@ namespace argent::graphics::dxr
 	{
 		std::vector<VertexBuffer*> vertex_buffer_vec_;
 		std::vector<IndexBuffer*> index_buffer_vec_;
+		std::vector<D3D12_GPU_VIRTUAL_ADDRESS> transform_vec_;
 	};
 
 	class BottomLevelAccelerationStructure
