@@ -23,6 +23,9 @@
 
 #define _USE_CUBE_	0
 
+
+#define _USE_SAMPLE_STB_GENERATOR_	0
+
 namespace argent::graphics
 {
 	void Raytracer::Awake(const GraphicsDevice& graphics_device, GraphicsCommandList& command_list,
@@ -41,8 +44,6 @@ namespace argent::graphics
 			L"./Assets/Image/Skymap02.dds", true);
 		skymaps_[3] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
 			L"./Assets/Image/Skymap03.dds", true);
-
-
 
 		width_ = width;
 		height_ = height;
@@ -151,12 +152,23 @@ namespace argent::graphics
 
 		D3D12_DISPATCH_RAYS_DESC desc{};
 
+#if _USE_SAMPLE_STB_GENERATOR_
 		desc.RayGenerationShaderRecord.StartAddress = raygen_shader_table_->GetGPUVirtualAddress();
 		desc.RayGenerationShaderRecord.SizeInBytes = 32u;
 
 		desc.MissShaderTable.StartAddress = miss_shader_table_->GetGPUVirtualAddress();
 		desc.MissShaderTable.SizeInBytes = 32u;
 		desc.MissShaderTable.StrideInBytes = 32u;
+#else
+		desc.RayGenerationShaderRecord.StartAddress = raygen_binding_table_.GetGpuVirtualAddress();
+		desc.RayGenerationShaderRecord.SizeInBytes = raygen_binding_table_.GetSize();
+
+		desc.MissShaderTable.StartAddress = miss_binding_table_.GetGpuVirtualAddress();
+		desc.MissShaderTable.SizeInBytes = miss_binding_table_.GetSize();
+		desc.MissShaderTable.StrideInBytes = miss_binding_table_.GetStride();
+#endif
+
+		
 
 		desc.HitGroupTable.StartAddress = hit_shader_table_->GetGPUVirtualAddress();
 		desc.HitGroupTable.SizeInBytes = hit_shader_table_size_;
@@ -528,8 +540,9 @@ namespace argent::graphics
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
 	{
-		//The size Shader Identifier
 		uint shader_record_size =  D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
+#if _USE_SAMPLE_STB_GENERATOR_
+		//The size Shader Identifier
 
 		//Raygen Table
 		{
@@ -571,7 +584,7 @@ namespace argent::graphics
 
 			miss_shader_table_->Unmap(0u, nullptr);
 		}
-
+#else
 		//Hit
 		{
 			//Need to use only one Entry size.
@@ -640,6 +653,27 @@ namespace argent::graphics
 
 			hit_shader_table_->Unmap(0u, nullptr);
 		}
+
+
+		//Ray Generation
+		{
+			raygen_binding_table_.AddShaderIdentifier(L"RayGen");
+			raygen_binding_table_.Generate(&graphics_device, raytracing_state_object_properties_.Get());
+		}
+
+		//Miss Shader
+		{
+			std::vector<void*> data(kSkymapCounts + 1);
+			data.at(0u) = reinterpret_cast<void*>(skymap_index_buffer_->GetGPUVirtualAddress());
+			for (int i = 0; i < kSkymapCounts; ++i)
+			{
+				data.at(i + 1) = reinterpret_cast<void*>(skymaps_[i]->GetGpuHandle().ptr);
+			}
+			miss_binding_table_.AddShaderIdentifierAndInputData(L"Miss", data);
+			miss_binding_table_.Generate(&graphics_device, raytracing_state_object_properties_.Get());
+		}
+
+#endif
 	}
 
 	//For Fbx

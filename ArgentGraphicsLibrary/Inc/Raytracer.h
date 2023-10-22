@@ -25,6 +25,8 @@
 
 #include "Texture.h"
 
+#include "ShaderBindingTable.h"
+
 using namespace DirectX;
 
 using float2 = DirectX::XMFLOAT2;
@@ -285,6 +287,11 @@ namespace argent::graphics
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> blas_transform_cube_;
 		std::vector<Mesh> meshes_;
-		
+
+
+		//For Shader Binding Table
+		ShaderBindingTable raygen_binding_table_;
+		ShaderBindingTable miss_binding_table_;
+		ShaderBindingTable hit_group_binding_table_;
 	};
 }
