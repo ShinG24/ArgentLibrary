@@ -257,11 +257,13 @@ namespace argent::graphics
 		UINT tlas_unique_id_[GeometryTypeCount];
 
 
+		static constexpr int kSkymapCounts = 4;
 		std::unique_ptr<Texture> texture_;
 		std::unique_ptr<Texture> texture1_;
-		std::unique_ptr<Texture> skymap_;
-
-
+		std::unique_ptr<Texture> skymaps_[kSkymapCounts];
+		int skymap_index_ = 0;
+		Microsoft::WRL::ComPtr<ID3D12Resource> skymap_index_buffer_;
+		int* map_skymap_index_;
 
 	public:
 
