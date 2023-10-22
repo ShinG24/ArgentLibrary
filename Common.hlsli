@@ -9,7 +9,7 @@ struct RayPayload
 };
 
 
-#define _MAX_RECURSION_DEPTH_ 5
+#define _MAX_RECURSION_DEPTH_ 3
 
 #ifndef __cplusplus
 
@@ -47,6 +47,7 @@ RWTexture2D<float4> output_texture : register(u0);
 
 struct SceneConstant
 {
+    row_major float4x4 view_projection_;
     row_major float4x4 inv_view_projection_;
     float4 camera_position_;
     float4 light_position_;

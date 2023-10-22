@@ -16,13 +16,13 @@ namespace argent::graphics::dxr
 	}
 
 	UINT AccelerationStructureManager::RegisterTopLevelAS(UINT blas_unique_id, 
-		UINT hit_group_index, const DirectX::XMFLOAT4X4& world)
+		UINT hit_group_index, const DirectX::XMFLOAT4X4& world, bool front_counter_clockwise)
 	{
 		UINT unique_id = GenerateUniqueID();
 
 		tlas_un_map_.emplace(unique_id, std::make_unique<TopLevelAccelerationStructure>(unique_id, 
 			blas_unique_id, GetBottomLevelAS(blas_unique_id)->GetResultBuffer()->GetGPUVirtualAddress(),
-			hit_group_index, world));
+			hit_group_index, world, front_counter_clockwise));
 		return unique_id;
 	}
 

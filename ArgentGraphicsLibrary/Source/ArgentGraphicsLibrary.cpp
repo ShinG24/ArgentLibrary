@@ -192,6 +192,7 @@ namespace argent::graphics
 
 			SceneConstant data{};
 			data.camera_position_ = camera_position_;
+			DirectX::XMStoreFloat4x4(&data.view_projection_, view * proj);
 			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
 			data.light_position_ = light_position;
 

@@ -21,7 +21,7 @@ namespace argent::graphics::dxr
 			const GraphicsCommandList* graphics_command_list, 
 			BLASBuildDesc* build_desc, bool is_triangle);
 		UINT RegisterTopLevelAS(UINT blas_unique_id, 
-			UINT hit_group_index, const DirectX::XMFLOAT4X4& world);
+			UINT hit_group_index, const DirectX::XMFLOAT4X4& world, bool front_counter_clockwise);
 
 		BottomLevelAccelerationStructure* GetBottomLevelAS(UINT unique_id) const;
 

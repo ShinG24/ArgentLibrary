@@ -29,7 +29,10 @@ namespace argent::graphics
 		CommandQueue& command_queue, UINT64 width, UINT height, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
-		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap);
+		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
+			L"./Assets/Model/Texture/Coral.png");
+		texture1_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
+			L"./Assets/Model/Texture/CoralN.png");
 		width_ = width;
 		height_ = height;
 
@@ -55,10 +58,10 @@ namespace argent::graphics
 		materials_[Plane].reflectance_coefficient_ = 0.8f;
 
 		materials_[Cube].albedo_color_ = float4(0.0f, 0.8f, 0.0f, 1.0f);
-		materials_[Cube].diffuse_coefficient_ = 0.3f;
+		materials_[Cube].diffuse_coefficient_ = 1.0f;
 		materials_[Cube].specular_coefficient_ = 0.6f;
 		materials_[Cube].specular_power_ = 50.f;
-		materials_[Cube].reflectance_coefficient_ = 1.0f;
+		materials_[Cube].reflectance_coefficient_ = 0.0f;
 
 		materials_[SphereAABB].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
 		materials_[SphereAABB].diffuse_coefficient_ = 0.2f;
@@ -85,6 +88,8 @@ namespace argent::graphics
 			{
 				transforms_[i].OnGui();
 				materials_[i].OnGui();
+				ImGui::Image(reinterpret_cast<ImTextureID>(texture_->GetGpuHandle().ptr), ImVec2(256, 256));
+				ImGui::Image(reinterpret_cast<ImTextureID>(texture1_->GetGpuHandle().ptr), ImVec2(256, 256));
 				ImGui::TreePop();
 			}
 		}
@@ -95,19 +100,16 @@ namespace argent::graphics
 		{
 			DirectX::XMMATRIX m = transforms_[i].CalcWorldMatrix();
 
-			if(i == Cube)
-			{
-				DirectX::XMFLOAT4X4 t{ -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
-				m = DirectX::XMLoadFloat4x4(&t) * m;
-			}
-
 			ObjectConstant obj_constant{};
 			DirectX::XMStoreFloat4x4(&obj_constant.world_, m);
 			DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
 			memcpy(world_mat_map_ + i * sizeof(ObjectConstant), &obj_constant, sizeof(ObjectConstant));
 			memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
-			
-			as_manager_.SetWorld(obj_constant.world_, tlas_unique_id_[i]);
+
+
+			DirectX::XMFLOAT4X4 mat;
+			DirectX::XMStoreFloat4x4(&mat, m);
+			as_manager_.SetWorld(mat, tlas_unique_id_[i]);
 		}
 		as_manager_.Update(graphics_command_list);
 
@@ -298,15 +300,16 @@ namespace argent::graphics
 		//Add Bottom Level
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
-			bool triangle = i != SphereAABB ? true : false;
+			bool triangle = i != SphereAABB;
 			dxr::BLASBuildDesc build_desc;
 			build_desc.vertex_buffer_vec_.emplace_back(vertex_buffers_[i].get());
 			if(i == Cube)
 			{
 				build_desc.index_buffer_vec_.emplace_back(index_buffers_[i].get());
 
-#ifndef _USE_CUBE_
-				graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(DirectX::XMFLOAT4X4),
+#if _USE_CUBE_
+#else
+				/*graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(DirectX::XMFLOAT4X4),
 					D3D12_RESOURCE_STATE_GENERIC_READ, blas_transform_cube_.ReleaseAndGetAddressOf());
 
 				DirectX::XMFLOAT4X4* map;
@@ -315,7 +318,7 @@ namespace argent::graphics
 				*map = t;
 				blas_transform_cube_->Unmap(0u, nullptr);
 				
-				build_desc.transform_vec_.emplace_back(blas_transform_cube_->GetGPUVirtualAddress());
+				build_desc.transform_vec_.emplace_back(blas_transform_cube_->GetGPUVirtualAddress());*/
 #endif
 			}
 			
@@ -326,7 +329,8 @@ namespace argent::graphics
 		{
 			DirectX::XMFLOAT4X4 m;
 			DirectX::XMStoreFloat4x4(&m, transforms_[i].CalcWorldMatrix());
-			tlas_unique_id_[i] = as_manager_.RegisterTopLevelAS(unique_id[i], i, m);
+			bool front_counter_clockwise = false;
+			tlas_unique_id_[i] = as_manager_.RegisterTopLevelAS(unique_id[i], i, m, front_counter_clockwise);
 		}
 
 		as_manager_.Generate(&graphics_device, &command_list);
@@ -403,9 +407,9 @@ namespace argent::graphics
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
-			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0u, 1u, 1u);	//For Abledo
-			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1u, 1u, 1u);	//For Normal
-			rsc.AddHeapRangesParameter({{2u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});	//For Vertex Buffer and Index Buffer
+			rsc.AddHeapRangesParameter({ {0u, 1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});	//For Abledo
+			rsc.AddHeapRangesParameter({ {1u, 1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});	//For Normal
+			rsc.AddHeapRangesParameter({{2u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});	//For Vertex Buffer and Index Buffer
 			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
 		}
 
@@ -571,6 +575,8 @@ namespace argent::graphics
 			//act my assumption.
 			data.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
 			data.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
+			data.at(AlbedoTexture) = reinterpret_cast<void*>(texture_->GetGpuHandle().ptr);
+			data.at(NormalTexture) = reinterpret_cast<void*>(texture1_->GetGpuHandle().ptr);
 			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
 			//data.at(1) = reinterpret_cast<void*>(object_descriptor_.gpu_handle_.ptr);
 
@@ -692,7 +698,7 @@ namespace argent::graphics
 					vertex.position_.y = static_cast<float>(control_points[polygon_vertex][1]);
 					vertex.position_.z = static_cast<float>(control_points[polygon_vertex][2]);
 
-					if (fbx_mesh->GetElementNormalCount() < 0)
+					if (fbx_mesh->GetElementNormalCount() > 0)
 					{
 						FbxVector4 normal;
 						fbx_mesh->GetPolygonVertexNormal(polygon_index, position_in_polygon, normal);
@@ -701,7 +707,7 @@ namespace argent::graphics
 						vertex.normal_.z = static_cast<float>(normal[2]);
 					}
 
-					if(fbx_mesh->GetElementUVCount() > 0)
+					if (fbx_mesh->GetElementUVCount() > 0)
 					{
 						FbxVector2 uv;
 						bool unmapped_uv;
@@ -709,6 +715,27 @@ namespace argent::graphics
 						vertex.texcoord_.x = static_cast<float>(uv[0]);
 						vertex.texcoord_.y = static_cast<float>(uv[1]);
 					}
+
+					if(fbx_mesh->GenerateTangentsData(0, false))
+					{
+						const FbxGeometryElementTangent* tangent = fbx_mesh->GetElementTangent(0);
+						vertex.tangent_.x = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[0]);
+						vertex.tangent_.y = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[1]);
+						vertex.tangent_.z = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[2]);
+						vertex.tangent_.w = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[3]);
+					}
+
+					if(fbx_mesh->GetElementBinormalCount() <= 0)
+					{
+						fbx_mesh->CreateElementBinormal();
+					}
+
+					const FbxGeometryElementBinormal* binormal = fbx_mesh->GetElementBinormal(0u);
+					vertex.binormal_.x = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[0]);
+					vertex.binormal_.y = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[1]);
+					vertex.binormal_.z = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[2]);
+					vertex.binormal_.w = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[3]);
+					
 
 					mesh.vertices_.at(vertex_index) = std::move(vertex);
 					mesh.indices_.at(vertex_index) = vertex_index;

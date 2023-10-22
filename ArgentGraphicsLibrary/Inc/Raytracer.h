@@ -35,6 +35,8 @@ struct Vertex
 {
 	float3 position_;
 	float3 normal_;
+	float4 tangent_;
+	float4 binormal_;
 	float2 texcoord_;
 };
 
@@ -141,13 +143,31 @@ namespace argent::graphics
 			DirectX::XMFLOAT3 position_{};
 			DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
 			DirectX::XMFLOAT3 rotation_{};
+			INT coordinate_system_index_;
+			static constexpr DirectX::XMFLOAT4X4 kCoordinateSystem[4]
+			{
+				{ -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 }, // 0:RHS Y-UP
+				{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 }, // 1:LHS Y-UP
+				{ -1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1 }, // 2:RHS Z-UP
+				{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1 }, // 3:LHS Z-UP
+
+			};
+
+			const std::string kCoordinateSystemStr[4]
+			{
+				{"RHS Y-UP"},
+				{"LHS Y-UP"},
+				{"RHS Z-UP"},
+				{"LHS Z-UP"},
+			};
 
 			DirectX::XMMATRIX CalcWorldMatrix() const
 			{
+				const auto C = DirectX::XMLoadFloat4x4(&kCoordinateSystem[coordinate_system_index_]);
 				const auto S = DirectX::XMMatrixScaling(scaling_.x, scaling_.y, scaling_.z);
 				const auto R = DirectX::XMMatrixRotationRollPitchYaw(rotation_.x, rotation_.y, rotation_.z);
 				const auto T = DirectX::XMMatrixTranslation(position_.x, position_.y, position_.z);
-				return S * R * T;
+				return C * S * R * T;
 			}
 
 			void OnGui()
@@ -157,6 +177,8 @@ namespace argent::graphics
 					ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
 					ImGui::DragFloat3("Scaling", &scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
 					ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
+					ImGui::SliderInt("CoordinateSystem", &coordinate_system_index_, 0, 3);
+					ImGui::Text(kCoordinateSystemStr[coordinate_system_index_].c_str());
 					ImGui::TreePop();
 				}
 			}
@@ -236,6 +258,7 @@ namespace argent::graphics
 
 
 		std::unique_ptr<Texture> texture_;
+		std::unique_ptr<Texture> texture1_;
 
 
 

@@ -4,10 +4,13 @@ struct Vertex
 {
     float3 position_;
     float3 normal_;
+    float4 tangent_;
+    float4 binormal_;
     float2 texcoord_;
 };
 
-
+Texture2D albedo_texture : register(t0, space1);
+Texture2D normal_texture : register(t1, space1);
 StructuredBuffer<Vertex> vertices : register(t2, space1);
 ByteAddressBuffer Indices : register(t3, space1);
 ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
@@ -52,13 +55,73 @@ uint3 Load3x32BitIndices()
     return Indices.Load3(offset_index);
 }
 
-float3 CalcNormal(uint3 index, float2 barycentrics)
+float3 CalcWorldNormal(uint3 index, float2 barycentrics)
 {
-    float3 vertex_normal[3] = { vertices[index[0]].normal_.xyz, vertices[index[1]].normal_.xyz, vertices[index[2]].normal_.xyz, };
-    float3 triangle_normal = vertex_normal[0] + barycentrics.x * (vertex_normal[1] - vertex_normal[0]) + barycentrics.y * (vertex_normal[2] - vertex_normal[0]);
-    return mul(float4(triangle_normal, 0.0f), object_constant.world_).xyz;
+    float3 vertex_normal[3] = { vertices[index.x].normal_.xyz, vertices[index.y].normal_.xyz, vertices[index.z].normal_.xyz, };
+    float3 triangle_normal = vertex_normal[0] * (1 - barycentrics.x - barycentrics.y) + vertex_normal[1] * barycentrics.x + vertex_normal[2] * barycentrics.y;
+    //float3 triangle_normal = vertex_normal[0] + barycentrics.x * (vertex_normal[1] - vertex_normal[0]) + barycentrics.y * (vertex_normal[2] - vertex_normal[0]);
+    float3 ret = mul(float4(triangle_normal, 0.0f), object_constant.world_).xyz;
+    return normalize(ret);
 }
 
+float4 CalcWorldTangent(uint3 index, float2 barycentrics)
+{
+    float4 vertex_tangent[3] = { vertices[index.x].tangent_, vertices[index.y].tangent_, vertices[index.z].tangent_ };
+    float4 tangent = vertex_tangent[0] + barycentrics.x * (vertex_tangent[1] - vertex_tangent[0]) + barycentrics.y * (vertex_tangent[2] - vertex_tangent[0]);
+    float sigma = vertex_tangent[0].w;
+    tangent.w = 0;
+    tangent = normalize(mul(tangent, object_constant.world_));
+    tangent.w = sigma;
+    return tangent;
+}
+float4 CalcWorldBinormal(uint3 index, float2 barycentrics)
+{
+    float4 vertex_binormal[3] = { vertices[index.x].binormal_, vertices[index.y].binormal_, vertices[index.z].binormal_ };
+    float4 binormal = vertex_binormal[0] + barycentrics.x * (vertex_binormal[1] - vertex_binormal[0]) + barycentrics.y * (vertex_binormal[2] - vertex_binormal[0]);
+    float sigma = vertex_binormal[0].w;
+    binormal.w = 0;
+    binormal = normalize(mul(binormal, object_constant.world_));
+    binormal.w = sigma;
+    return binormal;
+}
+
+float2 CalcTexcoord(uint3 index, float2 barycentrics)
+{
+    float2 vertex_texcoord[3] = { vertices[index[0]].texcoord_.xy, vertices[index[1]].texcoord_.xy, vertices[index[2]].texcoord_.xy };
+    float2 texcoord = vertex_texcoord[0] + barycentrics.x * (vertex_texcoord[1] - vertex_texcoord[0]) + barycentrics.y * (vertex_texcoord[2] - vertex_texcoord[0]);
+    return texcoord;
+}
+
+float3 CalcNormal(float3 surface_normal, float3 tangent, float3 binormal, float2 uv)
+{
+    float3 N = normalize(surface_normal);
+    float3 T = normalize(tangent.xyz);
+    float3 B = normalize(binormal.xyz);
+
+
+    float4 normal = normal_texture[uv];
+    normal = (normal * 2.0f) - 1.f;
+
+    N = normalize((normal.x * T) + (normal.y * B) + (normal.z * N));
+    return N;
+}
+
+float4 AlbedoLinearSampling(float2 uv, uint dimension)
+{
+    float4 color = 0;
+    color += albedo_texture[uv];//Center
+    
+    color += albedo_texture[clamp(float2(uv.x - 1, uv.y    ), 0, dimension)];//Left
+    color += albedo_texture[clamp(float2(uv.x - 1, uv.y - 1), 0, dimension)];//Left Top
+    color += albedo_texture[clamp(float2(uv.x    , uv.y - 1), 0, dimension)];//Top
+    color += albedo_texture[clamp(float2(uv.x + 1, uv.y - 1), 0, dimension)];//Right Top
+    color += albedo_texture[clamp(float2(uv.x + 1, uv.y    ), 0, dimension)];//Right 
+    color += albedo_texture[clamp(float2(uv.x + 1, uv.y + 1), 0, dimension)];//Right Bottom
+    color += albedo_texture[clamp(float2(uv.x    , uv.y + 1), 0, dimension)];//Bottom
+    color += albedo_texture[clamp(float2(uv.x - 1, uv.y + 1), 0, dimension)];//Left Bottom
+    color /= 9.0f;
+    return float4(color.rgb, 1.0f);
+}
 
 #define _USE_MATERIAL_CONSTANT_ 1
 
@@ -66,28 +129,38 @@ float3 CalcNormal(uint3 index, float2 barycentrics)
                                        in HitAttribute attr)
 {
     uint3 index = Load3x32BitIndices();
-    index = index.xyz;
-	float3 triangle_normal = CalcNormal(index, attr.barycentrics);
+	float3 world_normal = CalcWorldNormal(index, attr.barycentrics);
+    float4 world_tangent = CalcWorldTangent(index, attr.barycentrics);
+    float4 world_binormal = CalcWorldBinormal(index, attr.barycentrics);
+    float2 texcoord = CalcTexcoord(index, attr.barycentrics);
+    texcoord.y = 1 - texcoord.y;
 
+    uint width, height;
+	albedo_texture.GetDimensions(width, height);
+    float2 albedo_texcoord = float2(texcoord.x * width, texcoord.y * height);
+
+    normal_texture.GetDimensions(width, height);
+    float2 normal_texcoord = float2(texcoord.x * width, texcoord.y * height);
+
+    float3 normal = CalcNormal(world_normal, world_tangent.xyz, world_binormal.xyz, normal_texcoord);
+
+
+    float4 albedo_color = AlbedoLinearSampling(albedo_texcoord, width);
+    //float4 albedo_color = albedo_texture[albedo_texcoord.xy] * 4.0f;
+
+    //Do Raytracing
     Ray ray;
     ray.origin_ = CalcHitWorldPosition();
-    ray.direction_ = CalcReflectedRayDirection(triangle_normal);
-
+    ray.direction_ = CalcReflectedRayDirection(normal);
     float4 reflection_color = TraceRadianceRay(ray, payload.recursion_depth_);
 
+    //Fresnel 
+    float3 fresnel_r = FresnelReflectanceSchlick(WorldRayDirection(), normal, albedo_color.xyz);
+    reflection_color = material_constant.reflectance_coefficient_ * float4(fresnel_r, 1) * reflection_color;
 
-    float4 albedo_color = material_constant.albedo_color_;
-
-    float reflectance_coefficient = material_constant.reflectance_coefficient_;
-    float diffuse_coefficient = material_constant.diffuse_coefficient_;
-    float specular_coefficient = material_constant.specular_coefficient_;
-    float specular_power = material_constant.specular_power_;
-
-    float3 fresnel_r = FresnelReflectanceSchlick(WorldRayDirection(), triangle_normal, albedo_color.xyz);
-    reflection_color = reflectance_coefficient * float4(fresnel_r, 1) * reflection_color;
-
-    float4 phong_color = CalcPhongLighting(albedo_color, triangle_normal,
-						diffuse_coefficient, specular_coefficient, specular_power);
+    //Phong Shading
+    float4 phong_color = CalcPhongLighting(albedo_color, normal,
+						material_constant.diffuse_coefficient_, material_constant.specular_coefficient_, material_constant.specular_power_);
     float4 color = phong_color + reflection_color;
 
     payload.colorAndDistance = float4(color.rgb, 1.0f);

@@ -11,14 +11,14 @@
 namespace argent::graphics
 {
 	Texture::Texture(const GraphicsDevice* graphics_device, const CommandQueue* command_queue,
-		DescriptorHeap* cbv_srv_uav_heap)
+		DescriptorHeap* cbv_srv_uav_heap, const wchar_t* filename)
 	{
-		auto descirptor = cbv_srv_uav_heap->PopDescriptor();
+		descriptor_ = cbv_srv_uav_heap->PopDescriptor();
 		DirectX::ResourceUploadBatch resource_upload_batch(graphics_device->GetDevice());
 
 		resource_upload_batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
 		HRESULT hr = DirectX::CreateWICTextureFromFile(graphics_device->GetDevice(), 
-			resource_upload_batch, L"./Assets/Image/Title.png", 
+			resource_upload_batch, filename,
 			resource_object_.ReleaseAndGetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Load Texture");
 
@@ -32,6 +32,6 @@ namespace argent::graphics
 		desc.Texture2D.MipLevels = resource_object_->GetDesc().MipLevels;
 
 		graphics_device->GetDevice()->CreateShaderResourceView(resource_object_.Get(), &desc,
-			descirptor.cpu_handle_);
+			descriptor_.cpu_handle_);
 	}
 }

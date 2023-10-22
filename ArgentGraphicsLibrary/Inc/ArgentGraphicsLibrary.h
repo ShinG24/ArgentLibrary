@@ -92,6 +92,7 @@ namespace argent::graphics
 
 		struct SceneConstant
 		{
+			DirectX::XMFLOAT4X4 view_projection_;
 			DirectX::XMFLOAT4X4 inv_view_projection_;
 			DirectX::XMFLOAT4 camera_position_;
 			DirectX::XMFLOAT4 light_position_;
