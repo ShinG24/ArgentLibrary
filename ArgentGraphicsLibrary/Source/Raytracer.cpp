@@ -30,9 +30,11 @@ namespace argent::graphics
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
 		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/Coral.png");
+			L"./Assets/Model/Texture/Coral.png", false);
 		texture1_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/CoralN.png");
+			L"./Assets/Model/Texture/CoralN.png", false);
+		skymap_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
+			L"./Assets/Image/Skymap.dds", true);
 		width_ = width;
 		height_ = height;
 
@@ -90,6 +92,7 @@ namespace argent::graphics
 				materials_[i].OnGui();
 				ImGui::Image(reinterpret_cast<ImTextureID>(texture_->GetGpuHandle().ptr), ImVec2(256, 256));
 				ImGui::Image(reinterpret_cast<ImTextureID>(texture1_->GetGpuHandle().ptr), ImVec2(256, 256));
+				ImGui::Image(reinterpret_cast<ImTextureID>(skymap_->GetGpuHandle().ptr), ImVec2(256, 256));
 				ImGui::TreePop();
 			}
 		}
@@ -400,6 +403,7 @@ namespace argent::graphics
 		//Shared root signature
 		{
 			nv_helpers_dx12::RootSignatureGenerator rsc;
+			rsc.AddHeapRangesParameter({ {0u, 1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u} });	//For Skymap
 			shared_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
 		}
 
@@ -516,14 +520,21 @@ namespace argent::graphics
 
 		//Miss
 		{
-			graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, shader_record_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
+			UINT miss_entry_size = shader_record_size + 8;
+			miss_entry_size = _ALIGNMENT_(miss_entry_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+			graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, miss_entry_size, D3D12_RESOURCE_STATE_GENERIC_READ,
 				miss_shader_table_.ReleaseAndGetAddressOf());
 
 			uint8_t* map;
 			miss_shader_table_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
 
-			auto id = raytracing_state_object_properties_->GetShaderIdentifier(L"Miss");
+			auto* id = raytracing_state_object_properties_->GetShaderIdentifier(L"Miss");
 			memcpy(map, id, shader_record_size);
+
+			std::vector<void*> data(1);
+			data.at(0) = reinterpret_cast<void*>(skymap_->GetGpuHandle().ptr);
+			map += shader_record_size;
+			memcpy(map, data.data(), data.size() * 8);
 
 			miss_shader_table_->Unmap(0u, nullptr);
 		}

@@ -102,7 +102,7 @@ namespace argent::graphics
 		//Camera
 		DirectX::XMFLOAT4 camera_position_{ 0.0, 0.0f, -10.0f, 1.0f };
 		DirectX::XMFLOAT3 camera_rotation_{};
-		float near_z_ = 0.01f;
+		float near_z_ = 0.1f;
 		float far_z_ = 1000.0f;
 		float fov_angle_ = 60.0f;
 		float aspect_ratio_ = 16.0f / 9.0f;

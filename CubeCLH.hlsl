@@ -92,6 +92,24 @@ float2 CalcTexcoord(uint3 index, float2 barycentrics)
     return texcoord;
 }
 
+float4 NormalLinearSampling(float2 uv, uint dimension)
+{
+    float4 color = 0;
+    color += normal_texture[uv]; //Center
+    
+    color += normal_texture[clamp(float2(uv.x - 1, uv.y), 0, dimension)]; //Left
+    color += normal_texture[clamp(float2(uv.x - 1, uv.y - 1), 0, dimension)]; //Left Top
+    color += normal_texture[clamp(float2(uv.x, uv.y - 1), 0, dimension)]; //Top
+    color += normal_texture[clamp(float2(uv.x + 1, uv.y - 1), 0, dimension)]; //Right Top
+    color += normal_texture[clamp(float2(uv.x + 1, uv.y), 0, dimension)]; //Right 
+    color += normal_texture[clamp(float2(uv.x + 1, uv.y + 1), 0, dimension)]; //Right Bottom
+    color += normal_texture[clamp(float2(uv.x, uv.y + 1), 0, dimension)]; //Bottom
+    color += normal_texture[clamp(float2(uv.x - 1, uv.y + 1), 0, dimension)]; //Left Bottom
+    color /= 9.0f;
+    return float4(color.rgb, 1.0f);
+}
+
+
 float3 CalcNormal(float3 surface_normal, float3 tangent, float3 binormal, float2 uv)
 {
     float3 N = normalize(surface_normal);
@@ -99,12 +117,16 @@ float3 CalcNormal(float3 surface_normal, float3 tangent, float3 binormal, float2
     float3 B = normalize(binormal.xyz);
 
 
-    float4 normal = normal_texture[uv];
+    uint2 dimension;
+    normal_texture.GetDimensions(dimension.x, dimension.y);
+    float4 normal = NormalLinearSampling(uv, dimension.x);
     normal = (normal * 2.0f) - 1.f;
 
     N = normalize((normal.x * T) + (normal.y * B) + (normal.z * N));
     return N;
 }
+
+
 
 float4 AlbedoLinearSampling(float2 uv, uint dimension)
 {

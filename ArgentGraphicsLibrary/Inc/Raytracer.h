@@ -259,6 +259,7 @@ namespace argent::graphics
 
 		std::unique_ptr<Texture> texture_;
 		std::unique_ptr<Texture> texture1_;
+		std::unique_ptr<Texture> skymap_;
 
 
 
