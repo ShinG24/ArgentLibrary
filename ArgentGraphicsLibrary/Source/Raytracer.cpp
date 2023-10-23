@@ -37,13 +37,13 @@ namespace argent::graphics
 		texture1_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
 			L"./Assets/Model/Texture/CoralN.png", false);
 		skymaps_[0] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Image/Skymap00.dds", true);
+			L"./Assets/Images/Skymap00.dds", true);
 		skymaps_[1] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Image/Skymap01.dds", true);
+			L"./Assets/Images/Skymap01.dds", true);
 		skymaps_[2] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Image/Skymap02.dds", true);
+			L"./Assets/Images/Skymap02.dds", true);
 		skymaps_[3] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Image/Skymap03.dds", true);
+			L"./Assets/Images/Skymap03.dds", true);
 
 		width_ = width;
 		height_ = height;

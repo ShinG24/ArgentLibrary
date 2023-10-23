@@ -21,11 +21,11 @@ namespace argent::graphics
 
 	void ShaderBindingTable::Generate(const GraphicsDevice* graphics_device, ID3D12StateObjectProperties* state_object_properties)
 	{
-		if (shader_identifier_.size() != input_data_.size() && input_data_.size() != 0) _ASSERT_EXPR(FALSE, L"Shader Identifier size and Input Data size need to be same value");
+		if (shader_identifier_.size() != input_data_.size() && !input_data_.empty()) _ASSERT_EXPR(FALSE, L"Shader Identifier size and Input Data size need to be same value");
 
-		const UINT input_data_size = sizeof(uint8_t) * (input_data_.size() == 0) ? 0 : static_cast<UINT>(input_data_.at(0).size());
-		stride_ = _ALIGNMENT_(D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES + input_data_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
-		const UINT buffer_size = _ALIGNMENT_(static_cast<UINT>(stride_ * shader_identifier_.size()), D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+		const UINT input_data_size = sizeof(uint8_t) * (input_data_.empty() ? 0 : static_cast<UINT>(input_data_.at(0).size()));
+		entry_size_ = _ALIGNMENT_(D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES + input_data_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+		const UINT buffer_size = _ALIGNMENT_(static_cast<UINT>(entry_size_ * shader_identifier_.size()), D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
 		graphics_device->CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, buffer_size, 
 			D3D12_RESOURCE_STATE_GENERIC_READ, resource_object_.ReleaseAndGetAddressOf());
@@ -49,7 +49,7 @@ namespace argent::graphics
 			{
 				memcpy(map, input_data_.at(i).data(), input_data_.at(i).size() * sizeof(uint8_t));
 			}
-			map += stride_ - D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+			map += entry_size_ - D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
 		}
 
 		resource_object_->Unmap(0u, nullptr);

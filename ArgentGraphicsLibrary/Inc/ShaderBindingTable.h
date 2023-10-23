@@ -26,12 +26,12 @@ namespace argent::graphics
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const { return resource_object_->GetGPUVirtualAddress(); }
 		UINT GetSize() const { return static_cast<UINT>(resource_object_->GetDesc().Width); }
-		UINT GetStride() const { return stride_; }
+		UINT GetStride() const { return entry_size_; }
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource_object_;
 		std::vector<std::vector<void*>> input_data_;
 		std::vector<std::wstring> shader_identifier_;
-		UINT stride_;
+		UINT entry_size_;
 	};
 }
