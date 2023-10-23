@@ -4,7 +4,7 @@
 
 struct RayPayload
 {
-    float4 colorAndDistance;
+    float4 color_;
     uint recursion_depth_;
 };
 
@@ -15,6 +15,17 @@ struct RayPayload
 
 #define HitAttribute   BuiltInTriangleIntersectionAttributes
 
+#define _ClosestHitID_      "closesthit"
+#define _RayGenerationID_   "raygeneration"
+#define _MissID_            "miss"
+#define _IntersectionID_    "intersection"
+
+
+#define _RAY_GENERATION_SHADER_     [shader(_RayGenerationID_)]
+#define _CLOSEST_HIT_SHADER_        [shader(_ClosestHitID_)]
+#define _MISS_SHADER_               [shader(_MissID_)]
+#define _INTERSECTION_SHADER_       [shader(_IntersectionID_)]
+	
 struct ObjectConstant
 {
     row_major float4x4 world_;
@@ -82,7 +93,7 @@ float4 TraceRadianceRay(in Ray ray, in uint current_recursion_depth)
     ray_desc.TMax = 1000.0f;
 
     RayPayload payload;
-	payload.colorAndDistance = float4(0, 0, 0, 0);
+	payload.color_ = float4(0, 0, 0, 0);
     payload.recursion_depth_ = current_recursion_depth + 1;
 
 #if 1
@@ -93,7 +104,7 @@ float4 TraceRadianceRay(in Ray ray, in uint current_recursion_depth)
     kInstanceMask, 0, 1, 0, ray_desc, payload);
 #endif
 
-    return payload.colorAndDistance;
+    return payload.color_;
 }
 
 float CalcDiffuseCoefficient(in float3 incident_light_ray, in float3 surface_normal)

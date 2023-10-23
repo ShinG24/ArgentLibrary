@@ -3,7 +3,7 @@
 ConstantBuffer<Material> material_constant : register(b1, space1);
 
 
-[shader("closesthit")]
+_CLOSEST_HIT_SHADER_
 void SphereClosestHit(inout RayPayload payload, in SphereHitAttribute attr)
 {
     float4 albedo_color = material_constant.albedo_color_;
@@ -29,5 +29,5 @@ void SphereClosestHit(inout RayPayload payload, in SphereHitAttribute attr)
     float4 phong_color = CalcPhongLighting(albedo_color, attr.normal_,
     diffuse_coefficient, specular_coefficient, specular_power);
     float4 color = phong_color + reflection_color;
-    payload.colorAndDistance = float4(color.rgb, 1.0f);
+    payload.color_ = float4(color.rgb, 1.0f);
 }

@@ -18,13 +18,9 @@
 #include "../Inc/ShaderCompiler.h"
 #include "../../Common.hlsli"
 
-#define _USE_SBT_GENERATOR_	0
-
 
 #define _USE_CUBE_	0
 
-
-#define _USE_SAMPLE_STB_GENERATOR_	0
 
 namespace argent::graphics
 {
@@ -152,27 +148,18 @@ namespace argent::graphics
 
 		D3D12_DISPATCH_RAYS_DESC desc{};
 
-#if _USE_SAMPLE_STB_GENERATOR_
-		desc.RayGenerationShaderRecord.StartAddress = raygen_shader_table_->GetGPUVirtualAddress();
-		desc.RayGenerationShaderRecord.SizeInBytes = 32u;
+		desc.RayGenerationShaderRecord.StartAddress = raygen_shader_table_.GetGpuVirtualAddress();
+		desc.RayGenerationShaderRecord.SizeInBytes = raygen_shader_table_.GetSize();
 
-		desc.MissShaderTable.StartAddress = miss_shader_table_->GetGPUVirtualAddress();
-		desc.MissShaderTable.SizeInBytes = 32u;
-		desc.MissShaderTable.StrideInBytes = 32u;
-#else
-		desc.RayGenerationShaderRecord.StartAddress = raygen_binding_table_.GetGpuVirtualAddress();
-		desc.RayGenerationShaderRecord.SizeInBytes = raygen_binding_table_.GetSize();
+		desc.MissShaderTable.StartAddress = miss_shader_table_.GetGpuVirtualAddress();
+		desc.MissShaderTable.SizeInBytes = miss_shader_table_.GetSize();
+		desc.MissShaderTable.StrideInBytes = miss_shader_table_.GetStride();
 
-		desc.MissShaderTable.StartAddress = miss_binding_table_.GetGpuVirtualAddress();
-		desc.MissShaderTable.SizeInBytes = miss_binding_table_.GetSize();
-		desc.MissShaderTable.StrideInBytes = miss_binding_table_.GetStride();
-#endif
+		desc.HitGroupTable.StartAddress = hit_group_shader_table_.GetGpuVirtualAddress();
+		desc.HitGroupTable.SizeInBytes = hit_group_shader_table_.GetSize();
+		desc.HitGroupTable.StrideInBytes = hit_group_shader_table_.GetStride();	
 
 		
-
-		desc.HitGroupTable.StartAddress = hit_shader_table_->GetGPUVirtualAddress();
-		desc.HitGroupTable.SizeInBytes = hit_shader_table_size_;
-		desc.HitGroupTable.StrideInBytes = hit_shader_table_stride_;
 		desc.Width = static_cast<UINT>(width_);
 		desc.Height = height_;
 		desc.Depth = 1;
@@ -540,125 +527,11 @@ namespace argent::graphics
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
 	{
-		uint shader_record_size =  D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
-#if _USE_SAMPLE_STB_GENERATOR_
-		//The size Shader Identifier
-
-		//Raygen Table
-		{
-			graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, shader_record_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
-				raygen_shader_table_.ReleaseAndGetAddressOf());
-
-			//Map by 1byte offset
-			uint8_t* map;
-			raygen_shader_table_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
-
-			auto id = raytracing_state_object_properties_->GetShaderIdentifier(L"RayGen");
-			memcpy(map, id, shader_record_size);
-
-			raygen_shader_table_->Unmap(0u, nullptr);
-		}
-
-		//Miss
-		{
-			UINT miss_entry_size = shader_record_size + 8 * kSkymapCounts + 8;
-			miss_entry_size = _ALIGNMENT_(miss_entry_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
-			graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, miss_entry_size, D3D12_RESOURCE_STATE_GENERIC_READ,
-				miss_shader_table_.ReleaseAndGetAddressOf());
-
-			uint8_t* map;
-			miss_shader_table_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
-
-			auto* id = raytracing_state_object_properties_->GetShaderIdentifier(L"Miss");
-			memcpy(map, id, shader_record_size);
-
-			map += shader_record_size;
-
-			std::vector<void*> data(kSkymapCounts + 1);
-			data.at(0u) = reinterpret_cast<void*>(skymap_index_buffer_->GetGPUVirtualAddress());
-			for(int i = 0; i < kSkymapCounts; ++i)
-			{
-				data.at(i + 1) = reinterpret_cast<void*>(skymaps_[i]->GetGpuHandle().ptr);
-			}
-			memcpy(map, data.data(), data.size() * 8);
-
-			miss_shader_table_->Unmap(0u, nullptr);
-		}
-#else
-		//Hit
-		{
-			//Need to use only one Entry size.
-			//if  hit1 shader use 32bit entry size, hit2 use 64bit, and hit3 use 128bit,
-			//then you have to use 128bit for all entry size.
-			uint num_hit_group = 4;
-			uint entry_size = shader_record_size + 8 * RootSignatureBinderCount;
-			entry_size = _ALIGNMENT_(entry_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
-			hit_shader_table_stride_ = entry_size;
-			uint resource_size = entry_size * num_hit_group;
-			resource_size = _ALIGNMENT_(resource_size, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
-			hit_shader_table_size_ = resource_size;
-			graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, resource_size, D3D12_RESOURCE_STATE_GENERIC_READ, 
-				hit_shader_table_.ReleaseAndGetAddressOf());
-
-			uint8_t* map;
-			hit_shader_table_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
-
-			//Map Shader Identifier
-			auto id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup");
-
-			memcpy(map, id, shader_record_size);
-			map += entry_size;
-
-			id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup1");
-			memcpy(map, id, shader_record_size);
-
-			map += shader_record_size;
-
-			std::vector<void*> data(RootSignatureBinderCount);
-
-			data.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
-			data.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
-			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
-			memcpy(map, data.data(), data.size() * 8);
-
-			map += entry_size - shader_record_size;
-
-			id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroup2");
-			memcpy(map, id, shader_record_size);
-			map += shader_record_size;
-
-			//Not Entry directly
-			//memcpy(map, reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle.ptr), 8) does not
-			//act my assumption.
-			data.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
-			data.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
-			data.at(AlbedoTexture) = reinterpret_cast<void*>(texture_->GetGpuHandle().ptr);
-			data.at(NormalTexture) = reinterpret_cast<void*>(texture1_->GetGpuHandle().ptr);
-			data.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
-			//data.at(1) = reinterpret_cast<void*>(object_descriptor_.gpu_handle_.ptr);
-
-			//Map Resource
-			memcpy(map, data.data(), data.size() * 8);
-
-			map += entry_size - shader_record_size;
-
-			id = raytracing_state_object_properties_->GetShaderIdentifier(L"HitGroupSphere");
-			memcpy(map, id, shader_record_size);
-
-			map += shader_record_size;
-			data.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
-			data.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
-			memcpy(map, data.data(), data.size() * 8);
-			map += entry_size - shader_record_size;
-
-			hit_shader_table_->Unmap(0u, nullptr);
-		}
-
-
 		//Ray Generation
 		{
-			raygen_binding_table_.AddShaderIdentifier(L"RayGen");
-			raygen_binding_table_.Generate(&graphics_device, raytracing_state_object_properties_.Get());
+			raygen_shader_table_.AddShaderIdentifier(L"RayGen");
+			raygen_shader_table_.Generate(&graphics_device, 
+				raytracing_state_object_properties_.Get(), L"RayGenerationShaderTable");
 		}
 
 		//Miss Shader
@@ -669,11 +542,43 @@ namespace argent::graphics
 			{
 				data.at(i + 1) = reinterpret_cast<void*>(skymaps_[i]->GetGpuHandle().ptr);
 			}
-			miss_binding_table_.AddShaderIdentifierAndInputData(L"Miss", data);
-			miss_binding_table_.Generate(&graphics_device, raytracing_state_object_properties_.Get());
+			miss_shader_table_.AddShaderIdentifierAndInputData(L"Miss", data);
+			miss_shader_table_.Generate(&graphics_device, 
+				raytracing_state_object_properties_.Get(), L"MissShaderTable");
 		}
 
-#endif
+		//hit
+		{
+			std::vector<ShaderTable> tables(GeometryTypeCount);
+
+			//For Polygon
+			tables.at(Polygon).shader_identifier_ = L"HitGroup";
+
+			//For Plane
+			tables.at(Plane).shader_identifier_ = L"HitGroup1";
+			tables.at(Plane).input_data_.resize(RootSignatureBinderCount);
+			tables.at(Plane).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
+			tables.at(Plane).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
+			tables.at(Plane).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
+
+			//For Cube
+			tables.at(Cube).shader_identifier_ = L"HitGroup2";
+			tables.at(Cube).input_data_.resize(RootSignatureBinderCount);
+			tables.at(Cube).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
+			tables.at(Cube).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
+			tables.at(Cube).input_data_.at(AlbedoTexture) = reinterpret_cast<void*>(texture_->GetGpuHandle().ptr);
+			tables.at(Cube).input_data_.at(NormalTexture) = reinterpret_cast<void*>(texture1_->GetGpuHandle().ptr);
+			tables.at(Cube).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
+
+			tables.at(SphereAABB).shader_identifier_ = L"HitGroupSphere";
+			tables.at(SphereAABB).input_data_.resize(RootSignatureBinderCount);
+			tables.at(SphereAABB).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
+			tables.at(SphereAABB).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
+
+			hit_group_shader_table_.AddShaderTables(tables);
+			hit_group_shader_table_.Generate(&graphics_device, 
+				raytracing_state_object_properties_.Get(), L"HitGroupShaderTable");
+		}
 	}
 
 	//For Fbx

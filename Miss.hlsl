@@ -8,8 +8,8 @@ struct Constant
 };
 ConstantBuffer<Constant> material_index : register(b0, space1);
 
-[shader("miss")] void Miss(inout RayPayload payload
-                           : SV_RayPayload)
+_MISS_SHADER_
+void Miss(inout RayPayload payload : SV_RayPayload)
 {
 	uint2 launchIndex = DispatchRaysIndex().xy;
 	float2 dims = float2(DispatchRaysDimensions().xy);
@@ -34,7 +34,7 @@ ConstantBuffer<Constant> material_index : register(b0, space1);
     y /= 1000.0f;
     y = y * 0.5 + 0.5f;
 
-    payload.colorAndDistance = float4(y * y, y * y, y, RayTCurrent());
+    payload.color_ = float4(y * y, y * y, y, RayTCurrent());
 
-    payload.colorAndDistance = sky_color;
+    payload.color_ = sky_color;
 }

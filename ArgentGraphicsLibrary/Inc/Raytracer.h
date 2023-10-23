@@ -118,8 +118,8 @@ namespace argent::graphics
 		UINT64 width_;
 		UINT height_;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource> raygen_shader_table_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> miss_shader_table_;
+		//Microsoft::WRL::ComPtr<ID3D12Resource> raygen_shader_table_;
+		//Microsoft::WRL::ComPtr<ID3D12Resource> miss_shader_table_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> hit_shader_table_;
 
 		enum GeometryType
@@ -290,8 +290,8 @@ namespace argent::graphics
 
 
 		//For Shader Binding Table
-		ShaderBindingTable raygen_binding_table_;
-		ShaderBindingTable miss_binding_table_;
-		ShaderBindingTable hit_group_binding_table_;
+		ShaderBindingTable raygen_shader_table_;
+		ShaderBindingTable miss_shader_table_;
+		ShaderBindingTable hit_group_shader_table_;
 	};
 }

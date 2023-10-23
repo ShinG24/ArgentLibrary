@@ -21,7 +21,7 @@ ConstantBuffer<Material> material_constant : register(b1, space1);
 uint3 Load3x16BitIndices(uint offsetBytes)
 {
     uint3 indices;
-
+    
     // ByteAdressBuffer loads must be aligned at a 4 byte boundary.
     // Since we need to read three 16 bit indices: { 0, 1, 2 } 
     // aligned at a 4 byte boundary as: { 0 1 } { 2 0 } { 1 2 } { 0 1 } ...
@@ -147,8 +147,8 @@ float4 AlbedoLinearSampling(float2 uv, uint dimension)
 
 #define _USE_MATERIAL_CONSTANT_ 1
 
-[shader("closesthit")]void CubeHit(inout RayPayload payload,
-                                       in HitAttribute attr)
+_CLOSEST_HIT_SHADER_
+void CubeHit(inout RayPayload payload, in HitAttribute attr)
 {
     uint3 index = Load3x32BitIndices();
 	float3 world_normal = CalcWorldNormal(index, attr.barycentrics);
@@ -185,7 +185,7 @@ float4 AlbedoLinearSampling(float2 uv, uint dimension)
 						material_constant.diffuse_coefficient_, material_constant.specular_coefficient_, material_constant.specular_power_);
     float4 color = phong_color + reflection_color;
 
-    payload.colorAndDistance = float4(color.rgb, 1.0f);
+    payload.color_ = float4(color.rgb, 1.0f);
 }
 
 

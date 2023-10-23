@@ -147,7 +147,7 @@ bool IntersectRaySpheres(in Ray ray, out float t_hit, out SphereHitAttribute att
     return hit_found;
 }
 
-[shader("intersection")]
+_INTERSECTION_SHADER_
 void SphereIntersection()
 {
     Ray ray;

@@ -27,7 +27,26 @@ namespace argent::graphics
 		return index;
 	}
 
-	void ShaderBindingTable::Generate(const GraphicsDevice* graphics_device, ID3D12StateObjectProperties* state_object_properties)
+	UINT ShaderBindingTable::AddShaderTable(const ShaderTable& shader_table)
+	{
+		if(shader_table.shader_identifier_.empty()) _ASSERT_EXPR(FALSE, L"Shader Identifier can not be null");
+		const UINT index = static_cast<UINT>(shader_tables_.size());
+		shader_tables_.emplace_back(shader_table);
+		return index;
+	}
+
+	void ShaderBindingTable::AddShaderTables(const std::vector<ShaderTable>& shader_tables)
+	{
+		for(const auto& table : shader_tables)
+		{
+			if(table.shader_identifier_.empty()) _ASSERT_EXPR(FALSE, L"Shader Identifier can not be null");
+
+			shader_tables_.emplace_back(table);
+		}
+	}
+
+	void ShaderBindingTable::Generate(const GraphicsDevice* graphics_device,
+	                                  ID3D12StateObjectProperties* state_object_properties, LPCWSTR resource_object_name)
 	{
 		if (shader_tables_.empty()) _ASSERT_EXPR(FALSE, L"Shader Identifier size and Input Data size need to be same value");
 
@@ -44,6 +63,7 @@ namespace argent::graphics
 		graphics_device->CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, buffer_size, 
 			D3D12_RESOURCE_STATE_GENERIC_READ, resource_object_.ReleaseAndGetAddressOf());
 
+		resource_object_->SetName(resource_object_name);
 		CopyToBuffer(state_object_properties);
 	}
 

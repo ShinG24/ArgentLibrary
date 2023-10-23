@@ -9,7 +9,14 @@
 namespace argent::graphics
 {
 	class GraphicsDevice;
-	
+
+
+	struct ShaderTable
+	{
+		std::wstring shader_identifier_;
+		std::vector<void*> input_data_;
+	};
+
 	class ShaderBindingTable
 	{
 	public:
@@ -19,22 +26,17 @@ namespace argent::graphics
 
 		UINT AddShaderIdentifierAndInputData(const std::wstring& shader_identifier, const std::vector<void*>& data);
 		UINT AddShaderIdentifier(const std::wstring& shader_identifier);
+		UINT AddShaderTable(const ShaderTable& shader_table);
+		void AddShaderTables(const std::vector<ShaderTable>& shader_tables);
 
-		void Generate(const GraphicsDevice* graphics_device, ID3D12StateObjectProperties* state_object_properties);
+		void Generate(const GraphicsDevice* graphics_device, ID3D12StateObjectProperties* state_object_properties,
+			LPCWSTR resource_object_name);
 
 		void CopyToBuffer(ID3D12StateObjectProperties* state_object_properties);
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const { return resource_object_->GetGPUVirtualAddress(); }
 		UINT GetSize() const { return static_cast<UINT>(resource_object_->GetDesc().Width); }
 		UINT GetStride() const { return entry_size_; }
-
-	private:
-
-		struct ShaderTable
-		{
-			std::wstring shader_identifier_;
-			std::vector<void*> input_data_;
-		};
 
 	private:
 		std::vector<ShaderTable> shader_tables_;

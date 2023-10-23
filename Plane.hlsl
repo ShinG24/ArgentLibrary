@@ -3,8 +3,8 @@
 ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
 ConstantBuffer<Material> material_constant : register(b1, space1);
 
-[shader("closesthit")]void CLHPlane(inout RayPayload payload,
-                                       in HitAttribute attr)
+_CLOSEST_HIT_SHADER_
+void CLHPlane(inout RayPayload payload, in HitAttribute attr)
 {
     float4 albedo_color = material_constant.albedo_color_;
     float reflectance_coefficient = material_constant.reflectance_coefficient_;
@@ -24,8 +24,8 @@ ConstantBuffer<Material> material_constant : register(b1, space1);
     float4 reflection_color = TraceRadianceRay(ray, payload.recursion_depth_);
 
 #if 0
-	payload.colorAndDistance = reflected_color * 0.8 + color;
-    payload.colorAndDistance.w = 1.0f;
+	payload.color_ = reflected_color * 0.8 + color;
+    payload.color_.w = 1.0f;
 #else
 
     
@@ -37,7 +37,7 @@ ConstantBuffer<Material> material_constant : register(b1, space1);
 						diffuse_coefficient, specular_coefficient, specular_power);
     float4 color = phong_color + reflection_color;
 
-    payload.colorAndDistance = float4(color.rgb, 1.0f);
+    payload.color_ = float4(color.rgb, 1.0f);
 #endif
 
 }

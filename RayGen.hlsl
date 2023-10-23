@@ -17,8 +17,8 @@ inline void GenerateCameraRay(uint2 index, out float3 origin, out float3 directi
     direction = normalize(world.xyz - origin);
 }
 
-
-[shader("raygeneration")] void RayGen()
+_RAY_GENERATION_SHADER_
+void RayGen()
 {
 	uint2 launchIndex = DispatchRaysIndex().xy;
     float3 origin, direction;
