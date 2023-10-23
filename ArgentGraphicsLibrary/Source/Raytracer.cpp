@@ -328,20 +328,6 @@ namespace argent::graphics
 			if(i == Cube)
 			{
 				build_desc.index_buffer_vec_.emplace_back(index_buffers_[i].get());
-
-#if _USE_CUBE_
-#else
-				/*graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, sizeof(DirectX::XMFLOAT4X4),
-					D3D12_RESOURCE_STATE_GENERIC_READ, blas_transform_cube_.ReleaseAndGetAddressOf());
-
-				DirectX::XMFLOAT4X4* map;
-				blas_transform_cube_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
-				DirectX::XMFLOAT4X4 t{ -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
-				*map = t;
-				blas_transform_cube_->Unmap(0u, nullptr);
-				
-				build_desc.transform_vec_.emplace_back(blas_transform_cube_->GetGPUVirtualAddress());*/
-#endif
 			}
 			
 			unique_id[i] = as_manager_.AddBottomLevelAS(&graphics_device, &command_list, &build_desc, triangle);

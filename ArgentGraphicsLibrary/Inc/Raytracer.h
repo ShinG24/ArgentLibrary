@@ -118,10 +118,6 @@ namespace argent::graphics
 		UINT64 width_;
 		UINT height_;
 
-		//Microsoft::WRL::ComPtr<ID3D12Resource> raygen_shader_table_;
-		//Microsoft::WRL::ComPtr<ID3D12Resource> miss_shader_table_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> hit_shader_table_;
-
 		enum GeometryType
 		{
 			Polygon,
