@@ -32,8 +32,8 @@ namespace argent::graphics
 		graphics_device_.Awake(dxgi_factory_.GetIDxgiFactory());
 
 		//Check Raytracing tier supported
-		const bool raytracing_supported = graphics_device_.IsDirectXRaytracingSupported();
-		_ASSERT_EXPR(raytracing_supported, L"DXR not Supported");
+		//const bool raytracing_supported = graphics_device_.IsDirectXRaytracingSupported();
+		//_ASSERT_EXPR(raytracing_supported, L"DXR not Supported");
 
 		CreateDeviceDependencyObjects();
 		CreateWindowDependencyObjects();
@@ -97,13 +97,16 @@ namespace argent::graphics
 		//scene_constant_buffer_.Awake(graphics_device_, cbv_srv_uav_heap_);
 		scene_constant_buffer_.Create(graphics_device_, kNumBackBuffers);
 
-		raster_renderer_.Awake(graphics_device_);
+		raster_renderer_.Awake(graphics_device_, resource_upload_queue_, cbv_srv_uav_heap_);
 
 		resource_upload_command_list_.Activate();
 #if _USE_RAY_TRACER_
-		raytracer_.Awake(graphics_device_, resource_upload_command_list_,
-			resource_upload_queue_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
-			cbv_srv_uav_heap_);
+		if(!on_raster_mode_)
+		{
+			raytracer_.Awake(graphics_device_, resource_upload_command_list_,
+				resource_upload_queue_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
+				cbv_srv_uav_heap_);
+		}
 #endif
 	}
 
@@ -124,7 +127,7 @@ namespace argent::graphics
 						//ï˚å¸ÇéZèo
 						const auto rotation_matrix = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
 						const DirectX::XMVECTOR front = DirectX::XMVector3Normalize(rotation_matrix.r[2]);
-						const DirectX::XMVECTOR up = DirectX::XMVector3Normalize(rotation_matrix.r[1]);
+						const DirectX::XMVECTOR up = { 0.0f, 1.0f, 0.0f, 0.0f };
 						const DirectX::XMVECTOR right = DirectX::XMVector3Normalize(rotation_matrix.r[0]);
 
 						float front_input = 0;
@@ -176,6 +179,8 @@ namespace argent::graphics
 					ImGui::TreePop();
 				}
 				ImGui::DragFloat3("Light", &light_position.x, 0.01f, -FLT_MAX, FLT_MAX);
+
+				raster_renderer_.OnGui();
 			}
 
 			//Update camera forward direction by the rotation
@@ -216,8 +221,10 @@ namespace argent::graphics
 				raytracer_.GetOutputBuffer());
 
 			command_list.SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			raster_renderer_.OnRender(command_list.GetCommandList());
 #endif
 		}
+
 	}
 
 	void GraphicsLibrary::CreateDeviceDependencyObjects()

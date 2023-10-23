@@ -3,13 +3,13 @@
 struct VertexShaderOut
 {
     float4 position_ : SV_POSITION;
-    float4 color_ : COLOR;
+    float2 texcoord_ : TEXCOORD;
 };
 
 struct VertexShaderIn
 {
     float3 position_ : POSITION;
-    float4 color_ : COLOR;
+    float2 texcoord_ : TEXCOORD;
 };
 
 VertexShaderOut main(VertexShaderIn vin)
@@ -19,6 +19,6 @@ VertexShaderOut main(VertexShaderIn vin)
     VertexShaderOut vout;
     //vout.position_ = float4(position[id], 0.0f, 1.0f);
     vout.position_ = float4(vin.position_.xy, 0.5f, 1.0f);
-    vout.color_ = float4(1, 1, 1, 1);
+    vout.texcoord_ = vin.texcoord_;
     return vout;
 }

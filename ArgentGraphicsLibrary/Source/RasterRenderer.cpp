@@ -1,17 +1,26 @@
 #include "../Inc/RasterRenderer.h"
 
 #include "../Inc/GraphicsDevice.h"
+#include "../Inc/CommandQueue.h"
+#include "../Inc/DescriptorHeap.h"
 #include "../Inc/ShaderCompiler.h"
 
+#include "../External/Imgui/imgui.h"
 
 namespace argent::graphics
 {
-	void RasterRenderer::Awake(const GraphicsDevice& graphics_device)
+	void RasterRenderer::Awake(const GraphicsDevice& graphics_device, const CommandQueue& command_queue, 
+		DescriptorHeap& descriptor_heap)
 	{
 		const ShaderCompiler compiler;
+		compiler.Compile(L"./Assets/Shader/FullscreenQuad.VS.hlsl", L"vs_6_6", fullscreen_quad_vs_.ReleaseAndGetAddressOf());
+		compiler.Compile(L"./Assets/Shader/FullscreenQuad.PS.hlsl", L"ps_6_6", fullscreen_quad_ps_.ReleaseAndGetAddressOf());
+
 		compiler.Compile(L"./Assets/Shader/VertexShader.hlsl", L"vs_6_6", vertex_shader_.ReleaseAndGetAddressOf());
 		compiler.Compile(L"./Assets/Shader/PixelShader.hlsl", L"ps_6_6", pixel_shader_.ReleaseAndGetAddressOf());
 
+		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &descriptor_heap,
+			L"./Assets/Images/Title.png", false);
 		CreateVertexBuffer(graphics_device);
 		CreateRootSignatureAndPipeline(graphics_device);
 	}
@@ -23,18 +32,36 @@ namespace argent::graphics
 
 		command_list->SetGraphicsRootSignature(root_signature_.Get());
 		command_list->SetPipelineState(pipeline_state_.Get());
+		command_list->SetGraphicsRootDescriptorTable(0u, texture_->GetGpuHandle());
 
+		struct Data
+		{
+			float alpha;
+		};
+		Data data{ alpha_ };
+
+		command_list->SetGraphicsRoot32BitConstants(1u, 1u, &data, 0u);
 		command_list->DrawInstanced(4u, 1u, 0u, 0u);
+	}
+
+	void RasterRenderer::OnGui()
+	{
+		if(ImGui::TreeNode("Raster"))
+		{
+			ImGui::Image(reinterpret_cast<ImTextureID>(texture_->GetGpuHandle().ptr), ImVec2(256, 256));
+			ImGui::SliderFloat("Alpha", &alpha_, 0.0f, 1.0f);
+			ImGui::TreePop();
+		}
 	}
 
 	void RasterRenderer::CreateVertexBuffer(const GraphicsDevice& graphics_device)
 	{
 		Vertex vertices[4]
 		{
-			Vertex(DirectX::XMFLOAT3(-0.5f, 0.5f, 0.0f), DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f )),
-			Vertex(DirectX::XMFLOAT3(0.5f, 0.5f, 0.0f), DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f )),
-			Vertex(DirectX::XMFLOAT3(-0.5f, -0.6f, 0.0f), DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f )),
-			Vertex(DirectX::XMFLOAT3(0.5f, -0.6f, 0.0f), DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f )),
+			Vertex(DirectX::XMFLOAT3(-1.f, 1.0f, 0.0f),   DirectX::XMFLOAT2( 0.0f, 0.0f )),
+			Vertex(DirectX::XMFLOAT3(1.0f, 1.0f, 0.0f),   DirectX::XMFLOAT2( 1.0f, 0.0f )),
+			Vertex(DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f), DirectX::XMFLOAT2( 0.0f, 1.0f )),
+			Vertex(DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f),  DirectX::XMFLOAT2( 1.0f, 1.0f )),
 		};
 
 		D3D12_HEAP_PROPERTIES heap_prop{};
@@ -74,12 +101,47 @@ namespace argent::graphics
 	void RasterRenderer::CreateRootSignatureAndPipeline(const GraphicsDevice& graphics_device)
 	{
 		HRESULT hr{};
+
+		D3D12_DESCRIPTOR_RANGE range[1];
+		range[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		range[0].RegisterSpace = 0u;
+		range[0].NumDescriptors = 1u;
+		range[0].BaseShaderRegister = 0u;
+		range[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		D3D12_ROOT_PARAMETER root_param[2];
+		root_param[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		root_param[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		root_param[0].DescriptorTable.NumDescriptorRanges = 1u;
+		root_param[0].DescriptorTable.pDescriptorRanges = range;
+
+		root_param[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+		root_param[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		root_param[1].Constants.RegisterSpace = 0u;
+		root_param[1].Constants.Num32BitValues = 1u;
+		root_param[1].Constants.ShaderRegister = 0u;
+
+
+		D3D12_STATIC_SAMPLER_DESC static_sampler[1];
+		static_sampler[0].AddressU = 
+		static_sampler[0].AddressV = 
+		static_sampler[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		static_sampler[0].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+		static_sampler[0].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		static_sampler[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		static_sampler[0].MaxAnisotropy = 16u;
+		static_sampler[0].MaxLOD = D3D12_FLOAT32_MAX;
+		static_sampler[0].MinLOD = 0u;
+		static_sampler[0].MipLODBias = 0u;
+		static_sampler[0].RegisterSpace = 0u;
+		static_sampler[0].ShaderRegister = 0u;
+		static_sampler[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-		desc.NumParameters = 0u;
-		desc.pParameters = nullptr;
-		desc.NumStaticSamplers = 0u;
-		desc.pStaticSamplers = nullptr;
+		desc.NumParameters = 2u;
+		desc.pParameters = root_param;
+		desc.NumStaticSamplers = 1u;
+		desc.pStaticSamplers = static_sampler;
 
 		Microsoft::WRL::ComPtr<ID3DBlob> root_sig_blob;
 		Microsoft::WRL::ComPtr<ID3DBlob> error_blob;
@@ -95,7 +157,7 @@ namespace argent::graphics
 		D3D12_INPUT_ELEMENT_DESC input_desc[]
 		{
 			{"POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
-			{"COLOR", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
+			{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0u},
 		};
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipeline_desc{};
@@ -125,10 +187,13 @@ namespace argent::graphics
 		pipeline_desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 		pipeline_desc.DepthStencilState.StencilEnable = false;
 
-
 		pipeline_desc.InputLayout.NumElements = 2u;
 		pipeline_desc.InputLayout.pInputElementDescs = input_desc;
 		pipeline_desc.NumRenderTargets = 1u;
+		//pipeline_desc.PS.pShaderBytecode = fullscreen_quad_ps_.Get()->GetBufferPointer();
+		//pipeline_desc.PS.BytecodeLength = fullscreen_quad_ps_->GetBufferSize();
+		//pipeline_desc.VS.pShaderBytecode = fullscreen_quad_vs_->GetBufferPointer();
+		//pipeline_desc.VS.BytecodeLength = fullscreen_quad_vs_->GetBufferSize();
 		pipeline_desc.PS.pShaderBytecode = pixel_shader_.Get()->GetBufferPointer();
 		pipeline_desc.PS.BytecodeLength = pixel_shader_->GetBufferSize();
 		pipeline_desc.VS.pShaderBytecode = vertex_shader_->GetBufferPointer();
