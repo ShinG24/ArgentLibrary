@@ -10,6 +10,10 @@
 namespace argent::graphics
 {
 	class GraphicsDevice;
+}
+
+namespace argent::graphics::dxr
+{
 
 	class RaytracingPipelineState
 	{

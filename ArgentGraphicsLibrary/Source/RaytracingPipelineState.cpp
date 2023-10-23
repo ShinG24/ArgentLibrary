@@ -6,7 +6,7 @@
 #include "../Inc/GraphicsDevice.h"
 
 
-namespace argent::graphics
+namespace argent::graphics::dxr
 {
 	void RaytracingPipelineState::AddLibrary(IDxcBlob* p_dxc_blob, const std::vector<std::wstring>& export_symbol)
 	{

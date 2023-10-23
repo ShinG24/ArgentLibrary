@@ -9,6 +9,9 @@
 namespace argent::graphics
 {
 	class GraphicsDevice;
+}
+namespace argent::graphics::dxr
+{
 
 
 	struct ShaderTable

@@ -5,7 +5,6 @@
 #include <fbxsdk.h>
 #include <functional>
 
-#include "../RaytracingPipelineGenerator.h"
 #include "../RootSignatureGenerator.h"
 
 #include "../External/Imgui/imgui.h"
@@ -20,8 +19,6 @@
 
 
 #define _USE_CUBE_	0
-
-#define _USE_RT_PIPELINE_GENERATOR_ 0
 
 namespace argent::graphics
 {
@@ -173,11 +170,7 @@ namespace argent::graphics
 			command_list->SetComputeRootConstantBufferView(1u, scene_constant_gpu_handle);
 		}
 
-#if _USE_RT_PIPELINE_GENERATOR_
-		command_list->SetPipelineState1(raytracing_state_object_.Get());
-#else
 		command_list->SetPipelineState1(pipeline_state_.GetStateObject());
-#endif
 		command_list->DispatchRays(&desc);
 
 		graphics_command_list.SetTransitionBarrier(output_buffer_.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -409,41 +402,6 @@ namespace argent::graphics
 		shader_compiler.CompileShaderLibrary(L"SphereClosestHit.hlsl", sphere_closest_hit_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"SphereIntersection.hlsl", sphere_intersection_library_.ReleaseAndGetAddressOf());
 
-
-#if _USE_RT_PIPELINE_GENERATOR_
-
-		nv_helpers_dx12::RayTracingPipelineGenerator pipeline(graphics_device.GetLatestDevice());
-
-		pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
-		pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
-		pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
-		pipeline.AddLibrary(hit1_library_.Get(), {L"CLHPlane"});
-		pipeline.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
-
-		pipeline.AddLibrary(sphere_closest_hit_library_.Get(), {L"SphereClosestHit"});
-		pipeline.AddLibrary(sphere_intersection_library_.Get(), {L"SphereIntersection"});
-
-		
-
-		pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
-		pipeline.AddHitGroup(L"HitGroup1", L"CLHPlane");
-		pipeline.AddHitGroup(L"HitGroup2", L"CubeHit");
-		pipeline.AddHitGroup(L"HitGroupSphere", L"SphereClosestHit", L"", L"SphereIntersection");
-
-		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {{L"RayGen"}, {L"Miss"}});
-
-		pipeline.AddRootSignatureAssociation(hit_local_root_signature_.Get(),
-			{ {L"HitGroup"}, {L"HitGroup1"},  {L"HitGroup2"},  {L"HitGroupSphere"}});
-
-		pipeline.SetMaxPayloadSize(sizeof(RayPayload) / 4 * sizeof(float));
-		pipeline.SetMaxAttributeSize(3 * sizeof(float));
-		pipeline.SetMaxRecursionDepth(_MAX_RECURSION_DEPTH_);
-
-		raytracing_state_object_ = pipeline.Generate(global_root_signature_.Get(), shared_local_root_signature_.Get());
-		HRESULT hr = raytracing_state_object_->QueryInterface(IID_PPV_ARGS(raytracing_state_object_properties_.ReleaseAndGetAddressOf()));
-		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Query Interface");
-#else
-
 		//Add Shader Library
 		{
 			pipeline_state_.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
@@ -475,10 +433,6 @@ namespace argent::graphics
 		pipeline_state_.SetMaxRecursionDepth(_MAX_RECURSION_DEPTH_);
 
 		pipeline_state_.Generate(&graphics_device, global_root_signature_.Get(), shared_local_root_signature_.Get());
-
-
-#endif
-
 	}
 
 	void Raytracer::CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height)
@@ -551,61 +505,6 @@ namespace argent::graphics
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
 	{
 
-#if _USE_RT_PIPELINE_GENERATOR_
-		//Ray Generation
-		{
-			raygen_shader_table_.AddShaderIdentifier(L"RayGen");
-			raygen_shader_table_.Generate(&graphics_device, 
-				raytracing_state_object_properties_.Get(), L"RayGenerationShaderTable");
-		}
-
-		//Miss Shader
-		{
-			std::vector<void*> data(kSkymapCounts + 1);
-			data.at(0u) = reinterpret_cast<void*>(skymap_index_buffer_->GetGPUVirtualAddress());
-			for (int i = 0; i < kSkymapCounts; ++i)
-			{
-				data.at(i + 1) = reinterpret_cast<void*>(skymaps_[i]->GetGpuHandle().ptr);
-			}
-			miss_shader_table_.AddShaderIdentifierAndInputData(L"Miss", data);
-			miss_shader_table_.Generate(&graphics_device, 
-				raytracing_state_object_properties_.Get(), L"MissShaderTable");
-		}
-
-		//hit
-		{
-			std::vector<ShaderTable> tables(GeometryTypeCount);
-
-			//For Polygon
-			tables.at(Polygon).shader_identifier_ = L"HitGroup";
-
-			//For Plane
-			tables.at(Plane).shader_identifier_ = L"HitGroup1";
-			tables.at(Plane).input_data_.resize(RootSignatureBinderCount);
-			tables.at(Plane).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
-			tables.at(Plane).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
-			tables.at(Plane).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
-
-			//For Cube
-			tables.at(Cube).shader_identifier_ = L"HitGroup2";
-			tables.at(Cube).input_data_.resize(RootSignatureBinderCount);
-			tables.at(Cube).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
-			tables.at(Cube).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
-			tables.at(Cube).input_data_.at(AlbedoTexture) = reinterpret_cast<void*>(texture_->GetGpuHandle().ptr);
-			tables.at(Cube).input_data_.at(NormalTexture) = reinterpret_cast<void*>(texture1_->GetGpuHandle().ptr);
-			tables.at(Cube).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
-
-			tables.at(SphereAABB).shader_identifier_ = L"HitGroupSphere";
-			tables.at(SphereAABB).input_data_.resize(RootSignatureBinderCount);
-			tables.at(SphereAABB).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
-			tables.at(SphereAABB).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
-
-			hit_group_shader_table_.AddShaderTables(tables);
-			hit_group_shader_table_.Generate(&graphics_device, 
-				raytracing_state_object_properties_.Get(), L"HitGroupShaderTable");
-		}
-#else
-				//Ray Generation
 		{
 			raygen_shader_table_.AddShaderIdentifier(L"RayGen");
 			raygen_shader_table_.Generate(&graphics_device, 
@@ -627,7 +526,7 @@ namespace argent::graphics
 
 		//hit
 		{
-			std::vector<ShaderTable> tables(GeometryTypeCount);
+			std::vector<dxr::ShaderTable> tables(GeometryTypeCount);
 
 			//For Polygon
 			tables.at(Polygon).shader_identifier_ = L"HitGroup";
@@ -657,8 +556,6 @@ namespace argent::graphics
 			hit_group_shader_table_.Generate(&graphics_device, 
 				pipeline_state_.GetStateObjectProperties(), L"HitGroupShaderTable");
 		}
-
-#endif
 	}
 
 	//For Fbx

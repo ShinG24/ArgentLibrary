@@ -3,7 +3,7 @@
 #include "../Inc/GraphicsCommon.h"
 #include "../Inc/GraphicsDevice.h"
 
-namespace argent::graphics
+namespace argent::graphics::dxr
 {
 	UINT ShaderBindingTable::AddShaderIdentifierAndInputData(const std::wstring& shader_identifier,
 		const std::vector<void*>& data)

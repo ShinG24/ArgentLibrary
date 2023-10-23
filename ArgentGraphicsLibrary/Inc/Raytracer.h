@@ -97,10 +97,6 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> shared_local_root_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_local_root_signature_;
 
-		//Pipeline
-		Microsoft::WRL::ComPtr<ID3D12StateObject> raytracing_state_object_;
-		Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> raytracing_state_object_properties_;
-
 		//Output buffer
 		Microsoft::WRL::ComPtr<ID3D12Resource> output_buffer_;
 		Descriptor output_descriptor_;
@@ -275,10 +271,10 @@ namespace argent::graphics
 
 
 		//For Shader Binding Table
-		ShaderBindingTable raygen_shader_table_;
-		ShaderBindingTable miss_shader_table_;
-		ShaderBindingTable hit_group_shader_table_;
+		dxr::ShaderBindingTable raygen_shader_table_;
+		dxr::ShaderBindingTable miss_shader_table_;
+		dxr::ShaderBindingTable hit_group_shader_table_;
 
-		RaytracingPipelineState pipeline_state_;
+		dxr::RaytracingPipelineState pipeline_state_;
 	};
 }
