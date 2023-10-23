@@ -27,9 +27,9 @@ namespace argent::graphics
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
 		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/Coral.png", false);
+			L"./Assets/Model/Texture/T_Anchor_00_BC.png", false);
 		texture1_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/CoralN.png", false);
+			L"./Assets/Model/Texture/T_Anchor_00_N.png", false);
 		skymaps_[0] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
 			L"./Assets/Images/Skymap00.dds", true);
 		skymaps_[1] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
@@ -37,7 +37,7 @@ namespace argent::graphics
 		skymaps_[2] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
 			L"./Assets/Images/Skymap02.dds", true);
 		skymaps_[3] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap03.dds", true);
+			L"./Assets/Images/Image.dds", true);
 
 		width_ = width;
 		height_ = height;
@@ -77,7 +77,7 @@ namespace argent::graphics
 
 
 		//Fbx Loader
-		FbxLoader("./Assets/Model/Coral.fbx");
+		FbxLoader("./Assets/Model/SM_Anchor_00.fbx");
 
 		CreateAS(graphics_device, command_list, command_queue);
 		CreatePipeline(graphics_device);
