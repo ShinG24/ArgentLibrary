@@ -45,7 +45,7 @@
     <ClInclude Include="Inc\Platform.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
     <ClInclude Include="Inc\Raytracer.h" />
-    <ClInclude Include="Inc\RaytracingShaderTable.h" />
+    <ClInclude Include="Inc\RaytracingPipelineState.h" />
     <ClInclude Include="Inc\RootSignature.h" />
     <ClInclude Include="Inc\ShaderBindingTable.h" />
     <ClInclude Include="Inc\ShaderCompiler.h" />
@@ -83,7 +83,7 @@
     <ClCompile Include="Source\Platform.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
     <ClCompile Include="Source\Raytracer.cpp" />
-    <ClCompile Include="Source\RaytracingShaderTable.cpp" />
+    <ClCompile Include="Source\RaytracingPipelineState.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\ShaderBindingTable.cpp" />
     <ClCompile Include="Source\ShaderCompiler.cpp" />

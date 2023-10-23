@@ -90,14 +90,14 @@
     <ClInclude Include="Inc\TopLevelAccelerationStructure.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
-    <ClInclude Include="Inc\RaytracingShaderTable.h">
-      <Filter>Direct3D12\DXR</Filter>
-    </ClInclude>
     <ClInclude Include="Inc\AccelerationStructureManager.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Texture.h" />
     <ClInclude Include="Inc\ShaderBindingTable.h">
+      <Filter>Direct3D12\DXR</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\RaytracingPipelineState.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
   </ItemGroup>
@@ -181,14 +181,14 @@
     <ClCompile Include="Source\TopLevelAccelerationStructure.cpp">
       <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RaytracingShaderTable.cpp">
-      <Filter>Direct3D12\DXR</Filter>
-    </ClCompile>
     <ClCompile Include="Source\AccelerationStructureManager.cpp">
       <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\ShaderBindingTable.cpp">
+      <Filter>Direct3D12\DXR</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RaytracingPipelineState.cpp">
       <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
   </ItemGroup>
