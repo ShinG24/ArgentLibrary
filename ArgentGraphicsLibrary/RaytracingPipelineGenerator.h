@@ -190,8 +190,6 @@ private:
   ID3D12Device5* m_device;
   ID3D12RootSignature* m_dummyLocalRootSignature;
   ID3D12RootSignature* m_dummyGlobalRootSignature;
-
-  
 };
 
 } // namespace nv_helpers_dx12

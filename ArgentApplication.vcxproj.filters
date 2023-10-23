@@ -7,6 +7,9 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{44fe5dd2-8a9d-4d6f-96a8-85dd7ce4cb6e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\Raytracing">
+      <UniqueIdentifier>{36c28b37-d5f4-4652-b246-f93d3b80576e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shader\VertexShader.hlsl">
@@ -15,30 +18,30 @@
     <None Include="Assets\Shader\PixelShader.hlsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Hit.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Miss.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="RayGen.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="CubeCLH.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Plane.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Common.hlsli">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="SphereClosestHit.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="SphereIntersection.hlsl">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="packages.config" />
+    <None Include="Assets\Shader\Common.hlsli">
+      <Filter>Shader\Raytracing</Filter>
+    </None>
+    <None Include="Assets\Shader\CubeCLH.hlsl">
+      <Filter>Shader\Raytracing</Filter>
+    </None>
+    <None Include="Assets\Shader\Hit.hlsl">
+      <Filter>Shader\Raytracing</Filter>
+    </None>
+    <None Include="Assets\Shader\Miss.hlsl">
+      <Filter>Shader\Raytracing</Filter>
+    </None>
+    <None Include="Assets\Shader\Plane.hlsl">
+      <Filter>Shader\Raytracing</Filter>
+    </None>
+    <None Include="Assets\Shader\RayGen.hlsl">
+      <Filter>Shader\Raytracing</Filter>
+    </None>
+    <None Include="Assets\Shader\SphereClosestHit.hlsl">
+      <Filter>Shader\Raytracing</Filter>
+    </None>
+    <None Include="Assets\Shader\SphereIntersection.hlsl">
+      <Filter>Shader\Raytracing</Filter>
+    </None>
   </ItemGroup>
 </Project>

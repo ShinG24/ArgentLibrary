@@ -145,6 +145,7 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shader\Common.hlsli" />
     <None Include="Assets\Shader\PixelShader.hlsl">
       <FileType>Document</FileType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -155,41 +156,28 @@
     <None Include="Assets\Shader\VertexShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Common.hlsli" />
-    <None Include="Hit.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="Miss.hlsl">
-      <FileType>Document</FileType>
-    </None>
     <None Include="packages.config" />
-    <None Include="RayGen.hlsl">
-      <FileType>Document</FileType>
-    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Plane.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    <None Include="Assets\Shader\CubeCLH.hlsl">
       <FileType>Document</FileType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="CubeCLH.hlsl">
+    <None Include="Assets\Shader\Hit.hlsl">
       <FileType>Document</FileType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SphereClosestHit.hlsl">
+    <None Include="Assets\Shader\Miss.hlsl">
       <FileType>Document</FileType>
     </None>
-    <None Include="SphereIntersection.hlsl">
+    <None Include="Assets\Shader\Plane.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Assets\Shader\RayGen.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Assets\Shader\SphereClosestHit.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Assets\Shader\SphereIntersection.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

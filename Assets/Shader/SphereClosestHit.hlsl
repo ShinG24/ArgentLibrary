@@ -20,7 +20,7 @@ void SphereClosestHit(inout RayPayload payload, in SphereHitAttribute attr)
     float4 reflection_color = TraceRadianceRay(ray, payload.recursion_depth_);
 
     float3 fresnel_r = FresnelReflectanceSchlick(WorldRayDirection(), attr.normal_,
-    albedo_color);
+    albedo_color.xyz);
 
     reflection_color = reflectance_coefficient * float4(fresnel_r, 1) * reflection_color;
 

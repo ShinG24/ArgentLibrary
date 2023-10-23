@@ -151,8 +151,8 @@ _INTERSECTION_SHADER_
 void SphereIntersection()
 {
     Ray ray;
-    ray.origin_ = mul(float4(WorldRayOrigin(), 1), object_constant.inv_world_);
-    ray.direction_ = mul(float4(WorldRayDirection(), 0), object_constant.inv_world_);
+    ray.origin_ = mul(float4(WorldRayOrigin(), 1), object_constant.inv_world_).xyz;
+    ray.direction_ = mul(float4(WorldRayDirection(), 0), object_constant.inv_world_).xyz;
     //ray.origin_ = mul(float4(ObjectRayOrigin(), 1), object_constant.inv_world_);
     //ray.direction_ = mul(ObjectRayDirection(), (float3x3)object_constant.inv_world_);
     float t_hit;

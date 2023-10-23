@@ -15,7 +15,7 @@
 #include "../Inc/CommandQueue.h"
 
 #include "../Inc/ShaderCompiler.h"
-#include "../../Common.hlsli"
+#include "../../Assets/Shader/Common.hlsli"
 
 
 #define _USE_CUBE_	0
@@ -392,15 +392,15 @@ namespace argent::graphics
 
 		//Compile the shader library.
 		ShaderCompiler shader_compiler;
-		shader_compiler.CompileShaderLibrary(L"RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
-		shader_compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"Plane.hlsl", hit1_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"CubeCLH.hlsl", hit2_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Plane.hlsl", hit1_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/CubeCLH.hlsl", hit2_library_.ReleaseAndGetAddressOf());
 
 		//Sphere Intersection Demo
-		shader_compiler.CompileShaderLibrary(L"SphereClosestHit.hlsl", sphere_closest_hit_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"SphereIntersection.hlsl", sphere_intersection_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/SphereClosestHit.hlsl", sphere_closest_hit_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/SphereIntersection.hlsl", sphere_intersection_library_.ReleaseAndGetAddressOf());
 
 		//Add Shader Library
 		{
