@@ -68,6 +68,7 @@ namespace argent::input
 
 		Escape,
 		Space,
+		Enter,
 
 		Count,
 	};
@@ -178,6 +179,8 @@ namespace argent::input
 
 			0x1B,//Escapce
 			0x20,//Space
+
+			0x0D//Enter
 		};
 	};
 }

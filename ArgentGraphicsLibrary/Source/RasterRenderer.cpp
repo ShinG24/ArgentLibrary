@@ -7,6 +7,8 @@
 
 #include "../External/Imgui/imgui.h"
 
+#include "../../ArgentInputLibrary/Inc/InputManager.h"
+
 namespace argent::graphics
 {
 	void RasterRenderer::Awake(const GraphicsDevice& graphics_device, const CommandQueue& command_queue, 
@@ -27,6 +29,14 @@ namespace argent::graphics
 
 	void RasterRenderer::OnRender(ID3D12GraphicsCommandList* command_list)
 	{
+		static bool input_enter = false;
+		auto* input_manager = input::InputManager::Get();
+		if(input_manager->GetKeyboard()->GetKey(input::Enter))
+		{
+			input_enter = true;
+			alpha_ = 0;
+		}
+
 		command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
 		command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
