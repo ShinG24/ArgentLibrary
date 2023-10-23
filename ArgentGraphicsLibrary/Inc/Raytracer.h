@@ -10,22 +10,19 @@
 
 
 #include "../External/DXC/Inc/dxcapi.h"
-#include "../ShaderBindingTableGenerator.h"
 #include "../External/Imgui/imgui.h"
 
 #include "DescriptorHeap.h"
 
-#include "BottomLevelAccelerationStructure.h"
-#include "TopLevelAccelerationStructure.h"
 #include "AccelerationStructureManager.h"
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
-
 #include "Texture.h"
 
 #include "ShaderBindingTable.h"
+#include "RaytracingPipelineState.h"
 
 using namespace DirectX;
 
@@ -96,6 +93,7 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_closest_hit_library_;
 
 		//Root Signature
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> global_root_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> shared_local_root_signature_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_local_root_signature_;
 
@@ -103,17 +101,10 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<ID3D12StateObject> raytracing_state_object_;
 		Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> raytracing_state_object_properties_;
 
-		//dummy local and global root signature
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> dummy_global_root_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> dummy_local_root_signature_;
-
 		//Output buffer
 		Microsoft::WRL::ComPtr<ID3D12Resource> output_buffer_;
 		Descriptor output_descriptor_;
 		Descriptor tlas_result_descriptor_;
-
-		nv_helpers_dx12::ShaderBindingTableGenerator sbt_generator_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> sbt_storage_;
 		
 		UINT64 width_;
 		UINT height_;
@@ -126,8 +117,6 @@ namespace argent::graphics
 			SphereAABB,
 			GeometryTypeCount,
 		};
-
-		
 
 		std::unique_ptr<VertexBuffer> vertex_buffers_[GeometryTypeCount];
 		std::unique_ptr<IndexBuffer> index_buffers_[GeometryTypeCount];
@@ -289,5 +278,7 @@ namespace argent::graphics
 		ShaderBindingTable raygen_shader_table_;
 		ShaderBindingTable miss_shader_table_;
 		ShaderBindingTable hit_group_shader_table_;
+
+		RaytracingPipelineState pipeline_state_;
 	};
 }

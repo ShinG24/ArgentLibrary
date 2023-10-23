@@ -21,6 +21,7 @@
 
 #define _USE_CUBE_	0
 
+#define _USE_RT_PIPELINE_GENERATOR_ 0
 
 namespace argent::graphics
 {
@@ -166,13 +167,17 @@ namespace argent::graphics
 
 		//Set Global Raytracing RootSignature Resource
 		{
-			command_list->SetComputeRootSignature(dummy_global_root_signature_.Get());
+			command_list->SetComputeRootSignature(global_root_signature_.Get());
 			//OutputBuffer & TLAS
 			command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
 			command_list->SetComputeRootConstantBufferView(1u, scene_constant_gpu_handle);
 		}
 
+#if _USE_RT_PIPELINE_GENERATOR_
 		command_list->SetPipelineState1(raytracing_state_object_.Get());
+#else
+		command_list->SetPipelineState1(pipeline_state_.GetStateObject());
+#endif
 		command_list->DispatchRays(&desc);
 
 		graphics_command_list.SetTransitionBarrier(output_buffer_.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -371,39 +376,8 @@ namespace argent::graphics
 
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
 
-			dummy_global_root_signature_ = rsc.Generate(graphics_device.GetDevice(), false);
-
-			D3D12_ROOT_SIGNATURE_DESC root_signature_desc{};
-			root_signature_desc.NumParameters = 0u;
-			root_signature_desc.pParameters = nullptr;
-
-			root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-			graphics_device.SerializeAndCreateRootSignature(root_signature_desc, 
-				dummy_local_root_signature_.ReleaseAndGetAddressOf(), D3D_ROOT_SIGNATURE_VERSION_1);
+			global_root_signature_ = rsc.Generate(graphics_device.GetDevice(), false);
 		}
-
-		nv_helpers_dx12::RayTracingPipelineGenerator pipeline(graphics_device.GetLatestDevice());
-
-		//Compile the shader library.
-		ShaderCompiler shader_compiler;
-		shader_compiler.CompileShaderLibrary(L"RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
-		shader_compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"Plane.hlsl", hit1_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"CubeCLH.hlsl", hit2_library_.ReleaseAndGetAddressOf());
-
-		//Sphere Intersection Demo
-		shader_compiler.CompileShaderLibrary(L"SphereClosestHit.hlsl", sphere_closest_hit_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"SphereIntersection.hlsl", sphere_intersection_library_.ReleaseAndGetAddressOf());
-
-		pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
-		pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
-		pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
-		pipeline.AddLibrary(hit1_library_.Get(), {L"CLHPlane"});
-		pipeline.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
-
-		pipeline.AddLibrary(sphere_closest_hit_library_.Get(), {L"SphereClosestHit"});
-		pipeline.AddLibrary(sphere_intersection_library_.Get(), {L"SphereIntersection"});
 
 		//Shared root signature
 		{
@@ -423,25 +397,88 @@ namespace argent::graphics
 			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
 		}
 
+		//Compile the shader library.
+		ShaderCompiler shader_compiler;
+		shader_compiler.CompileShaderLibrary(L"RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
+		shader_compiler.CompileShaderLibrary(L"Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"Plane.hlsl", hit1_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"CubeCLH.hlsl", hit2_library_.ReleaseAndGetAddressOf());
+
+		//Sphere Intersection Demo
+		shader_compiler.CompileShaderLibrary(L"SphereClosestHit.hlsl", sphere_closest_hit_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"SphereIntersection.hlsl", sphere_intersection_library_.ReleaseAndGetAddressOf());
+
+
+#if _USE_RT_PIPELINE_GENERATOR_
+
+		nv_helpers_dx12::RayTracingPipelineGenerator pipeline(graphics_device.GetLatestDevice());
+
+		pipeline.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
+		pipeline.AddLibrary(miss_library_.Get(), {L"Miss"});
+		pipeline.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
+		pipeline.AddLibrary(hit1_library_.Get(), {L"CLHPlane"});
+		pipeline.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
+
+		pipeline.AddLibrary(sphere_closest_hit_library_.Get(), {L"SphereClosestHit"});
+		pipeline.AddLibrary(sphere_intersection_library_.Get(), {L"SphereIntersection"});
+
+		
+
 		pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
 		pipeline.AddHitGroup(L"HitGroup1", L"CLHPlane");
 		pipeline.AddHitGroup(L"HitGroup2", L"CubeHit");
 		pipeline.AddHitGroup(L"HitGroupSphere", L"SphereClosestHit", L"", L"SphereIntersection");
 
-		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"RayGen"});
+		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {{L"RayGen"}, {L"Miss"}});
 
-		pipeline.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {L"Miss"});
-		pipeline.AddRootSignatureAssociation(hit_local_root_signature_.Get(), { {L"HitGroup"}, {L"HitGroup1"}});
-		pipeline.AddRootSignatureAssociation(hit_local_root_signature_.Get(), { {L"HitGroup2"}});
-		pipeline.AddRootSignatureAssociation(hit_local_root_signature_.Get(), { {L"HitGroupSphere"}});
+		pipeline.AddRootSignatureAssociation(hit_local_root_signature_.Get(),
+			{ {L"HitGroup"}, {L"HitGroup1"},  {L"HitGroup2"},  {L"HitGroupSphere"}});
 
 		pipeline.SetMaxPayloadSize(sizeof(RayPayload) / 4 * sizeof(float));
 		pipeline.SetMaxAttributeSize(3 * sizeof(float));
 		pipeline.SetMaxRecursionDepth(_MAX_RECURSION_DEPTH_);
 
-		raytracing_state_object_ = pipeline.Generate(dummy_global_root_signature_.Get(), dummy_local_root_signature_.Get());
+		raytracing_state_object_ = pipeline.Generate(global_root_signature_.Get(), shared_local_root_signature_.Get());
 		HRESULT hr = raytracing_state_object_->QueryInterface(IID_PPV_ARGS(raytracing_state_object_properties_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Query Interface");
+#else
+
+		//Add Shader Library
+		{
+			pipeline_state_.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
+			pipeline_state_.AddLibrary(miss_library_.Get(), {L"Miss"});
+			pipeline_state_.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
+			pipeline_state_.AddLibrary(hit1_library_.Get(), {L"CLHPlane"});
+			pipeline_state_.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
+			pipeline_state_.AddLibrary(sphere_closest_hit_library_.Get(), {L"SphereClosestHit"});
+			pipeline_state_.AddLibrary(sphere_intersection_library_.Get(), {L"SphereIntersection"});
+		}
+
+		//Add Hit Group
+		{
+			pipeline_state_.AddHitGroup(L"HitGroup", L"ClosestHit");
+			pipeline_state_.AddHitGroup(L"HitGroup1", L"CLHPlane");
+			pipeline_state_.AddHitGroup(L"HitGroup2", L"CubeHit");
+			pipeline_state_.AddHitGroup(L"HitGroupSphere", L"SphereClosestHit", L"", L"SphereIntersection");
+		}
+
+		//Add Root Signature Association
+		{
+			pipeline_state_.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {{L"RayGen"}, {L"Miss"}});
+			pipeline_state_.AddRootSignatureAssociation(hit_local_root_signature_.Get(),
+				{ {L"HitGroup"}, {L"HitGroup1"},  {L"HitGroup2"},  {L"HitGroupSphere"}});
+		}
+
+		pipeline_state_.SetMaxAttributeSize(3 * sizeof(float));
+		pipeline_state_.SetMaxPayloadSize(sizeof(RayPayload));
+		pipeline_state_.SetMaxRecursionDepth(_MAX_RECURSION_DEPTH_);
+
+		pipeline_state_.Generate(&graphics_device, global_root_signature_.Get(), shared_local_root_signature_.Get());
+
+
+#endif
+
 	}
 
 	void Raytracer::CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height)
@@ -513,6 +550,8 @@ namespace argent::graphics
 
 	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
 	{
+
+#if _USE_RT_PIPELINE_GENERATOR_
 		//Ray Generation
 		{
 			raygen_shader_table_.AddShaderIdentifier(L"RayGen");
@@ -565,6 +604,61 @@ namespace argent::graphics
 			hit_group_shader_table_.Generate(&graphics_device, 
 				raytracing_state_object_properties_.Get(), L"HitGroupShaderTable");
 		}
+#else
+				//Ray Generation
+		{
+			raygen_shader_table_.AddShaderIdentifier(L"RayGen");
+			raygen_shader_table_.Generate(&graphics_device, 
+				pipeline_state_.GetStateObjectProperties(), L"RayGenerationShaderTable");
+		}
+
+		//Miss Shader
+		{
+			std::vector<void*> data(kSkymapCounts + 1);
+			data.at(0u) = reinterpret_cast<void*>(skymap_index_buffer_->GetGPUVirtualAddress());
+			for (int i = 0; i < kSkymapCounts; ++i)
+			{
+				data.at(i + 1) = reinterpret_cast<void*>(skymaps_[i]->GetGpuHandle().ptr);
+			}
+			miss_shader_table_.AddShaderIdentifierAndInputData(L"Miss", data);
+			miss_shader_table_.Generate(&graphics_device, 
+				pipeline_state_.GetStateObjectProperties(), L"MissShaderTable");
+		}
+
+		//hit
+		{
+			std::vector<ShaderTable> tables(GeometryTypeCount);
+
+			//For Polygon
+			tables.at(Polygon).shader_identifier_ = L"HitGroup";
+
+			//For Plane
+			tables.at(Plane).shader_identifier_ = L"HitGroup1";
+			tables.at(Plane).input_data_.resize(RootSignatureBinderCount);
+			tables.at(Plane).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
+			tables.at(Plane).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
+			tables.at(Plane).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
+
+			//For Cube
+			tables.at(Cube).shader_identifier_ = L"HitGroup2";
+			tables.at(Cube).input_data_.resize(RootSignatureBinderCount);
+			tables.at(Cube).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
+			tables.at(Cube).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
+			tables.at(Cube).input_data_.at(AlbedoTexture) = reinterpret_cast<void*>(texture_->GetGpuHandle().ptr);
+			tables.at(Cube).input_data_.at(NormalTexture) = reinterpret_cast<void*>(texture1_->GetGpuHandle().ptr);
+			tables.at(Cube).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
+
+			tables.at(SphereAABB).shader_identifier_ = L"HitGroupSphere";
+			tables.at(SphereAABB).input_data_.resize(RootSignatureBinderCount);
+			tables.at(SphereAABB).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
+			tables.at(SphereAABB).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
+
+			hit_group_shader_table_.AddShaderTables(tables);
+			hit_group_shader_table_.Generate(&graphics_device, 
+				pipeline_state_.GetStateObjectProperties(), L"HitGroupShaderTable");
+		}
+
+#endif
 	}
 
 	//For Fbx
