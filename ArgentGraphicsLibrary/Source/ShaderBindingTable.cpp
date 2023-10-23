@@ -5,27 +5,41 @@
 
 namespace argent::graphics
 {
-	UINT ShaderBindingTable::AddShaderIdentifier(const std::wstring& shader_identifier)
-	{
-		const UINT index = static_cast<UINT>(shader_identifier_.size());
-		shader_identifier_.emplace_back(shader_identifier);
-		return index;
-	}
-
 	UINT ShaderBindingTable::AddShaderIdentifierAndInputData(const std::wstring& shader_identifier,
 		const std::vector<void*>& data)
 	{
-		AddInputData(data);
-		return AddShaderIdentifier(shader_identifier);
+		if(shader_identifier.empty()) _ASSERT_EXPR(FALSE, L"Shader Identifier can not be null");
+		const UINT index = static_cast<UINT>(shader_tables_.size());
+		ShaderTable shader_table;
+		shader_table.shader_identifier_ = shader_identifier.c_str();
+		shader_table.input_data_ = data;
+		shader_tables_.emplace_back(shader_table);
+		return index;
+	}
+
+	UINT ShaderBindingTable::AddShaderIdentifier(const std::wstring& shader_identifier)
+	{
+		if(shader_identifier.empty()) _ASSERT_EXPR(FALSE, L"Shader Identifier can not be null");
+		const UINT index = static_cast<UINT>(shader_tables_.size());
+		ShaderTable shader_table;
+		shader_table.shader_identifier_ = shader_identifier;
+		shader_tables_.emplace_back(shader_table);
+		return index;
 	}
 
 	void ShaderBindingTable::Generate(const GraphicsDevice* graphics_device, ID3D12StateObjectProperties* state_object_properties)
 	{
-		if (shader_identifier_.size() != input_data_.size() && !input_data_.empty()) _ASSERT_EXPR(FALSE, L"Shader Identifier size and Input Data size need to be same value");
+		if (shader_tables_.empty()) _ASSERT_EXPR(FALSE, L"Shader Identifier size and Input Data size need to be same value");
 
-		const UINT input_data_size = sizeof(uint8_t) * (input_data_.empty() ? 0 : static_cast<UINT>(input_data_.at(0).size()));
+		UINT max_root_args = 0u;
+		for(const auto& table : shader_tables_)
+		{
+			if(table.input_data_.size() > max_root_args)
+				max_root_args = static_cast<UINT>(table.input_data_.size());
+		}
+		const UINT input_data_size = sizeof(uint64_t) * max_root_args;
 		entry_size_ = _ALIGNMENT_(D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES + input_data_size, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
-		const UINT buffer_size = _ALIGNMENT_(static_cast<UINT>(entry_size_ * shader_identifier_.size()), D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+		const UINT buffer_size = static_cast<UINT>(entry_size_ * shader_tables_.size());
 
 		graphics_device->CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, buffer_size, 
 			D3D12_RESOURCE_STATE_GENERIC_READ, resource_object_.ReleaseAndGetAddressOf());
@@ -38,16 +52,16 @@ namespace argent::graphics
 		uint8_t* map;
 		resource_object_->Map(0u, nullptr, reinterpret_cast<void**>(&map));
 
-		for(size_t i = 0; i < shader_identifier_.size(); ++i)
+		for(const auto& table : shader_tables_)
 		{
-			void* id = state_object_properties->GetShaderIdentifier(shader_identifier_.at(i).c_str());
+			void* id = state_object_properties->GetShaderIdentifier(table.shader_identifier_.c_str());
 			memcpy(map, id, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 			map += D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
 
 			//TODO Maybe some
-			if(input_data_.size() != 0)
+			if(!table.input_data_.empty())
 			{
-				memcpy(map, input_data_.at(i).data(), input_data_.at(i).size() * sizeof(uint8_t));
+				memcpy(map, table.input_data_.data(), sizeof(uint64_t) * table.input_data_.size());
 			}
 			map += entry_size_ - D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
 		}

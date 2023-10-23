@@ -16,9 +16,9 @@ namespace argent::graphics
 		ShaderBindingTable() = default;
 		~ShaderBindingTable() = default;
 
-		UINT AddShaderIdentifier(const std::wstring& shader_identifier);
+
 		UINT AddShaderIdentifierAndInputData(const std::wstring& shader_identifier, const std::vector<void*>& data);
-		void AddInputData(const std::vector<void*>& data) { input_data_.emplace_back(data); }
+		UINT AddShaderIdentifier(const std::wstring& shader_identifier);
 
 		void Generate(const GraphicsDevice* graphics_device, ID3D12StateObjectProperties* state_object_properties);
 
@@ -29,9 +29,18 @@ namespace argent::graphics
 		UINT GetStride() const { return entry_size_; }
 
 	private:
+
+		struct ShaderTable
+		{
+			std::wstring shader_identifier_;
+			std::vector<void*> input_data_;
+		};
+
+	private:
+		std::vector<ShaderTable> shader_tables_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource_object_;
-		std::vector<std::vector<void*>> input_data_;
-		std::vector<std::wstring> shader_identifier_;
+/*		std::vector<std::vector<void*>> input_data_;
+		std::vector<std::wstring> shader_identifier_*/;
 		UINT entry_size_;
 	};
 }
