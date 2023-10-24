@@ -36,6 +36,7 @@ namespace argent::platform
 			wc.hInstance, nullptr);
 
 		ShowWindow(hwnd_, SW_SHOW);
+		ShowWindow(hwnd_, SW_MAXIMIZE);
 	}
 
 	bool Platform::ProcessSystemEventQueue()

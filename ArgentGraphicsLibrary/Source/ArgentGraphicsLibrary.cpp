@@ -115,74 +115,84 @@ namespace argent::graphics
 	{
 		//Update Constant Buffer
 		{
-			//Camera Controller
+			if(raster_renderer_.IsInputEnter())
 			{
-				auto input_manager = argent::input::InputManager::Get();
-				auto keyboard = input_manager->GetKeyboard();
-				auto mouse = input_manager->GetMouse();
-				using namespace argent::input;
-				if (mouse->GetButton(argent::input::MouseButton::RButton)/*右クリックの入力*/)
+				//Camera Controller
 				{
-					//カメラの移動
+					auto input_manager = argent::input::InputManager::Get();
+					auto keyboard = input_manager->GetKeyboard();
+					auto mouse = input_manager->GetMouse();
+					using namespace argent::input;
+					if (mouse->GetButton(argent::input::MouseButton::RButton)/*右クリックの入力*/)
 					{
-						//方向を算出
-						const auto rotation_matrix = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
-						const DirectX::XMVECTOR front = DirectX::XMVector3Normalize(rotation_matrix.r[2]);
-						const DirectX::XMVECTOR up = { 0.0f, 1.0f, 0.0f, 0.0f };
-						const DirectX::XMVECTOR right = DirectX::XMVector3Normalize(rotation_matrix.r[0]);
+						//カメラの移動
+						{
+							//方向を算出
+							const auto rotation_matrix = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
+							const DirectX::XMVECTOR front = DirectX::XMVector3Normalize(rotation_matrix.r[2]);
+							const DirectX::XMVECTOR up = { 0.0f, 1.0f, 0.0f, 0.0f };
+							const DirectX::XMVECTOR right = DirectX::XMVector3Normalize(rotation_matrix.r[0]);
 
-						float front_input = 0;
-						float right_input = 0;
-						float up_input = 0;
+							float front_input = 0;
+							float right_input = 0;
+							float up_input = 0;
 
-						//前後
-						if (keyboard->GetKey(W)/* Keyboard W */) front_input += 1.0f;
-						if (keyboard->GetKey(S)/* Keyboard S */) front_input -= 1.0f;
+							//前後
+							if (keyboard->GetKey(W)/* Keyboard W */) front_input += 1.0f;
+							if (keyboard->GetKey(S)/* Keyboard S */) front_input -= 1.0f;
 
-						//左右
-						if (keyboard->GetKey(A)/* Keyboard A */) right_input -= 1.0f;
-						if (keyboard->GetKey(D)/* Keyboard D */) right_input += 1.0f;
+							//左右
+							if (keyboard->GetKey(A)/* Keyboard A */) right_input -= 1.0f;
+							if (keyboard->GetKey(D)/* Keyboard D */) right_input += 1.0f;
 
-						//上下
-						if (keyboard->GetKey(Q)/* Keyboard Q */) up_input -= 1.0f;
-						if (keyboard->GetKey(E)/* Keyboard E */) up_input += 1.0f;
+							//上下
+							if (keyboard->GetKey(Q)/* Keyboard Q */) up_input -= 1.0f;
+							if (keyboard->GetKey(E)/* Keyboard E */) up_input += 1.0f;
 
-						using namespace DirectX;
+							using namespace DirectX;
 
-						const DirectX::XMVECTOR move_vector = DirectX::XMVector3Normalize(front * front_input + up * up_input + right * right_input);
-						DirectX::XMFLOAT3 p = { camera_position_.x, camera_position_.y, camera_position_.z };
-						DirectX::XMStoreFloat3(&p, DirectX::XMLoadFloat3(&p) + move_vector * move_speed_);
-						camera_position_ = { p.x, p.y, p.z, 1.0f };
+							const DirectX::XMVECTOR move_vector = DirectX::XMVector3Normalize(front * front_input + up * up_input + right * right_input);
+							DirectX::XMFLOAT3 p = { camera_position_.x, camera_position_.y, camera_position_.z };
+							DirectX::XMStoreFloat3(&p, DirectX::XMLoadFloat3(&p) + move_vector * move_speed_);
+							camera_position_ = { p.x, p.y, p.z, 1.0f };
+						}
+
+						//カメラの回転
+						{
+							const float dx = mouse->GetMovedVec().x;	//マウスX軸方向の移動値
+							const float dy = mouse->GetMovedVec().y;	//マウスY軸方向の移動値
+
+							const float x_d_angle = dy * rotation_speed_;
+							const float y_d_angle = dx * rotation_speed_;
+
+							camera_rotation_.x += x_d_angle;
+							camera_rotation_.y += y_d_angle;
+						}
 					}
+				}
 
-					//カメラの回転
+				//Draw on ImGui
+				{
+					ImGui::SetNextWindowPos(ImVec2(600, 400), ImGuiCond_Once);
+					ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Once);
+					ImGui::Begin("Instructions");
+					ImGui::Text("Camera");
+					ImGui::Text("Right Click + W, A, S, D");
+					ImGui::End();
+					if (ImGui::TreeNode("Camera"))
 					{
-						const float dx = mouse->GetMovedVec().x;	//マウスX軸方向の移動値
-						const float dy = mouse->GetMovedVec().y;	//マウスY軸方向の移動値
-
-						const float x_d_angle = dy * rotation_speed_;
-						const float y_d_angle = dx * rotation_speed_;
-
-						camera_rotation_.x += x_d_angle;
-						camera_rotation_.y += y_d_angle;
+						ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+						ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
+						ImGui::DragFloat("Move Speed", &move_speed_, 0.01f, 0.1f, 10.0f);
+						ImGui::DragFloat("Rotation Speed", &rotation_speed_, 0.00001f, 0.00001f, 3.14f);
+						ImGui::TreePop();
 					}
+					ImGui::DragFloat3("Light", &light_position.x, 0.01f, -FLT_MAX, FLT_MAX);
+
+					//raster_renderer_.OnGui();
 				}
 			}
 
-			//Draw on ImGui
-			{
-				if (ImGui::TreeNode("Camera"))
-				{
-					ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
-					ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
-					ImGui::DragFloat("Move Speed", &move_speed_, 0.01f, 0.1f, 10.0f);
-					ImGui::DragFloat("Rotation Speed", &rotation_speed_, 0.00001f, 0.00001f, 3.14f);
-					ImGui::TreePop();
-				}
-				ImGui::DragFloat3("Light", &light_position.x, 0.01f, -FLT_MAX, FLT_MAX);
-
-				raster_renderer_.OnGui();
-			}
 
 			//Update camera forward direction by the rotation
 			DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);

@@ -60,13 +60,10 @@ namespace argent::graphics
 		ImGui::NewFrame();
 		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_::ImGuiCond_Once);
 		ImGui::SetNextWindowSize(ImVec2(300.0f, 500.0f), ImGuiCond_::ImGuiCond_Once);
-
-		ImGui::Begin("Imgui");
 	}
 
 	void ImGuiWrapper::FrameEnd(ID3D12GraphicsCommandList* command_list)
 	{
-		ImGui::End();
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), command_list);
 	}
