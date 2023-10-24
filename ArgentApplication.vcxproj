@@ -159,7 +159,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shader\CubeCLH.hlsl">
+    <None Include="Assets\Shader\StaticMesh.ch.hlsl">
       <FileType>Document</FileType>
     </None>
     <None Include="Assets\Shader\Hit.hlsl">
@@ -174,10 +174,7 @@
     <None Include="Assets\Shader\RayGen.hlsl">
       <FileType>Document</FileType>
     </None>
-    <None Include="Assets\Shader\SphereClosestHit.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="Assets\Shader\SphereIntersection.hlsl">
+    <None Include="Assets\Shader\Sphere.lib.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

@@ -22,7 +22,7 @@
     <None Include="Assets\Shader\Common.hlsli">
       <Filter>Shader\Raytracing</Filter>
     </None>
-    <None Include="Assets\Shader\CubeCLH.hlsl">
+    <None Include="Assets\Shader\StaticMesh.ch.hlsl">
       <Filter>Shader\Raytracing</Filter>
     </None>
     <None Include="Assets\Shader\Hit.hlsl">
@@ -37,10 +37,7 @@
     <None Include="Assets\Shader\RayGen.hlsl">
       <Filter>Shader\Raytracing</Filter>
     </None>
-    <None Include="Assets\Shader\SphereClosestHit.hlsl">
-      <Filter>Shader\Raytracing</Filter>
-    </None>
-    <None Include="Assets\Shader\SphereIntersection.hlsl">
+    <None Include="Assets\Shader\Sphere.lib.hlsl">
       <Filter>Shader\Raytracing</Filter>
     </None>
     <None Include="Assets\Shader\FullscreenQuad.VS.hlsl">

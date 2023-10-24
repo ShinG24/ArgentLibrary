@@ -364,11 +364,10 @@ namespace argent::graphics
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Plane.hlsl", hit1_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/CubeCLH.hlsl", hit2_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/StaticMesh.ch.hlsl", hit2_library_.ReleaseAndGetAddressOf());
 
 		//Sphere Intersection Demo
-		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/SphereClosestHit.hlsl", sphere_closest_hit_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/SphereIntersection.hlsl", sphere_intersection_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Sphere.lib.hlsl", sphere_library_.ReleaseAndGetAddressOf());
 
 		//Add Shader Library
 		{
@@ -377,8 +376,7 @@ namespace argent::graphics
 			pipeline_state_.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
 			pipeline_state_.AddLibrary(hit1_library_.Get(), {L"CLHPlane"});
 			pipeline_state_.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
-			pipeline_state_.AddLibrary(sphere_closest_hit_library_.Get(), {L"SphereClosestHit"});
-			pipeline_state_.AddLibrary(sphere_intersection_library_.Get(), {L"SphereIntersection"});
+			pipeline_state_.AddLibrary(sphere_library_.Get(), {{L"SphereClosestHit"}, {L"SphereIntersection"}});
 		}
 
 		//Add Hit Group

@@ -92,7 +92,7 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<IDxcBlob> hit2_library_;
 
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_intersection_library_;
-		Microsoft::WRL::ComPtr<IDxcBlob> sphere_closest_hit_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> sphere_library_;
 
 
 		//Output buffer
@@ -262,8 +262,6 @@ namespace argent::graphics
 		};
 
 	private:
-		
-
 		Microsoft::WRL::ComPtr<ID3D12Resource> blas_transform_cube_;
 		std::vector<Mesh> meshes_;
 

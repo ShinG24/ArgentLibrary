@@ -98,8 +98,14 @@ namespace argent::game_resource
 	class Model
 	{
 	public:
+		enum RootSignatureBinding
+		{
+			
+		};
+	public:
 
 	private:
+		std::vector<void*> shader_binding_data_;
 		Mesh mesh_;
 		Material material_;
 	};
