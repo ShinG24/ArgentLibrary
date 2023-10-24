@@ -97,11 +97,12 @@ namespace argent::graphics
 			DirectX::XMFLOAT4 camera_position_;
 			DirectX::XMFLOAT4 light_position_;
 		};
-		ConstantBuffer<SceneConstant> scene_constant_buffer_;
+
+		std::unique_ptr<ConstantBuffer<SceneConstant>> scene_constant_buffer_;
 
 		//Camera
-		DirectX::XMFLOAT4 camera_position_{ 0.0, 0.0f, -10.0f, 1.0f };
-		DirectX::XMFLOAT3 camera_rotation_{};
+		DirectX::XMFLOAT4 camera_position_{ 0.0, 20.0f, -30.0f, 1.0f };
+		DirectX::XMFLOAT3 camera_rotation_{ 0.36f, 0.0f, 0.0f};
 		float near_z_ = 0.1f;
 		float far_z_ = 1000.0f;
 		float fov_angle_ = 60.0f;

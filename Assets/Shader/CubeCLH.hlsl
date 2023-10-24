@@ -4,8 +4,8 @@ struct Vertex
 {
     float3 position_;
     float3 normal_;
-    float4 tangent_;
-    float4 binormal_;
+    float3 tangent_;
+    float3 binormal_;
     float2 texcoord_;
 };
 
@@ -64,24 +64,18 @@ float3 CalcWorldNormal(uint3 index, float2 barycentrics)
     return normalize(ret);
 }
 
-float4 CalcWorldTangent(uint3 index, float2 barycentrics)
+float3 CalcWorldTangent(uint3 index, float2 barycentrics)
 {
-    float4 vertex_tangent[3] = { vertices[index.x].tangent_, vertices[index.y].tangent_, vertices[index.z].tangent_ };
-    float4 tangent = vertex_tangent[0] + barycentrics.x * (vertex_tangent[1] - vertex_tangent[0]) + barycentrics.y * (vertex_tangent[2] - vertex_tangent[0]);
-    float sigma = vertex_tangent[0].w;
-    tangent.w = 0;
-    tangent = normalize(mul(tangent, object_constant.world_));
-    tangent.w = sigma;
+    float3 vertex_tangent[3] = { vertices[index.x].tangent_, vertices[index.y].tangent_, vertices[index.z].tangent_ };
+    float3 tangent = vertex_tangent[0] + barycentrics.x * (vertex_tangent[1] - vertex_tangent[0]) + barycentrics.y * (vertex_tangent[2] - vertex_tangent[0]);
+    tangent = normalize(mul(float4(tangent, 0), object_constant.world_).xyz);
     return tangent;
 }
-float4 CalcWorldBinormal(uint3 index, float2 barycentrics)
+float3 CalcWorldBinormal(uint3 index, float2 barycentrics)
 {
-    float4 vertex_binormal[3] = { vertices[index.x].binormal_, vertices[index.y].binormal_, vertices[index.z].binormal_ };
-    float4 binormal = vertex_binormal[0] + barycentrics.x * (vertex_binormal[1] - vertex_binormal[0]) + barycentrics.y * (vertex_binormal[2] - vertex_binormal[0]);
-    float sigma = vertex_binormal[0].w;
-    binormal.w = 0;
-    binormal = normalize(mul(binormal, object_constant.world_));
-    binormal.w = sigma;
+    float3 vertex_binormal[3] = { vertices[index.x].binormal_, vertices[index.y].binormal_, vertices[index.z].binormal_ };
+    float3 binormal = vertex_binormal[0] + barycentrics.x * (vertex_binormal[1] - vertex_binormal[0]) + barycentrics.y * (vertex_binormal[2] - vertex_binormal[0]);
+    binormal = normalize(mul(float4(binormal, 0), object_constant.world_).xyz);
     return binormal;
 }
 
@@ -126,8 +120,6 @@ float3 CalcNormal(float3 surface_normal, float3 tangent, float3 binormal, float2
     return N;
 }
 
-
-
 float4 AlbedoLinearSampling(float2 uv, uint dimension)
 {
     float4 color = 0;
@@ -152,8 +144,8 @@ void CubeHit(inout RayPayload payload, in HitAttribute attr)
 {
     uint3 index = Load3x32BitIndices();
 	float3 world_normal = CalcWorldNormal(index, attr.barycentrics);
-    float4 world_tangent = CalcWorldTangent(index, attr.barycentrics);
-    float4 world_binormal = CalcWorldBinormal(index, attr.barycentrics);
+    float3 world_tangent = CalcWorldTangent(index, attr.barycentrics);
+    float3 world_binormal = CalcWorldBinormal(index, attr.barycentrics);
     float2 texcoord = CalcTexcoord(index, attr.barycentrics);
     texcoord.y = 1 - texcoord.y;
 

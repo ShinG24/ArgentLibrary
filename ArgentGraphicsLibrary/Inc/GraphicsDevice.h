@@ -68,6 +68,10 @@ namespace argent::graphics
 			ID3D12RootSignature** pp_root_signature, 
 			D3D_ROOT_SIGNATURE_VERSION root_signature_version = D3D_ROOT_SIGNATURE_VERSION_1) const;
 
+		void CreateBufferSRV(ID3D12Resource* p_resource, UINT num_elements, 
+			UINT structure_byte_stride, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
+		void CreateTexture2DSRV(ID3D12Resource* p_resource, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
+
 		/**
 		 * \brief Check is This computer or Gpu supported DXR.
 		 * \return bool 

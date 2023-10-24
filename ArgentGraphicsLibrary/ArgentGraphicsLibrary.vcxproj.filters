@@ -100,6 +100,12 @@
     <ClInclude Include="Inc\RaytracingPipelineState.h">
       <Filter>Direct3D12\DXR</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\FbxLoader.h">
+      <Filter>GameResource\AssetsLoader\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Model.h">
+      <Filter>GameResource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -191,6 +197,12 @@
     <ClCompile Include="Source\RaytracingPipelineState.cpp">
       <Filter>Direct3D12\DXR</Filter>
     </ClCompile>
+    <ClCompile Include="Source\FbxLoader.cpp">
+      <Filter>GameResource\AssetsLoader\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model.cpp">
+      <Filter>GameResource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Direct3D12">
@@ -213,6 +225,18 @@
     </Filter>
     <Filter Include="Direct3D12\DXR">
       <UniqueIdentifier>{44a0cdea-1a87-4d58-9355-187b70813c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameResource">
+      <UniqueIdentifier>{ed81a35b-26b6-4b9d-99b9-14b03be3d130}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameResource\AssetsLoader">
+      <UniqueIdentifier>{2e28d458-c094-43b9-8ced-16330cbb78ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameResource\AssetsLoader\Model">
+      <UniqueIdentifier>{15630d75-7f62-4049-b6df-95734f72b26f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameResource\AssetsLoader\Texture">
+      <UniqueIdentifier>{44678b64-2346-41fc-8441-9bc9d7fa9e79}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

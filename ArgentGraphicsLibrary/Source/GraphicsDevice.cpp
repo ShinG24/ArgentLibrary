@@ -181,6 +181,30 @@ namespace argent::graphics
 		return hr;
 	}
 
+	void GraphicsDevice::CreateBufferSRV(ID3D12Resource* p_resource, UINT num_elements, 
+		UINT structure_byte_stride, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		desc.Buffer.NumElements = num_elements;
+		desc.Buffer.StructureByteStride = structure_byte_stride;
+		device_->CreateShaderResourceView(p_resource, &desc, cpu_handle);
+	}
+
+	void GraphicsDevice::CreateTexture2DSRV(ID3D12Resource* p_resource, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const
+	{
+		D3D12_RESOURCE_DESC resource_desc = p_resource->GetDesc();
+		D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+		desc.Format = resource_desc.Format;
+		desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipLevels = resource_desc.MipLevels;
+		device_->CreateShaderResourceView(p_resource, &desc, cpu_handle);
+	}
+
 	bool GraphicsDevice::IsDirectXRaytracingSupported() const
 	{
 		D3D12_FEATURE_DATA_D3D12_OPTIONS5 feature_support_data{};

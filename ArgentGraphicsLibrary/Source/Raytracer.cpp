@@ -145,34 +145,23 @@ namespace argent::graphics
 		graphics_command_list.SetTransitionBarrier(output_buffer_.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		D3D12_DISPATCH_RAYS_DESC desc{};
-
 		desc.RayGenerationShaderRecord.StartAddress = raygen_shader_table_.GetGpuVirtualAddress();
 		desc.RayGenerationShaderRecord.SizeInBytes = raygen_shader_table_.GetSize();
-
 		desc.MissShaderTable.StartAddress = miss_shader_table_.GetGpuVirtualAddress();
 		desc.MissShaderTable.SizeInBytes = miss_shader_table_.GetSize();
 		desc.MissShaderTable.StrideInBytes = miss_shader_table_.GetStride();
-
 		desc.HitGroupTable.StartAddress = hit_group_shader_table_.GetGpuVirtualAddress();
 		desc.HitGroupTable.SizeInBytes = hit_group_shader_table_.GetSize();
 		desc.HitGroupTable.StrideInBytes = hit_group_shader_table_.GetStride();	
-
-		
 		desc.Width = static_cast<UINT>(width_);
 		desc.Height = height_;
 		desc.Depth = 1;
 
 		//Set Global Raytracing RootSignature Resource
-		{
-#if _USE_ROOT_SIGNATURE_GENERATOR_
-			command_list->SetComputeRootSignature(global_root_signature_.Get());
-#else
-			command_list->SetComputeRootSignature(global_root_signature_.GetRootSignatureObject());
-#endif
-			//OutputBuffer & TLAS
-			command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
-			command_list->SetComputeRootConstantBufferView(1u, scene_constant_gpu_handle);
-		}
+		command_list->SetComputeRootSignature(global_root_signature_.GetRootSignatureObject());
+		//OutputBuffer & TLAS
+		command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
+		command_list->SetComputeRootConstantBufferView(1u, scene_constant_gpu_handle);
 
 		command_list->SetPipelineState1(pipeline_state_.GetStateObject());
 		command_list->DispatchRays(&desc);
@@ -278,22 +267,11 @@ namespace argent::graphics
 
 
 #endif
-			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
-			desc.Format = DXGI_FORMAT_UNKNOWN;
-			desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-			desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-			desc.Buffer.NumElements = vertex_buffers_[Cube]->GetVertexCounts();
-			desc.Buffer.StructureByteStride = sizeof(Vertex);
-			graphics_device.GetDevice()->CreateShaderResourceView(vertex_buffers_[Cube]->GetBufferObject(), &desc, cube_vertex_descriptor_.cpu_handle_);
+			graphics_device.CreateBufferSRV(vertex_buffers_[Cube]->GetBufferObject(), 
+				vertex_buffers_[Cube]->GetVertexCounts(), sizeof(Vertex), cube_vertex_descriptor_.cpu_handle_);
 
-			//desc.Format = DXGI_FORMAT_R32_TYPELESS;
-			desc.Buffer.FirstElement = 0u;
-			desc.Buffer.NumElements = index_buffers_[Cube]->GetIndexCounts();
-
-			desc.Buffer.StructureByteStride = sizeof(uint32_t);
-
-			graphics_device.GetDevice()->CreateShaderResourceView(index_buffers_[Cube]->GetBufferObject(), &desc, cube_index_descriptor_.cpu_handle_);
+			graphics_device.CreateBufferSRV(index_buffers_[Cube]->GetBufferObject(), 
+				index_buffers_[Cube]->GetIndexCounts(), sizeof(uint32_t), cube_index_descriptor_.cpu_handle_);
 		}
 
 		//AABB
@@ -359,68 +337,28 @@ namespace argent::graphics
 
 	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)
 	{
-		//Create Dummy Root Signature
-		{
-#if _USE_ROOT_SIGNATURE_GENERATOR_
-			nv_helpers_dx12::RootSignatureGenerator rsc;
-
-			rsc.AddHeapRangesParameter(
-				{
-					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-					{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-				//	{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-				}
-			);
-
-			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
-
-			global_root_signature_ = rsc.Generate(graphics_device.GetDevice(), false);
-
-#else
-			global_root_signature_.AddHeapRangeParameters(
-				{
-				{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV},
-				{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV}
-				}
-			);
-			global_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
-			global_root_signature_.Create(&graphics_device, false);
-#endif
-		}
+		//Global Root Signature
+		global_root_signature_.AddHeapRangeParameters(
+			{
+			{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV},
+			{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV}
+			}
+		);
+		global_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
+		global_root_signature_.Create(&graphics_device, false);
 
 		//Shared root signature
-		{
-#if _USE_ROOT_SIGNATURE_GENERATOR_
-			nv_helpers_dx12::RootSignatureGenerator rsc;
-			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);
-			rsc.AddHeapRangesParameter({ {0u, kSkymapCounts, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u} });	//For Skymap
-			shared_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
-#else
-			raygen_miss_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);
-			raygen_miss_root_signature_.AddHeapRangeParameter(0u, kSkymapCounts, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);
-			raygen_miss_root_signature_.Create(&graphics_device, true);
-#endif
+		raygen_miss_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);
+		raygen_miss_root_signature_.AddHeapRangeParameter(0u, kSkymapCounts, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);
+		raygen_miss_root_signature_.Create(&graphics_device, true);
 
-		}
-
-		{
-#if _USE_ROOT_SIGNATURE_GENERATOR_
-			nv_helpers_dx12::RootSignatureGenerator rsc;
-			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
-			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
-			rsc.AddHeapRangesParameter({ {0u, 1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});	//For Abledo
-			rsc.AddHeapRangesParameter({ {1u, 1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});	//For Normal
-			rsc.AddHeapRangesParameter({{2u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});	//For Vertex Buffer and Index Buffer
-			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
-#else
-			hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
-			hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
-			hit_group_root_signature_.AddHeapRangeParameter(0u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Abledo
-			hit_group_root_signature_.AddHeapRangeParameter(1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Normal
-			hit_group_root_signature_.AddHeapRangeParameter(2u, 2u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
-			hit_group_root_signature_.Create(&graphics_device, true);
-#endif
-		}
+		//Hit Group Root Signature
+		hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
+		hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
+		hit_group_root_signature_.AddHeapRangeParameter(0u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Abledo
+		hit_group_root_signature_.AddHeapRangeParameter(1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Normal
+		hit_group_root_signature_.AddHeapRangeParameter(2u, 2u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
+		hit_group_root_signature_.Create(&graphics_device, true);
 
 		//Compile the shader library.
 		ShaderCompiler shader_compiler;
@@ -455,25 +393,15 @@ namespace argent::graphics
 
 		//Add Root Signature Association
 		{
-#if _USE_ROOT_SIGNATURE_GENERATOR_
-			pipeline_state_.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {{L"RayGen"}, {L"Miss"}});
-			pipeline_state_.AddRootSignatureAssociation(hit_local_root_signature_.Get(),
-				{ {L"HitGroup"}, {L"HitGroup1"},  {L"HitGroup2"},  {L"HitGroupSphere"}});
-#else
 			pipeline_state_.AddRootSignatureAssociation(raygen_miss_root_signature_.GetRootSignatureObject(), {{L"RayGen"}, {L"Miss"}});
 			pipeline_state_.AddRootSignatureAssociation(hit_group_root_signature_.GetRootSignatureObject(),
 				{ {L"HitGroup"}, {L"HitGroup1"},  {L"HitGroup2"},  {L"HitGroupSphere"}});
-#endif
 		}
 
 		pipeline_state_.SetMaxAttributeSize(3 * sizeof(float));
 		pipeline_state_.SetMaxPayloadSize(sizeof(RayPayload));
 		pipeline_state_.SetMaxRecursionDepth(_MAX_RECURSION_DEPTH_);
-#if _USE_ROOT_SIGNATURE_GENERATOR_
-		pipeline_state_.Generate(&graphics_device, global_root_signature_.Get(), shared_local_root_signature_.Get());
-#else
 		pipeline_state_.Generate(&graphics_device, global_root_signature_.GetRootSignatureObject(), raygen_miss_root_signature_.GetRootSignatureObject());
-#endif
 	}
 
 	void Raytracer::CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height)
@@ -534,7 +462,6 @@ namespace argent::graphics
 		}
 
 		world_matrix_buffer_->Unmap(0u, nullptr);
-
 
 		//Skymap buffer
 		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
@@ -723,7 +650,7 @@ namespace argent::graphics
 						vertex.tangent_.x = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[0]);
 						vertex.tangent_.y = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[1]);
 						vertex.tangent_.z = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[2]);
-						vertex.tangent_.w = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[3]);
+				//		vertex.tangent_.w = static_cast<float>(tangent->GetDirectArray().GetAt(vertex_index)[3]);
 					}
 
 					if(fbx_mesh->GetElementBinormalCount() <= 0)
@@ -735,7 +662,7 @@ namespace argent::graphics
 					vertex.binormal_.x = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[0]);
 					vertex.binormal_.y = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[1]);
 					vertex.binormal_.z = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[2]);
-					vertex.binormal_.w = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[3]);
+					//vertex.binormal_.w = static_cast<float>(binormal->GetDirectArray().GetAt(vertex_index)[3]);
 					
 
 					mesh.vertices_.at(vertex_index) = std::move(vertex);

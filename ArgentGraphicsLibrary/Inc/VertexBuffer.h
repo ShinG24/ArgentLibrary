@@ -26,7 +26,7 @@ namespace argent::graphics
 		UINT GetVertexCounts() const { return buffer_view_.SizeInBytes / buffer_view_.StrideInBytes; }
 
 		ID3D12Resource* GetBufferObject() const { return buffer_object_.Get(); }
-
+		D3D12_GPU_VIRTUAL_ADDRESS GetBufferLocation() const { return buffer_object_->GetGPUVirtualAddress(); }
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> buffer_object_{};
 		D3D12_VERTEX_BUFFER_VIEW buffer_view_{};

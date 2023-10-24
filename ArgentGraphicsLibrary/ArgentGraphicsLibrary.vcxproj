@@ -34,6 +34,7 @@
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
     <ClInclude Include="Inc\ConstantBuffer.h" />
     <ClInclude Include="Inc\DescriptorHeap.h" />
+    <ClInclude Include="Inc\FbxLoader.h" />
     <ClInclude Include="Inc\FrameResource.h" />
     <ClInclude Include="Inc\GraphicsCommandList.h" />
     <ClInclude Include="Inc\CommandQueue.h" />
@@ -42,6 +43,7 @@
     <ClInclude Include="Inc\GraphicsDevice.h" />
     <ClInclude Include="Inc\ImGuiWrapper.h" />
     <ClInclude Include="Inc\IndexBuffer.h" />
+    <ClInclude Include="Inc\Model.h" />
     <ClInclude Include="Inc\Platform.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
     <ClInclude Include="Inc\Raytracer.h" />
@@ -73,6 +75,7 @@
     <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
+    <ClCompile Include="Source\FbxLoader.cpp" />
     <ClCompile Include="Source\FrameResource.cpp" />
     <ClCompile Include="Source\GraphicsCommandList.cpp" />
     <ClCompile Include="Source\CommandQueue.cpp" />
@@ -80,6 +83,7 @@
     <ClCompile Include="Source\GraphicsDevice.cpp" />
     <ClCompile Include="Source\ImGuiWrapper.cpp" />
     <ClCompile Include="Source\IndexBuffer.cpp" />
+    <ClCompile Include="Source\Model.cpp" />
     <ClCompile Include="Source\Platform.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
     <ClCompile Include="Source\Raytracer.cpp" />

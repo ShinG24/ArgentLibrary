@@ -29,12 +29,20 @@ namespace argent::graphics
 
 	void RasterRenderer::OnRender(ID3D12GraphicsCommandList* command_list)
 	{
-		static bool input_enter = false;
 		auto* input_manager = input::InputManager::Get();
 		if(input_manager->GetKeyboard()->GetKey(input::Enter))
 		{
-			input_enter = true;
-			alpha_ = 0;
+			input_enter_ = true;
+			
+		}
+
+		if(input_enter_)
+		{
+			alpha_ -= 0.005f;
+			if(alpha_ < 0)
+			{
+				alpha_ = 0;
+			}
 		}
 
 		command_list->IASetVertexBuffers(0u, 1u, &vertex_buffer_view_);
@@ -42,15 +50,12 @@ namespace argent::graphics
 
 		command_list->SetGraphicsRootSignature(root_signature_.Get());
 		command_list->SetPipelineState(pipeline_state_.Get());
+
 		command_list->SetGraphicsRootDescriptorTable(0u, texture_->GetGpuHandle());
 
-		struct Data
-		{
-			float alpha;
-		};
-		Data data{ alpha_ };
+		//struct Data { float alpha; } data{ alpha_};
 
-		command_list->SetGraphicsRoot32BitConstants(1u, 1u, &data, 0u);
+		command_list->SetGraphicsRoot32BitConstants(1u, 1u, &alpha_, 0u);
 		command_list->DrawInstanced(4u, 1u, 0u, 0u);
 	}
 

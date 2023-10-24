@@ -31,14 +31,13 @@ using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
 using float4 = DirectX::XMFLOAT4;
 
-#define _USE_ROOT_SIGNATURE_GENERATOR_	0
 
 struct Vertex
 {
 	float3 position_;
 	float3 normal_;
-	float4 tangent_;
-	float4 binormal_;
+	float3 tangent_;
+	float3 binormal_;
 	float2 texcoord_;
 };
 
@@ -276,17 +275,9 @@ namespace argent::graphics
 
 		dxr::RaytracingPipelineState pipeline_state_;
 
-#if _USE_ROOT_SIGNATURE_GENERATOR_
-
-		//Root Signature
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> global_root_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> shared_local_root_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_local_root_signature_;
-#else
 
 		RootSignature global_root_signature_;
 		RootSignature raygen_miss_root_signature_;
 		RootSignature hit_group_root_signature_;
-#endif
 	};
 }

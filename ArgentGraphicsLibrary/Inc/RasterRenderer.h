@@ -27,10 +27,12 @@ namespace argent::graphics
 		DescriptorHeap& descriptor_heap);
 		void OnRender(ID3D12GraphicsCommandList* command_list);
 		void OnGui();
+		bool IsInputEnter() const { return input_enter_ && alpha_ < 0.01;}
 	private:
 
 		void CreateVertexBuffer(const GraphicsDevice& graphics_device);
 		void CreateRootSignatureAndPipeline(const GraphicsDevice& graphics_device);
+
 	private:
 
 
@@ -55,7 +57,7 @@ namespace argent::graphics
 		D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view_;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> root_signature_;
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipeline_state_;
-
+		bool input_enter_ = false;
 
 		std::unique_ptr<Texture> texture_;
 	};
