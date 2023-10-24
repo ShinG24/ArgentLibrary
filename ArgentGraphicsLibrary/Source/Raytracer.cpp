@@ -5,8 +5,6 @@
 #include <fbxsdk.h>
 #include <functional>
 
-#include "../RootSignatureGenerator.h"
-
 #include "../External/Imgui/imgui.h"
 
 #include "../Inc/GraphicsCommon.h"

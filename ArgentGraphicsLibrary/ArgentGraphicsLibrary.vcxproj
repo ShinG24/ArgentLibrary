@@ -20,7 +20,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BottomLevelASGenerator.h" />
     <ClInclude Include="External\Imgui\imconfig.h" />
     <ClInclude Include="External\Imgui\imgui.h" />
     <ClInclude Include="External\Imgui\imgui_impl_dx12.h" />
@@ -55,22 +54,14 @@
     <ClInclude Include="Inc\Texture.h" />
     <ClInclude Include="Inc\TopLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\VertexBuffer.h" />
-    <ClInclude Include="RaytracingPipelineGenerator.h" />
-    <ClInclude Include="RootSignatureGenerator.h" />
-    <ClInclude Include="ShaderBindingTableGenerator.h" />
-    <ClInclude Include="TopLevelASGenerator.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BottomLevelASGenerator.cpp" />
     <ClCompile Include="External\Imgui\imgui.cpp" />
     <ClCompile Include="External\Imgui\imgui_draw.cpp" />
     <ClCompile Include="External\Imgui\imgui_impl_dx12.cpp" />
     <ClCompile Include="External\Imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="External\Imgui\imgui_tables.cpp" />
     <ClCompile Include="External\Imgui\imgui_widgets.cpp" />
-    <ClCompile Include="RaytracingPipelineGenerator.cpp" />
-    <ClCompile Include="RootSignatureGenerator.cpp" />
-    <ClCompile Include="ShaderBindingTableGenerator.cpp" />
     <ClCompile Include="Source\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -95,7 +86,6 @@
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\TopLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\VertexBuffer.cpp" />
-    <ClCompile Include="TopLevelASGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

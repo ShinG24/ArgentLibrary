@@ -32,21 +32,6 @@
     </ClInclude>
     <ClInclude Include="Inc\Raytracer.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
-    <ClInclude Include="RaytracingPipelineGenerator.h">
-      <Filter>External</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderBindingTableGenerator.h">
-      <Filter>External</Filter>
-    </ClInclude>
-    <ClInclude Include="BottomLevelASGenerator.h">
-      <Filter>External</Filter>
-    </ClInclude>
-    <ClInclude Include="RootSignatureGenerator.h">
-      <Filter>External</Filter>
-    </ClInclude>
-    <ClInclude Include="TopLevelASGenerator.h">
-      <Filter>External</Filter>
-    </ClInclude>
     <ClInclude Include="Inc\ConstantBuffer.h">
       <Filter>Direct3D12</Filter>
     </ClInclude>
@@ -138,21 +123,6 @@
     </ClCompile>
     <ClCompile Include="Source\Raytracer.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
-    <ClCompile Include="RaytracingPipelineGenerator.cpp">
-      <Filter>External</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderBindingTableGenerator.cpp">
-      <Filter>External</Filter>
-    </ClCompile>
-    <ClCompile Include="BottomLevelASGenerator.cpp">
-      <Filter>External</Filter>
-    </ClCompile>
-    <ClCompile Include="RootSignatureGenerator.cpp">
-      <Filter>External</Filter>
-    </ClCompile>
-    <ClCompile Include="TopLevelASGenerator.cpp">
-      <Filter>External</Filter>
-    </ClCompile>
     <ClCompile Include="External\Imgui\imgui.cpp">
       <Filter>External\Imgui</Filter>
     </ClCompile>
