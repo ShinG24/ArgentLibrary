@@ -90,15 +90,17 @@ float4 NormalLinearSampling(float2 uv, uint dimension)
 {
     float4 color = 0;
     color += normal_texture[uv]; //Center
-    
-    color += normal_texture[clamp(float2(uv.x - 1, uv.y), 0, dimension)]; //Left
-    color += normal_texture[clamp(float2(uv.x - 1, uv.y - 1), 0, dimension)]; //Left Top
-    color += normal_texture[clamp(float2(uv.x, uv.y - 1), 0, dimension)]; //Top
-    color += normal_texture[clamp(float2(uv.x + 1, uv.y - 1), 0, dimension)]; //Right Top
-    color += normal_texture[clamp(float2(uv.x + 1, uv.y), 0, dimension)]; //Right 
-    color += normal_texture[clamp(float2(uv.x + 1, uv.y + 1), 0, dimension)]; //Right Bottom
-    color += normal_texture[clamp(float2(uv.x, uv.y + 1), 0, dimension)]; //Bottom
-    color += normal_texture[clamp(float2(uv.x - 1, uv.y + 1), 0, dimension)]; //Left Bottom
+
+    float offset_pixel = 1.0f;
+
+    color += normal_texture[clamp(float2(uv.x - offset_pixel, uv.y               ), 0, dimension)]; //Left
+    color += normal_texture[clamp(float2(uv.x - offset_pixel, uv.y - offset_pixel), 0, dimension)]; //Left Top
+    color += normal_texture[clamp(float2(uv.x               , uv.y - offset_pixel), 0, dimension)]; //Top
+    color += normal_texture[clamp(float2(uv.x + offset_pixel, uv.y - offset_pixel), 0, dimension)]; //Right Top
+    color += normal_texture[clamp(float2(uv.x + offset_pixel, uv.y               ), 0, dimension)]; //Right 
+    color += normal_texture[clamp(float2(uv.x + offset_pixel, uv.y + offset_pixel), 0, dimension)]; //Right Bottom
+    color += normal_texture[clamp(float2(uv.x               , uv.y + offset_pixel), 0, dimension)]; //Bottom
+    color += normal_texture[clamp(float2(uv.x - offset_pixel, uv.y + offset_pixel), 0, dimension)]; //Left Bottom
     color /= 9.0f;
     return float4(color.rgb, 1.0f);
 }
@@ -124,17 +126,37 @@ float4 AlbedoLinearSampling(float2 uv, uint dimension)
 {
     float4 color = 0;
     color += albedo_texture[uv];//Center
+
+    float offset_pixel = 1.0f;
     
-    color += albedo_texture[clamp(float2(uv.x - 1, uv.y    ), 0, dimension)];//Left
-    color += albedo_texture[clamp(float2(uv.x - 1, uv.y - 1), 0, dimension)];//Left Top
-    color += albedo_texture[clamp(float2(uv.x    , uv.y - 1), 0, dimension)];//Top
-    color += albedo_texture[clamp(float2(uv.x + 1, uv.y - 1), 0, dimension)];//Right Top
-    color += albedo_texture[clamp(float2(uv.x + 1, uv.y    ), 0, dimension)];//Right 
-    color += albedo_texture[clamp(float2(uv.x + 1, uv.y + 1), 0, dimension)];//Right Bottom
-    color += albedo_texture[clamp(float2(uv.x    , uv.y + 1), 0, dimension)];//Bottom
-    color += albedo_texture[clamp(float2(uv.x - 1, uv.y + 1), 0, dimension)];//Left Bottom
+    color += albedo_texture[clamp(float2(uv.x - offset_pixel, uv.y               ), 0, dimension)];//Left
+    color += albedo_texture[clamp(float2(uv.x - offset_pixel, uv.y - offset_pixel), 0, dimension)];//Left Top
+    color += albedo_texture[clamp(float2(uv.x               , uv.y - offset_pixel), 0, dimension)];//Top
+    color += albedo_texture[clamp(float2(uv.x + offset_pixel, uv.y - offset_pixel), 0, dimension)];//Right Top
+    color += albedo_texture[clamp(float2(uv.x + offset_pixel, uv.y               ), 0, dimension)];//Right 
+    color += albedo_texture[clamp(float2(uv.x + offset_pixel, uv.y + offset_pixel), 0, dimension)];//Right Bottom
+    color += albedo_texture[clamp(float2(uv.x               , uv.y + offset_pixel), 0, dimension)];//Bottom
+    color += albedo_texture[clamp(float2(uv.x - offset_pixel, uv.y + offset_pixel), 0, dimension)]; //Left Bottom
     color /= 9.0f;
     return float4(color.rgb, 1.0f);
+}
+
+float4 AlbedoSampling(uint3 index, float2 barycentrics)
+{
+    float2 texcoord0 = vertices[index.x].texcoord_;
+    float2 texcoord1 = vertices[index.y].texcoord_;
+    float2 texcoord2 = vertices[index.z].texcoord_;
+    texcoord0.y = 1 - texcoord0.y;
+    texcoord1.y = 1 - texcoord1.y;
+    texcoord2.y = 1 - texcoord2.y;
+
+    uint2 dimension;
+    albedo_texture.GetDimensions(dimension.x, dimension.y);
+
+    float4 color0 = AlbedoLinearSampling(texcoord0 * dimension, dimension.x);
+    float4 color1 = AlbedoLinearSampling(texcoord1 * dimension, dimension.x);
+    float4 color2 = AlbedoLinearSampling(texcoord2 * dimension, dimension.x);
+    return color0 * (1 - barycentrics.x - barycentrics.y) + color1 * barycentrics.x + color2 * barycentrics.y;
 }
 
 #define _USE_MATERIAL_CONSTANT_ 1
@@ -159,7 +181,8 @@ void CubeHit(inout RayPayload payload, in HitAttribute attr)
     float3 normal = CalcNormal(world_normal, world_tangent.xyz, world_binormal.xyz, normal_texcoord);
 
 
-    float4 albedo_color = AlbedoLinearSampling(albedo_texcoord, width);
+    float4 albedo_color = AlbedoSampling(index, attr.barycentrics);
+    //float4 albedo_color = AlbedoLinearSampling(albedo_texcoord, width);
     //float4 albedo_color = albedo_texture[albedo_texcoord.xy] * 4.0f;
 
     //Do Raytracing

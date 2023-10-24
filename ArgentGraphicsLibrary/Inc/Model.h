@@ -71,6 +71,8 @@ namespace argent::game_resource
 			float specular_power_{ 50.0f };
 		};
 
+		void Awake();
+
 		void CopyToGpu()
 		{
 			constant_buffer_->CopyToGpu(data_, 0);
@@ -100,10 +102,16 @@ namespace argent::game_resource
 	public:
 		enum RootSignatureBinding
 		{
-			
+			MaterialCbv,
+			AlbedoTexture,
+			NormalTexture,
+			VertexBufferGpuDescriptorHandle,
+			Counts,
 		};
 	public:
 
+		void Awake();
+		std::vector<void*> GetShaderBindingData();
 	private:
 		std::vector<void*> shader_binding_data_;
 		Mesh mesh_;
