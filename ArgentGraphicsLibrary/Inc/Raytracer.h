@@ -23,12 +23,15 @@
 
 #include "ShaderBindingTable.h"
 #include "RaytracingPipelineState.h"
+#include "RootSignature.h"
 
 using namespace DirectX;
 
 using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
 using float4 = DirectX::XMFLOAT4;
+
+#define _USE_ROOT_SIGNATURE_GENERATOR_	0
 
 struct Vertex
 {
@@ -92,10 +95,6 @@ namespace argent::graphics
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_intersection_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_closest_hit_library_;
 
-		//Root Signature
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> global_root_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> shared_local_root_signature_;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_local_root_signature_;
 
 		//Output buffer
 		Microsoft::WRL::ComPtr<ID3D12Resource> output_buffer_;
@@ -276,5 +275,18 @@ namespace argent::graphics
 		dxr::ShaderBindingTable hit_group_shader_table_;
 
 		dxr::RaytracingPipelineState pipeline_state_;
+
+#if _USE_ROOT_SIGNATURE_GENERATOR_
+
+		//Root Signature
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> global_root_signature_;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> shared_local_root_signature_;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> hit_local_root_signature_;
+#else
+
+		RootSignature global_root_signature_;
+		RootSignature raygen_miss_root_signature_;
+		RootSignature hit_group_root_signature_;
+#endif
 	};
 }

@@ -27,9 +27,9 @@ namespace argent::graphics
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
 		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/T_Anchor_00_BC.png", false);
+			L"./Assets/Model/Texture/Coral.png", false);
 		texture1_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/T_Anchor_00_N.png", false);
+			L"./Assets/Model/Texture/CoralN.png", false);
 		skymaps_[0] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
 			L"./Assets/Images/Skymap00.dds", true);
 		skymaps_[1] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
@@ -37,7 +37,7 @@ namespace argent::graphics
 		skymaps_[2] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
 			L"./Assets/Images/Skymap02.dds", true);
 		skymaps_[3] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Image.dds", true);
+			L"./Assets/Images/Skymap03.dds", true);
 
 		width_ = width;
 		height_ = height;
@@ -77,7 +77,7 @@ namespace argent::graphics
 
 
 		//Fbx Loader
-		FbxLoader("./Assets/Model/SM_Anchor_00.fbx");
+		FbxLoader("./Assets/Model/Coral.fbx");
 
 		CreateAS(graphics_device, command_list, command_queue);
 		CreatePipeline(graphics_device);
@@ -164,7 +164,11 @@ namespace argent::graphics
 
 		//Set Global Raytracing RootSignature Resource
 		{
+#if _USE_ROOT_SIGNATURE_GENERATOR_
 			command_list->SetComputeRootSignature(global_root_signature_.Get());
+#else
+			command_list->SetComputeRootSignature(global_root_signature_.GetRootSignatureObject());
+#endif
 			//OutputBuffer & TLAS
 			command_list->SetComputeRootDescriptorTable(0u, output_descriptor_.gpu_handle_);
 			command_list->SetComputeRootConstantBufferView(1u, scene_constant_gpu_handle);
@@ -357,6 +361,7 @@ namespace argent::graphics
 	{
 		//Create Dummy Root Signature
 		{
+#if _USE_ROOT_SIGNATURE_GENERATOR_
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 
 			rsc.AddHeapRangesParameter(
@@ -370,17 +375,36 @@ namespace argent::graphics
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
 
 			global_root_signature_ = rsc.Generate(graphics_device.GetDevice(), false);
+
+#else
+			global_root_signature_.AddHeapRangeParameters(
+				{
+				{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV},
+				{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV}
+				}
+			);
+			global_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
+			global_root_signature_.Create(&graphics_device, false);
+#endif
 		}
 
 		//Shared root signature
 		{
+#if _USE_ROOT_SIGNATURE_GENERATOR_
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);
 			rsc.AddHeapRangesParameter({ {0u, kSkymapCounts, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u} });	//For Skymap
 			shared_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true);
+#else
+			raygen_miss_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);
+			raygen_miss_root_signature_.AddHeapRangeParameter(0u, kSkymapCounts, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);
+			raygen_miss_root_signature_.Create(&graphics_device, true);
+#endif
+
 		}
 
 		{
+#if _USE_ROOT_SIGNATURE_GENERATOR_
 			nv_helpers_dx12::RootSignatureGenerator rsc;
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
 			rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
@@ -388,6 +412,14 @@ namespace argent::graphics
 			rsc.AddHeapRangesParameter({ {1u, 1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u}});	//For Normal
 			rsc.AddHeapRangesParameter({{2u, 2u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}});	//For Vertex Buffer and Index Buffer
 			hit_local_root_signature_ = rsc.Generate(graphics_device.GetDevice(), true	);
+#else
+			hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
+			hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
+			hit_group_root_signature_.AddHeapRangeParameter(0u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Abledo
+			hit_group_root_signature_.AddHeapRangeParameter(1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Normal
+			hit_group_root_signature_.AddHeapRangeParameter(2u, 2u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
+			hit_group_root_signature_.Create(&graphics_device, true);
+#endif
 		}
 
 		//Compile the shader library.
@@ -423,16 +455,25 @@ namespace argent::graphics
 
 		//Add Root Signature Association
 		{
+#if _USE_ROOT_SIGNATURE_GENERATOR_
 			pipeline_state_.AddRootSignatureAssociation(shared_local_root_signature_.Get(), {{L"RayGen"}, {L"Miss"}});
 			pipeline_state_.AddRootSignatureAssociation(hit_local_root_signature_.Get(),
 				{ {L"HitGroup"}, {L"HitGroup1"},  {L"HitGroup2"},  {L"HitGroupSphere"}});
+#else
+			pipeline_state_.AddRootSignatureAssociation(raygen_miss_root_signature_.GetRootSignatureObject(), {{L"RayGen"}, {L"Miss"}});
+			pipeline_state_.AddRootSignatureAssociation(hit_group_root_signature_.GetRootSignatureObject(),
+				{ {L"HitGroup"}, {L"HitGroup1"},  {L"HitGroup2"},  {L"HitGroupSphere"}});
+#endif
 		}
 
 		pipeline_state_.SetMaxAttributeSize(3 * sizeof(float));
 		pipeline_state_.SetMaxPayloadSize(sizeof(RayPayload));
 		pipeline_state_.SetMaxRecursionDepth(_MAX_RECURSION_DEPTH_);
-
+#if _USE_ROOT_SIGNATURE_GENERATOR_
 		pipeline_state_.Generate(&graphics_device, global_root_signature_.Get(), shared_local_root_signature_.Get());
+#else
+		pipeline_state_.Generate(&graphics_device, global_root_signature_.GetRootSignatureObject(), raygen_miss_root_signature_.GetRootSignatureObject());
+#endif
 	}
 
 	void Raytracer::CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height)
