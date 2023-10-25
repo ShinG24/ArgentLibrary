@@ -102,6 +102,7 @@ namespace argent::graphics
 		{
 			Plane,
 			Sphere,
+		//	Sphere1,
 
 			CoralRock,
 			Coral0,
@@ -113,7 +114,6 @@ namespace argent::graphics
 
 			GoldDome,
 
-			Basket0,
 			WoodTable0,
 			TreasureChest,
 			Skull,
@@ -133,6 +133,10 @@ namespace argent::graphics
 			Book03,
 			BookOpen,
 
+			BlueCrystal01,
+			RedCrystal01,
+			PurpleCrystal01,
+
 			GeometryTypeCount,
 		};
 
@@ -141,6 +145,7 @@ namespace argent::graphics
 		{
 			"Plane",
 			"Sphere",
+		//	"Sphere1",
 
 			"CoralRock",
 			"Coral0",
@@ -152,7 +157,6 @@ namespace argent::graphics
 
 			"GoldDome",
 
-			"Basket0",
 			"WoodTable",
 			"TreasureChest",
 			"Skull",
@@ -172,6 +176,10 @@ namespace argent::graphics
 			"Book03",
 			"BookOpen",
 
+			"BlueCrystal01",
+			"RedCrystal01",
+			"PurpleCrystal01",
+
 
 		};
 
@@ -179,6 +187,7 @@ namespace argent::graphics
 		{
 			L"HG_Plane",
 			L"HG_Sphere",
+		//	L"HG_Sphere1",
 
 			L"HG_CoralRock",
 			L"HG_Coral0",
@@ -190,7 +199,6 @@ namespace argent::graphics
 
 			L"HG_GoldDome",
 
-			L"HG_Basket0",
 			L"HG_WoodTable",
 			L"HG_TreasureChest",
 			L"HG_Skull",
@@ -209,6 +217,10 @@ namespace argent::graphics
 			L"HG_Book02",
 			L"HG_Book03",
 			L"HG_BookOpen",
+
+			L"HG_BlueCrystal01",
+			L"HG_RedCrystal01",
+			L"HG_PurpleCrystal01",
 		};
 
 		std::string filepaths[GeometryTypeCount - kNoModelGeometryCounts]
@@ -223,7 +235,6 @@ namespace argent::graphics
 
 			"./Assets/Model/GoldDome.fbx",
 
-			"./Assets/Model/WeaverBasket_0.fbx",
 			"./Assets/Model/TableWood_0.fbx",
 			"./Assets/Model/TreasureChest.fbx",
 			"./Assets/Model/SkeletonSkull.fbx",
@@ -242,6 +253,10 @@ namespace argent::graphics
 			"./Assets/Model/Book_02.fbx",
 			"./Assets/Model/Book_03.fbx",
 			"./Assets/Model/BookOpen.fbx",
+
+			"./Assets/Model/Crystal_01_Blue.fbx",
+			"./Assets/Model/CrystalRed.fbx",
+			"./Assets/Model/CrystalPurple.fbx",
 		};
 
 
@@ -289,6 +304,7 @@ namespace argent::graphics
 
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_intersection_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> sphere1_library_;
 
 
 		//Output buffer

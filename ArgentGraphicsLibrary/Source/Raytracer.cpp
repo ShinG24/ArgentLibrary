@@ -155,6 +155,22 @@ namespace argent::graphics
 			transforms_[BookOpen].rotation_ = { -1.57f, 0.0f, 0.0f };
 
 		}
+
+		//Crystal
+		{
+			transforms_[BlueCrystal01].position_ = { -0.0f, 50.0f, -500.0f };
+			transforms_[BlueCrystal01].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[BlueCrystal01].rotation_ = { -1.57f, 0.0f, 0.0f };
+
+			transforms_[RedCrystal01].position_ = { 300.0f, 50.0f, -500.0f };
+			transforms_[RedCrystal01].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[RedCrystal01].rotation_ = { -1.57f, 0.0f, 0.0f };
+
+			transforms_[PurpleCrystal01].position_ = { -300.0f, 50.0f, -500.0f };
+			transforms_[PurpleCrystal01].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[PurpleCrystal01].rotation_ = { -1.57f, 0.0f, 0.0f };
+
+		}
 		//Initialize Sphere
 		{
 			materials_[Plane].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -339,6 +355,20 @@ namespace argent::graphics
 
 			vertex_buffers_[Sphere] = std::make_unique<VertexBuffer>(&graphics_device,
 				&rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
+
+
+			aabb_size = 1000.0f;
+
+			rt_aabb.MaxX = 
+			rt_aabb.MaxY = 
+			rt_aabb.MaxZ = aabb_size;
+			rt_aabb.MinX = 
+			rt_aabb.MinY = 
+			rt_aabb.MinZ = -aabb_size;
+
+			//vertex_buffers_[Sphere1] = std::make_unique<VertexBuffer>(&graphics_device,
+			//	&rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
+
 		}
 	}
 
@@ -428,13 +458,14 @@ namespace argent::graphics
 			pipeline_state_.AddLibrary(miss_library_.Get(), {L"Miss"});
 			pipeline_state_.AddLibrary(plane_library_.Get(), {L"PlaneClosestHit"});
 			pipeline_state_.AddLibrary(static_mesh_library_.Get(), {L"StaticMeshClosestHit"});
-			pipeline_state_.AddLibrary(sphere_library_.Get(), {{L"SphereClosestHit"}, {L"SphereIntersection"}});
+			pipeline_state_.AddLibrary(sphere_library_.Get(), {{L"SphereClosestHit"}, {L"SphereIntersection"}, {L"SphereIntersection1"}});
 		}
 
 		//Add Hit Group
 		{
 			pipeline_state_.AddHitGroup(kHitGroupName[Plane], L"PlaneClosestHit");
 			pipeline_state_.AddHitGroup(kHitGroupName[Sphere], L"SphereClosestHit", L"", L"SphereIntersection");
+		//	pipeline_state_.AddHitGroup(kHitGroupName[Sphere1], L"SphereClosestHit", L"", L"SphereIntersection1");
 
 			for(int i = kNoModelGeometryCounts; i < GeometryTypeCount; ++i)
 			{
@@ -560,6 +591,11 @@ namespace argent::graphics
 			tables.at(Sphere).input_data_.resize(RootSignatureBinderCount);
 			tables.at(Sphere).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Sphere);
 			tables.at(Sphere).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Sphere);
+
+			//tables.at(Sphere1).shader_identifier_ = kHitGroupName.at(Sphere1);
+			//tables.at(Sphere1).input_data_.resize(RootSignatureBinderCount);
+			//tables.at(Sphere1).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Sphere1);
+			//tables.at(Sphere1).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Sphere1);
 
 			//For Coral
 
