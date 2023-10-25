@@ -30,7 +30,7 @@ namespace argent::platform
 
 		DWORD window_style = WS_OVERLAPPEDWINDOW/* ^ WS_MAXIMIZEBOX*/ ^ WS_THICKFRAME;
 
-		hwnd_ = CreateWindowExW(0, wc.lpszClassName, L"Argent Engine",
+		hwnd_ = CreateWindowExW(0, wc.lpszClassName, L"Real-Time Raytracing With DXR",
 			window_style, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left,
 			rc.bottom - rc.top, nullptr, nullptr,
 			wc.hInstance, nullptr);

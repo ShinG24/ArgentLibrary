@@ -115,6 +115,46 @@ namespace argent::graphics
 			transforms_[Flower3].scaling_ = { 1.0f, 1.0f, 1.0f };
 			transforms_[Flower3].rotation_ = { -1.57f, 0.0f, 0.0f };
 		}
+
+		//Rock Object
+		{
+			transforms_[Cliff].position_ = { -500.0f, 500.0f, 500.0f };
+			transforms_[Cliff].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[Cliff].rotation_ = { -1.57f, 0.0f, 0.0f };
+
+			transforms_[DecorPillarA].position_ = { -500.0f, -5.0f, 500.0f };
+			transforms_[DecorPillarA].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[DecorPillarA].rotation_ = { -1.57f, 0.0f, 0.0f };
+
+			transforms_[DecorPillarB].position_ = { -500.0f, -5.0f, 400.0f };
+			transforms_[DecorPillarB].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[DecorPillarB].rotation_ = { -1.57f, 0.0f, 0.0f };
+
+			transforms_[EntryTotem].position_ = { -500.0f, -5.0f, 300.0f };
+			transforms_[EntryTotem].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[EntryTotem].rotation_ = { -1.57f, 0.0f, 0.0f };
+
+		}
+
+		//Book
+		{
+			transforms_[Book01].position_ = { 100.0f, 46.3f, -10.0f };
+			transforms_[Book01].scaling_ = { 0.3f, 0.3f, 0.3f };
+			transforms_[Book01].rotation_ = { -1.57f, 2.0f, 0.0f };
+
+			transforms_[Book02].position_ = { 100.0f, 51.33f, -21.68f };
+			transforms_[Book02].scaling_ = { 0.3f, 0.3f, 0.3f };
+			transforms_[Book02].rotation_ = { -1.2f, -2.689f, 0.0f };
+
+			transforms_[Book03].position_ = { 100.0f, 47.0f, -50.0f };
+			transforms_[Book03].scaling_ = { 0.3f, 0.3f, 0.3f };
+			transforms_[Book03].rotation_ = { -1.57f, -1.570f, 0.0f };
+
+			transforms_[BookOpen].position_ = { 100.0f, 47.0f, -82.0f };
+			transforms_[BookOpen].scaling_ = { 0.3f, 0.3f, 0.3f };
+			transforms_[BookOpen].rotation_ = { -1.57f, 0.0f, 0.0f };
+
+		}
 		//Initialize Sphere
 		{
 			materials_[Plane].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);

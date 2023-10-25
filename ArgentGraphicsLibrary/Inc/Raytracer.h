@@ -122,6 +122,17 @@ namespace argent::graphics
 			Flower1,
 			Flower2,
 			Flower3,
+
+			Cliff,
+			DecorPillarA,
+			DecorPillarB,
+			EntryTotem,
+
+			Book01,
+			Book02,
+			Book03,
+			BookOpen,
+
 			GeometryTypeCount,
 		};
 
@@ -151,6 +162,16 @@ namespace argent::graphics
 			"Flower2",
 			"Flower3",
 
+			"Cliff",
+			"DecorPillarA",
+			"DecorPillarB",
+			"EntryTotem",
+
+			"Book01",
+			"Book02",
+			"Book03",
+			"BookOpen",
+
 
 		};
 
@@ -178,6 +199,16 @@ namespace argent::graphics
 			L"HG_Flower1",
 			L"HG_Flower2",
 			L"HG_Flower3",
+
+			L"HG_Cliff",
+			L"HG_DecorPillarA",
+			L"HG_DecorPillarB",
+			L"HG_EntryTotem",
+
+			L"HG_Book01",
+			L"HG_Book02",
+			L"HG_Book03",
+			L"HG_BookOpen",
 		};
 
 		std::string filepaths[GeometryTypeCount - kNoModelGeometryCounts]
@@ -201,6 +232,16 @@ namespace argent::graphics
 			"./Assets/Model/Flower_1.fbx",
 			"./Assets/Model/Flower_2.fbx",
 			"./Assets/Model/Flower_3.fbx",
+
+			"./Assets/Model/Cliff_01.fbx",
+			"./Assets/Model/DecorPillar_A.fbx",
+			"./Assets/Model/DecorPillar_B.fbx",
+			"./Assets/Model/EntryDecor.fbx",
+
+			"./Assets/Model/Book_01.fbx",
+			"./Assets/Model/Book_02.fbx",
+			"./Assets/Model/Book_03.fbx",
+			"./Assets/Model/BookOpen.fbx",
 		};
 
 
