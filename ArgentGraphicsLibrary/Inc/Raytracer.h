@@ -35,7 +35,7 @@ using float4 = DirectX::XMFLOAT4;
 
 struct Transform
 {
-	DirectX::XMFLOAT3 position_{};
+	DirectX::XMFLOAT3 position_{ 0.0f, 0.0f, 500.0f };
 	DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT3 rotation_{};
 	INT coordinate_system_index_;
@@ -101,8 +101,14 @@ namespace argent::graphics
 		enum GeometryType
 		{
 			Plane,
-			SphereAABB,
+			Sphere,
+			CoralRock,
 			Coral0,
+			Coral4,
+			Coral5,
+			Coral6,
+			Coral7,
+			Coral8,
 			GoldDome,
 			Basket0,
 			WoodTable0,
@@ -113,8 +119,14 @@ namespace argent::graphics
 		std::string name[GeometryTypeCount]
 		{
 			"Plane",
-			"SphereAABB",
+			"Sphere",
+			"CoralRock",
 			"Coral0",
+			"Coral4",
+			"Coral5",
+			"Coral6",
+			"Coral7",
+			"Coral8",
 			"GoldDome",
 			"Basket0",
 			"WoodTable",
@@ -124,7 +136,13 @@ namespace argent::graphics
 		{
 			L"HG_Plane",
 			L"HG_Sphere",
+			L"HG_CoralRock",
 			L"HG_Coral0",
+			L"HG_Coral4",
+			L"HG_Coral5",
+			L"HG_Coral6",
+			L"HG_Coral7",
+			L"HG_Coral8",
 			L"HG_GoldDome",
 			L"HG_Basket0",
 			L"HG_WoodTable",
@@ -132,7 +150,13 @@ namespace argent::graphics
 
 		std::string filepaths[GeometryTypeCount - kNoModelGeometryCounts]
 		{
-			"./Assets/Model/Coral.fbx",
+			"./Assets/Model/CoralRock.fbx",
+			"./Assets/Model/Coral_0.fbx",
+			"./Assets/Model/Coral_4.fbx",
+			"./Assets/Model/Coral_5.fbx",
+			"./Assets/Model/Coral_6.fbx",
+			"./Assets/Model/Coral_7.fbx",
+			"./Assets/Model/Coral_8.fbx",
 			"./Assets/Model/GoldDome.fbx",
 			"./Assets/Model/WeaverBasket_0.fbx",
 			"./Assets/Model/TableWood_0.fbx",

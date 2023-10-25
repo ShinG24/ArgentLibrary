@@ -32,5 +32,6 @@ namespace argent::graphics
 		std::future<void> wait_for_finish_upload_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource_object_;
 		Descriptor descriptor_;
+		bool need_to_wait_ = true;
 	};
 }

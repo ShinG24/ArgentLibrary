@@ -10,6 +10,11 @@
 #include "../Inc/CommandQueue.h"
 #include "../Inc/DescriptorHeap.h"
 
+#include <unordered_map>
+
+
+std::unordered_map<std::wstring, argent::graphics::Descriptor> loaded_texture;
+
 namespace argent::graphics
 {
 	void CreateDummyTexture(const GraphicsDevice* graphics_device, ID3D12Resource** pp_resource);
@@ -17,47 +22,63 @@ namespace argent::graphics
 	Texture::Texture(const GraphicsDevice* graphics_device, const CommandQueue* command_queue,
 		DescriptorHeap* cbv_srv_uav_heap, const wchar_t* filename)
 	{
-		descriptor_ = cbv_srv_uav_heap->PopDescriptor();
-		DirectX::ResourceUploadBatch resource_upload_batch(graphics_device->GetDevice());
-
-		resource_upload_batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-		HRESULT hr{ S_OK };
-
-		std::filesystem::path path = filename;
-		path.replace_extension(".DDS");
-
-		if(std::filesystem::exists(path))
+		if(loaded_texture.contains(filename))
 		{
-			hr = DirectX::CreateDDSTextureFromFile(graphics_device->GetDevice(), resource_upload_batch, filename,
-				resource_object_.ReleaseAndGetAddressOf());}
+			descriptor_ = loaded_texture[filename];
+			need_to_wait_ = false;
+		}
 		else
 		{
-			hr = DirectX::CreateWICTextureFromFile(graphics_device->GetDevice(), 
-				resource_upload_batch, filename,
-				resource_object_.ReleaseAndGetAddressOf());
+			need_to_wait_ = true;
+			descriptor_ = cbv_srv_uav_heap->PopDescriptor();
+			DirectX::ResourceUploadBatch resource_upload_batch(graphics_device->GetDevice());
+
+			resource_upload_batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+			HRESULT hr{ S_OK };
+
+			std::filesystem::path path = filename;
+			path.replace_extension(".DDS");
+
+			if(std::filesystem::exists(path))
+			{
+				hr = DirectX::CreateDDSTextureFromFile(graphics_device->GetDevice(), resource_upload_batch, filename,
+					resource_object_.ReleaseAndGetAddressOf());}
+			else
+			{
+				hr = DirectX::CreateWICTextureFromFile(graphics_device->GetDevice(), 
+					resource_upload_batch, filename,
+					resource_object_.ReleaseAndGetAddressOf());
+			}
+
+			if(FAILED(hr))
+			{
+				CreateDummyTexture(graphics_device, resource_object_.ReleaseAndGetAddressOf());	
+			}
+
+			wait_for_finish_upload_ = resource_upload_batch.End(command_queue->GetCommandQueue());
+
+			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+			desc.Format = resource_object_->GetDesc().Format;
+			desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			desc.Texture2D.MipLevels = resource_object_->GetDesc().MipLevels;
+
+			graphics_device->GetDevice()->CreateShaderResourceView(resource_object_.Get(), &desc,
+				descriptor_.cpu_handle_);
+
+			loaded_texture[filename] = descriptor_;
+			
 		}
 
-		if(FAILED(hr))
-		{
-			CreateDummyTexture(graphics_device, resource_object_.ReleaseAndGetAddressOf());	
-		}
-
-		wait_for_finish_upload_ = resource_upload_batch.End(command_queue->GetCommandQueue());
-
-		D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
-		desc.Format = resource_object_->GetDesc().Format;
-		desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		desc.Texture2D.MipLevels = resource_object_->GetDesc().MipLevels;
-
-		graphics_device->GetDevice()->CreateShaderResourceView(resource_object_.Get(), &desc,
-			descriptor_.cpu_handle_);
 	}
 
 	void Texture::WaitBeforeUse()
 	{
-		wait_for_finish_upload_.wait();
+		if(need_to_wait_)
+		{
+			wait_for_finish_upload_.wait();
+		}
 	}
 
 

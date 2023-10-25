@@ -101,7 +101,7 @@ namespace argent::graphics
 		std::unique_ptr<ConstantBuffer<SceneConstant>> scene_constant_buffer_;
 
 		//Camera
-		DirectX::XMFLOAT4 camera_position_{ 0.0, 20.0f, -30.0f, 1.0f };
+		DirectX::XMFLOAT4 camera_position_{ 0.0, 100.0f, -100.0f, 1.0f };
 		DirectX::XMFLOAT3 camera_rotation_{ 0.36f, 0.0f, 0.0f};
 		float near_z_ = 0.1f;
 		float far_z_ = 1000.0f;

@@ -83,37 +83,39 @@ namespace argent::game_resource
 			ImGui::DragFloat("Specular Coef", &data_.specular_coefficient_, 0.001f, 0.0f, 1.0f);
 			ImGui::DragFloat("Reflectance Coef", &data_.reflectance_coefficient_, 0.001f, 0.0f, 1.0f);
 			ImGui::DragFloat("Specular Power", &data_.specular_power_, 0.1f, 0.0f, 100.0f);
-
 			ImGui::DragFloat2("Texcoord Offset", &data_.texcoord_offset_.x, 0.001f, 0.0, 1.0f);
 
-			if(!albedo_texture_name_.empty())
+			if(ImGui::TreeNode("Texture"))
 			{
-				ImGui::Text("Albedo");
-				ImGui::Image(reinterpret_cast<ImTextureID>(GetAlbedoTextureGpuHandle().ptr), ImVec2(256, 256));
-			}
-			if(!normal_texture_name_.empty())
-			{
-				ImGui::Text("Normal");	
-				ImGui::Image(reinterpret_cast<ImTextureID>(GetNormalTextureGpuHandle().ptr), ImVec2(256, 256));
-			}
-	#ifdef _DEBUG
-			ImGui::Text(albedo_texture_name_.c_str());
-			ImGui::InputText("AlbedoTextureFilePath", &albedo_texture_path_replacement_.at(0), albedo_texture_path_replacement_.capacity());
-			if(ImGui::Button("Accept Albedo"))
-			{
-				albedo_texture_name_ = albedo_texture_path_replacement_;
-			}
+				if(!albedo_texture_name_.empty())
+				{
+					ImGui::Text("Albedo");
+					ImGui::Image(reinterpret_cast<ImTextureID>(GetAlbedoTextureGpuHandle().ptr), ImVec2(256, 256));
+				}
+				if(!normal_texture_name_.empty())
+				{
+					ImGui::Text("Normal");	
+					ImGui::Image(reinterpret_cast<ImTextureID>(GetNormalTextureGpuHandle().ptr), ImVec2(256, 256));
+				}
+		#ifdef _DEBUG
+				ImGui::Text(albedo_texture_name_.c_str());
+				ImGui::InputText("AlbedoTextureFilePath", &albedo_texture_path_replacement_.at(0), albedo_texture_path_replacement_.capacity());
+				if(ImGui::Button("Accept Albedo"))
+				{
+					albedo_texture_name_ = albedo_texture_path_replacement_;
+				}
 
-			ImGui::Text(normal_texture_name_.c_str());
-			ImGui::InputText("NormalTextureFilePath", &normal_texture_path_replacement_.at(0), normal_texture_path_replacement_.capacity());
-			if(ImGui::Button("Accept Normal"))
-			{
-				normal_texture_name_ = normal_texture_path_replacement_;
-			}
+				ImGui::Text(normal_texture_name_.c_str());
+				ImGui::InputText("NormalTextureFilePath", &normal_texture_path_replacement_.at(0), normal_texture_path_replacement_.capacity());
+				if(ImGui::Button("Accept Normal"))
+				{
+					normal_texture_name_ = normal_texture_path_replacement_;
+				}
 
 
 	#endif
-
+				ImGui::TreePop();
+			}
 			ImGui::TreePop();
 		}
 

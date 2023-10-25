@@ -47,11 +47,42 @@ namespace argent::graphics
 
 		object_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
-		transforms_[Plane].position_.y = -5.0f;
-		transforms_[Plane].scaling_ = DirectX::XMFLOAT3(200.0f, 1.0f, 200.0f);
-		transforms_[Coral0].position_.x = 3.0f;
-		transforms_[SphereAABB].position_.z = 10.0f;
+		transforms_[Plane].position_ = {0.0f, -5.0f, 0.0f };
+		transforms_[Plane].scaling_ = DirectX::XMFLOAT3(1000.0f, 1.0f, 1000.0f);
+		transforms_[Sphere].position_ = { 0.0f, 50.0f, 100.0f };
 
+		//For Coral Group
+		{
+			transforms_[CoralRock].position_ = { -50.0f, 10.0f, 0.0f };
+			transforms_[CoralRock].scaling_ = { 0.1f, 0.1f, 0.1f};
+			transforms_[CoralRock].rotation_ = { 2.2f, -3.8f, 0.0f };
+			transforms_[Coral0].position_ = { -35.f, 13.f, 0.f};
+			transforms_[Coral0].scaling_ = { 0.1f, 0.1f, 0.1f };
+			transforms_[Coral0].rotation_ = { -2.2f, -1.465f, -5.36f };
+			transforms_[Coral4].position_ = { -47.58f, 19.33f, 0.0f};
+			transforms_[Coral4].scaling_ = { 0.1f, 0.1f, 0.1f};
+			transforms_[Coral4].rotation_ = { -1.832f, -0.843f, 0.0f};
+			transforms_[Coral5].position_ = { -53.49, 21.f, -0.7f};
+			transforms_[Coral5].scaling_ = { 0.2f, 0.2f, 0.2f};
+			transforms_[Coral5].rotation_ = { -2.015f, -0.62f, 0.0f};
+			transforms_[Coral6].position_ = { -47.78f, 11.66f, -15.39f};
+			transforms_[Coral6].scaling_ = { 0.2f, 0.2f, 0.2f};
+			transforms_[Coral6].rotation_ = { -2.327f, -0.761f, 0.0f};
+			transforms_[Coral7].position_ = { -52.97f, 15.58f, -14.2f};
+			transforms_[Coral7].scaling_ = { 0.2f, 0.2f, 0.2f};
+			transforms_[Coral7].rotation_ = { -2.156f, -0.597f, 0.0f};
+			transforms_[Coral8].position_ = { -42.70f, 20.93f, 8.97f};
+			transforms_[Coral8].scaling_ = { 0.2f, 0.2f, 0.2f};
+			transforms_[Coral8].rotation_ = { -1.57f, -0.0f, 0.0f};
+
+		}
+
+		//For Rock Object
+		{
+			transforms_[GoldDome].position_ = { 500.0f, -5.0f, 500.0f };
+			transforms_[GoldDome].scaling_ = { 1.0f, 1.0f, 1.0f};
+			transforms_[GoldDome].rotation_ = { -1.57f, 3.0f, 0.0f };
+		}
 		//Initialize Sphere
 		{
 			materials_[Plane].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -59,11 +90,11 @@ namespace argent::graphics
 			materials_[Plane].specular_coefficient_ = 0.6f;
 			materials_[Plane].specular_power_ = 50.f;
 			materials_[Plane].reflectance_coefficient_ = 0.8f;
-			materials_[SphereAABB].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
-			materials_[SphereAABB].diffuse_coefficient_ = 0.2f;
-			materials_[SphereAABB].specular_coefficient_ = 0.9f;
-			materials_[SphereAABB].specular_power_ = 50.f;
-			materials_[SphereAABB].reflectance_coefficient_ = 1.0f;
+			materials_[Sphere].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
+			materials_[Sphere].diffuse_coefficient_ = 0.2f;
+			materials_[Sphere].specular_coefficient_ = 0.9f;
+			materials_[Sphere].specular_power_ = 50.f;
+			materials_[Sphere].reflectance_coefficient_ = 1.0f;
 		}
 
 
@@ -225,7 +256,7 @@ namespace argent::graphics
 		{
 			Microsoft::WRL::ComPtr<ID3D12Resource> aabb_buffer_;
 			D3D12_RAYTRACING_AABB rt_aabb;
-			float aabb_size = 10.0f;
+			float aabb_size = 100.0f;
 
 			rt_aabb.MaxX = 
 			rt_aabb.MaxY = 
@@ -234,7 +265,7 @@ namespace argent::graphics
 			rt_aabb.MinY = 
 			rt_aabb.MinZ = -aabb_size;
 
-			vertex_buffers_[SphereAABB] = std::make_unique<VertexBuffer>(&graphics_device,
+			vertex_buffers_[Sphere] = std::make_unique<VertexBuffer>(&graphics_device,
 				&rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
 		}
 	}
@@ -249,7 +280,7 @@ namespace argent::graphics
 		//Add Bottom Level
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
-			bool triangle = i != SphereAABB;
+			bool triangle = i != Sphere;
 			dxr::BLASBuildDesc build_desc;
 
 			if(i < kNoModelGeometryCounts)
@@ -331,7 +362,7 @@ namespace argent::graphics
 		//Add Hit Group
 		{
 			pipeline_state_.AddHitGroup(kHitGroupName[Plane], L"PlaneClosestHit");
-			pipeline_state_.AddHitGroup(kHitGroupName[SphereAABB], L"SphereClosestHit", L"", L"SphereIntersection");
+			pipeline_state_.AddHitGroup(kHitGroupName[Sphere], L"SphereClosestHit", L"", L"SphereIntersection");
 
 			for(int i = kNoModelGeometryCounts; i < GeometryTypeCount; ++i)
 			{
@@ -453,10 +484,10 @@ namespace argent::graphics
 			tables.at(Plane).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
 
 			//For Sphere
-			tables.at(SphereAABB).shader_identifier_ = kHitGroupName.at(SphereAABB);
-			tables.at(SphereAABB).input_data_.resize(RootSignatureBinderCount);
-			tables.at(SphereAABB).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
-			tables.at(SphereAABB).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
+			tables.at(Sphere).shader_identifier_ = kHitGroupName.at(Sphere);
+			tables.at(Sphere).input_data_.resize(RootSignatureBinderCount);
+			tables.at(Sphere).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Sphere);
+			tables.at(Sphere).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Sphere);
 
 			//For Coral
 
