@@ -102,6 +102,7 @@ namespace argent::graphics
 		{
 			Plane,
 			Sphere,
+
 			CoralRock,
 			Coral0,
 			Coral4,
@@ -109,9 +110,18 @@ namespace argent::graphics
 			Coral6,
 			Coral7,
 			Coral8,
+
 			GoldDome,
+
 			Basket0,
 			WoodTable0,
+			TreasureChest,
+			Skull,
+
+			Flower0,
+			Flower1,
+			Flower2,
+			Flower3,
 			GeometryTypeCount,
 		};
 
@@ -120,6 +130,7 @@ namespace argent::graphics
 		{
 			"Plane",
 			"Sphere",
+
 			"CoralRock",
 			"Coral0",
 			"Coral4",
@@ -127,15 +138,27 @@ namespace argent::graphics
 			"Coral6",
 			"Coral7",
 			"Coral8",
+
 			"GoldDome",
+
 			"Basket0",
 			"WoodTable",
+			"TreasureChest",
+			"Skull",
+
+			"Flower0",
+			"Flower1",
+			"Flower2",
+			"Flower3",
+
+
 		};
 
 		std::vector<std::wstring> kHitGroupName/*[GeometryTypeCount]*/
 		{
 			L"HG_Plane",
 			L"HG_Sphere",
+
 			L"HG_CoralRock",
 			L"HG_Coral0",
 			L"HG_Coral4",
@@ -143,9 +166,18 @@ namespace argent::graphics
 			L"HG_Coral6",
 			L"HG_Coral7",
 			L"HG_Coral8",
+
 			L"HG_GoldDome",
+
 			L"HG_Basket0",
 			L"HG_WoodTable",
+			L"HG_TreasureChest",
+			L"HG_Skull",
+
+			L"HG_Flower0",
+			L"HG_Flower1",
+			L"HG_Flower2",
+			L"HG_Flower3",
 		};
 
 		std::string filepaths[GeometryTypeCount - kNoModelGeometryCounts]
@@ -157,9 +189,18 @@ namespace argent::graphics
 			"./Assets/Model/Coral_6.fbx",
 			"./Assets/Model/Coral_7.fbx",
 			"./Assets/Model/Coral_8.fbx",
+
 			"./Assets/Model/GoldDome.fbx",
+
 			"./Assets/Model/WeaverBasket_0.fbx",
 			"./Assets/Model/TableWood_0.fbx",
+			"./Assets/Model/TreasureChest.fbx",
+			"./Assets/Model/SkeletonSkull.fbx",
+
+			"./Assets/Model/Flower_0.fbx",
+			"./Assets/Model/Flower_1.fbx",
+			"./Assets/Model/Flower_2.fbx",
+			"./Assets/Model/Flower_3.fbx",
 		};
 
 

@@ -83,6 +83,38 @@ namespace argent::graphics
 			transforms_[GoldDome].scaling_ = { 1.0f, 1.0f, 1.0f};
 			transforms_[GoldDome].rotation_ = { -1.57f, 3.0f, 0.0f };
 		}
+
+		//Wooden & skeleton
+		{
+			transforms_[WoodTable0].position_ = { 100.0f, 32.5f, -50.0f };
+			transforms_[WoodTable0].scaling_ = { 0.5f, 0.5f, 0.5f };
+			transforms_[WoodTable0].rotation_ = { -1.57f, 1.57f, 0.0f };
+			transforms_[TreasureChest].position_ = { 100.0f, -5.0f, -40.0f };
+			transforms_[TreasureChest].scaling_ = { 0.5f, 0.5f, 0.5f };
+			transforms_[TreasureChest].rotation_ = { -1.57f, 0.0f, 0.0f };
+			transforms_[Skull].position_ = { 80.0f, -3.6f, -84.36f };
+			transforms_[Skull].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[Skull].rotation_ = { -1.57f, 0.0f, 0.0f };
+		}
+
+		//Plant
+		{
+			transforms_[Flower0].position_ = { -500.0f, 3.0f, 0.f };
+			transforms_[Flower0].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[Flower0].rotation_ = { -1.57f, 3.14f, 0.0f };
+
+			transforms_[Flower1].position_ = { -500.0f, 3.0f, -70.f };
+			transforms_[Flower1].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[Flower1].rotation_ = { -1.57f, 3.14f, 0.0f };
+
+			transforms_[Flower2].position_ = { -500.0f, 3.0f, -109.f };
+			transforms_[Flower2].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[Flower2].rotation_ = { -1.57f, 1.9f, 0.0f };
+
+			transforms_[Flower3].position_ = { -500.0f, 3.0f, -160.0f };
+			transforms_[Flower3].scaling_ = { 1.0f, 1.0f, 1.0f };
+			transforms_[Flower3].rotation_ = { -1.57f, 0.0f, 0.0f };
+		}
 		//Initialize Sphere
 		{
 			materials_[Plane].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
