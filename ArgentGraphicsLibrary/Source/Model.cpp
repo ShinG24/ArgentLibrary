@@ -48,6 +48,7 @@ namespace argent::game_resource
 	void Material::Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap)
 	{
 		albedo_texture_path_replacement_.resize(256);
+		normal_texture_path_replacement_.resize(256);
 
 		std::filesystem::path albedo = albedo_texture_name_;
 		std::filesystem::path normal = normal_texture_name_;
@@ -55,6 +56,12 @@ namespace argent::game_resource
 		normal_texture_ = std::make_unique<graphics::Texture>(graphics_device, command_queue, srv_heap, normal.wstring().c_str());
 		constant_buffer_ = std::make_unique<graphics::ConstantBuffer<Constant>>(graphics_device, 1u);
 		constant_buffer_->CopyToGpu(data_, 0u);
+	}
+
+	void Material::WaitBeforeUse()
+	{
+		if(albedo_texture_) albedo_texture_->WaitBeforeUse();
+		if(normal_texture_) normal_texture_->WaitBeforeUse();
 	}
 
 	void Material::OnGui()
@@ -77,6 +84,8 @@ namespace argent::game_resource
 			ImGui::DragFloat("Reflectance Coef", &data_.reflectance_coefficient_, 0.001f, 0.0f, 1.0f);
 			ImGui::DragFloat("Specular Power", &data_.specular_power_, 0.1f, 0.0f, 100.0f);
 
+			ImGui::DragFloat2("Texcoord Offset", &data_.texcoord_offset_.x, 0.001f, 0.0, 1.0f);
+
 			if(!albedo_texture_name_.empty())
 			{
 				ImGui::Text("Albedo");
@@ -94,6 +103,15 @@ namespace argent::game_resource
 			{
 				albedo_texture_name_ = albedo_texture_path_replacement_;
 			}
+
+			ImGui::Text(normal_texture_name_.c_str());
+			ImGui::InputText("NormalTextureFilePath", &normal_texture_path_replacement_.at(0), normal_texture_path_replacement_.capacity());
+			if(ImGui::Button("Accept Normal"))
+			{
+				normal_texture_name_ = normal_texture_path_replacement_;
+			}
+
+
 	#endif
 
 			ImGui::TreePop();
@@ -120,6 +138,11 @@ namespace argent::game_resource
 		shader_binding_data_.at(AlbedoTexture) = reinterpret_cast<void*>(material_->GetAlbedoTextureGpuHandle().ptr);
 		shader_binding_data_.at(NormalTexture) = reinterpret_cast<void*>(material_->GetNormalTextureGpuHandle().ptr);
 		shader_binding_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(mesh_->GetVertexGpuHandle().ptr);
+	}
+
+	void Model::WaitBeforeUse()
+	{
+		material_->WaitBeforeUse();
 	}
 
 	void Model::UpdateMaterialData()

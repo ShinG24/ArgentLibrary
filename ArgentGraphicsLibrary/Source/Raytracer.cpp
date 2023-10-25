@@ -33,10 +33,6 @@ namespace argent::graphics
 		CommandQueue& command_queue, UINT64 width, UINT height, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
-		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/Coral.png");
-		texture1_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/CoralN.png");
 		skymaps_[0] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
 			L"./Assets/Images/Skymap00.dds");
 		skymaps_[1] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
@@ -49,39 +45,40 @@ namespace argent::graphics
 		width_ = width;
 		height_ = height;
 
-		//cube_vertex_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
-		//cube_index_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		object_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
 		transforms_[Plane].position_.y = -5.0f;
 		transforms_[Plane].scaling_ = DirectX::XMFLOAT3(200.0f, 1.0f, 200.0f);
-		transforms_[Cube].position_.x = 3.0f;
+		transforms_[Coral0].position_.x = 3.0f;
 		transforms_[SphereAABB].position_.z = 10.0f;
 
-		materials_[Plane].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
-		materials_[Plane].diffuse_coefficient_ = 0.2f;
-		materials_[Plane].specular_coefficient_ = 0.6f;
-		materials_[Plane].specular_power_ = 50.f;
-		materials_[Plane].reflectance_coefficient_ = 0.8f;
-
-		//materials_[Cube].albedo_color_ = float4(0.0f, 0.8f, 0.0f, 1.0f);
-		//materials_[Cube].diffuse_coefficient_ = 1.0f;
-		//materials_[Cube].specular_coefficient_ = 0.6f;
-		//materials_[Cube].specular_power_ = 50.f;
-		//materials_[Cube].reflectance_coefficient_ = 0.0f;
-
-		materials_[SphereAABB].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
-		materials_[SphereAABB].diffuse_coefficient_ = 0.2f;
-		materials_[SphereAABB].specular_coefficient_ = 0.9f;
-		materials_[SphereAABB].specular_power_ = 50.f;
-		materials_[SphereAABB].reflectance_coefficient_ = 1.0f;
+		//Initialize Sphere
+		{
+			materials_[Plane].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
+			materials_[Plane].diffuse_coefficient_ = 0.2f;
+			materials_[Plane].specular_coefficient_ = 0.6f;
+			materials_[Plane].specular_power_ = 50.f;
+			materials_[Plane].reflectance_coefficient_ = 0.8f;
+			materials_[SphereAABB].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
+			materials_[SphereAABB].diffuse_coefficient_ = 0.2f;
+			materials_[SphereAABB].specular_coefficient_ = 0.9f;
+			materials_[SphereAABB].specular_power_ = 50.f;
+			materials_[SphereAABB].reflectance_coefficient_ = 1.0f;
+		}
 
 
 		//Fbx Loader
-		FbxLoader("./Assets/Model/Coral.fbx");
+		//FbxLoader("./Assets/Model/Coral.fbx");
 
-		model_ = game_resource::LoadFbx("./Assets/Model/Coral.fbx");
-		model_->Awake(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap);
+		for(int i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
+		{
+			model_[i] = game_resource::LoadFbx(filepaths[i].c_str());
+		}
+
+		for(auto& m : model_)
+		{
+			m->Awake(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap);
+		}
 
 		CreateAS(graphics_device, command_list, command_queue);
 		CreatePipeline(graphics_device);
@@ -92,18 +89,36 @@ namespace argent::graphics
 
 	void Raytracer::Shutdown()
 	{
-		std::filesystem::path path = model_->GetFilePath().c_str();
-		path.replace_extension("cereal");
+		for(auto& m : model_)
+		{
+			std::filesystem::path path = m->GetFilePath().c_str();
+			path.replace_extension("cereal");
 
-		std::ofstream ofs(path.c_str(), std::ios::binary);
-		cereal::BinaryOutputArchive serialization(ofs);
-		serialization(model_);
-
+			std::ofstream ofs(path.c_str(), std::ios::binary);
+			cereal::BinaryOutputArchive serialization(ofs);
+			serialization(m);
+		}
 	}
 
 	void Raytracer::Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue)
 	{
-		model_->UpdateMaterialData();
+		if(!is_wait_)
+		{
+			for(int i = 0; i < kSkymapCounts; ++i)
+			{
+				skymaps_[i]->WaitBeforeUse();
+			}
+
+			for(int i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
+			{
+				model_[i]->WaitBeforeUse();
+			}
+			is_wait_ = true;
+		}
+		for(auto& m : model_)
+		{
+			m->UpdateMaterialData();
+		}
 		if(ImGui::TreeNode("Skymap Texture"))
 		{
 			ImGui::SliderInt("Index", &skymap_index_, 0, kSkymapCounts - 1);
@@ -122,13 +137,16 @@ namespace argent::graphics
 			{
 				transforms_[i].OnGui();
 				if(i < kNoModelGeometryCounts)
+				{
 					materials_[i].OnGui();
-				ImGui::Image(reinterpret_cast<ImTextureID>(texture_->GetGpuHandle().ptr), ImVec2(256, 256));
-				ImGui::Image(reinterpret_cast<ImTextureID>(texture1_->GetGpuHandle().ptr), ImVec2(256, 256));
+				}
+				else
+				{
+					model_[i - kNoModelGeometryCounts]->OnGui();
+				}
 				ImGui::TreePop();
 			}
 		}
-		model_->OnGui();
 
 		graphics_command_list->Activate();
 
@@ -143,10 +161,7 @@ namespace argent::graphics
 			if(i < kNoModelGeometryCounts)
 				memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
 
-
-			DirectX::XMFLOAT4X4 mat;
-			DirectX::XMStoreFloat4x4(&mat, m);
-			as_manager_.SetWorld(mat, tlas_unique_id_[i]);
+			as_manager_.SetWorld(obj_constant.world_, tlas_unique_id_[i]);
 		}
 		as_manager_.Update(graphics_command_list);
 
@@ -190,7 +205,6 @@ namespace argent::graphics
 
 	void Raytracer::BuildGeometry(const GraphicsDevice& graphics_device)
 	{
-
 		//Plane
 		{
 			Vertex vertices1[6]
@@ -205,81 +219,6 @@ namespace argent::graphics
 			};
 
 			vertex_buffers_[Plane] = std::make_unique<VertexBuffer>(&graphics_device, vertices1, sizeof(Vertex), 6u);
-		}
-
-		//Cube
-		{
-#if _USE_CUBE_
-			UINT32 indices[] =
-		    {
-		        3,1,0,
-		        2,1,3,
-
-		        6,4,5,
-		        7,4,6,
-
-		        11,9,8,
-		        10,9,11,
-
-		        14,12,13,
-		        15,12,14,
-
-		        19,17,16,
-		        18,17,19,
-
-		        22,20,21,
-		        23,20,22
-		    };
-
-		    // Cube vertices positions and corresponding triangle normals.
-		    Vertex vertices[] =
-		    {
-		        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
-		        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
-		        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
-		        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) },
-
-		        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
-		        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
-		        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
-		        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f) },
-
-		        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-		        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-		        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-		        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f) },
-
-		        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-		        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-		        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-		        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-
-		        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
-		        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
-		        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
-		        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f) },
-
-		        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
-		        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
-		        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
-		        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) },
-		    };
-
-			vertex_buffers_[Cube] = std::make_unique<VertexBuffer>(&graphics_device, vertices, sizeof(Vertex), 24u);
-			index_buffers_[Cube] = std::make_unique<IndexBuffer>(&graphics_device, indices, 36u);
-#else
-			//vertex_buffers_[Cube] = std::make_unique<VertexBuffer>(&graphics_device,
-			//	meshes_.at(0).vertices_.data(), sizeof(Vertex), meshes_.at(0).vertices_.size());
-			//index_buffers_[Cube] = std::make_unique<IndexBuffer>(&graphics_device,
-			//	meshes_.at(0).indices_.data(), meshes_.at(0).indices_.size());
-
-
-#endif
-			//graphics_device.CreateBufferSRV(vertex_buffers_[Cube]->GetBufferObject(), 
-			//	vertex_buffers_[Cube]->GetVertexCounts(), sizeof(Vertex), cube_vertex_descriptor_.cpu_handle_);
-
-			//graphics_device.CreateBufferSRV(index_buffers_[Cube]->GetBufferObject(), 
-			//	index_buffers_[Cube]->GetIndexCounts(), sizeof(uint32_t), cube_index_descriptor_.cpu_handle_);
 		}
 
 		//AABB
@@ -319,15 +258,9 @@ namespace argent::graphics
 			}
 			else
 			{
-				build_desc.vertex_buffer_vec_.emplace_back(model_->GetMesh()->GetVertexBuffer());				
-				build_desc.index_buffer_vec_.emplace_back(model_->GetMesh()->GetIndexBuffer());				
+				build_desc.vertex_buffer_vec_.emplace_back(model_[i - kNoModelGeometryCounts]->GetMesh()->GetVertexBuffer());				
+				build_desc.index_buffer_vec_.emplace_back(model_[i - kNoModelGeometryCounts]->GetMesh()->GetIndexBuffer());				
 			}
-			
-			//if(i == Cube)
-			//{
-			//	build_desc.index_buffer_vec_.emplace_back(index_buffers_[i].get());
-			//}
-			
 			unique_id[i] = as_manager_.AddBottomLevelAS(&graphics_device, &command_list, &build_desc, triangle);
 		}
 
@@ -382,36 +315,36 @@ namespace argent::graphics
 		ShaderCompiler shader_compiler;
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Hit.hlsl", hit_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Plane.hlsl", hit1_library_.ReleaseAndGetAddressOf());
-		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/StaticMesh.ch.hlsl", hit2_library_.ReleaseAndGetAddressOf());
-
-		//Sphere Intersection Demo
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Plane.lib.hlsl", plane_library_.ReleaseAndGetAddressOf());
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/StaticMesh.lib.hlsl", static_mesh_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Sphere.lib.hlsl", sphere_library_.ReleaseAndGetAddressOf());
 
 		//Add Shader Library
 		{
 			pipeline_state_.AddLibrary(ray_gen_library_.Get(), {L"RayGen"});
 			pipeline_state_.AddLibrary(miss_library_.Get(), {L"Miss"});
-			pipeline_state_.AddLibrary(hit_library_.Get(), {L"ClosestHit"});
-			pipeline_state_.AddLibrary(hit1_library_.Get(), {L"CLHPlane"});
-			pipeline_state_.AddLibrary(hit2_library_.Get(), {L"CubeHit"});
+			pipeline_state_.AddLibrary(plane_library_.Get(), {L"PlaneClosestHit"});
+			pipeline_state_.AddLibrary(static_mesh_library_.Get(), {L"StaticMeshClosestHit"});
 			pipeline_state_.AddLibrary(sphere_library_.Get(), {{L"SphereClosestHit"}, {L"SphereIntersection"}});
 		}
 
 		//Add Hit Group
 		{
-			pipeline_state_.AddHitGroup(L"HitGroup", L"ClosestHit");
-			pipeline_state_.AddHitGroup(L"HitGroup1", L"CLHPlane");
-			pipeline_state_.AddHitGroup(L"HitGroup2", L"CubeHit");
-			pipeline_state_.AddHitGroup(L"HitGroupSphere", L"SphereClosestHit", L"", L"SphereIntersection");
+			pipeline_state_.AddHitGroup(kHitGroupName[Plane], L"PlaneClosestHit");
+			pipeline_state_.AddHitGroup(kHitGroupName[SphereAABB], L"SphereClosestHit", L"", L"SphereIntersection");
+
+			for(int i = kNoModelGeometryCounts; i < GeometryTypeCount; ++i)
+			{
+				pipeline_state_.AddHitGroup(kHitGroupName[i],  L"StaticMeshClosestHit");
+			}
+			//pipeline_state_.AddHitGroup(kHitGroupName[Coral0], L"StaticMeshClosestHit");
+			//pipeline_state_.AddHitGroup(kHitGroupName[Coral1], L"StaticMeshClosestHit");
 		}
 
 		//Add Root Signature Association
 		{
 			pipeline_state_.AddRootSignatureAssociation(raygen_miss_root_signature_.GetRootSignatureObject(), {{L"RayGen"}, {L"Miss"}});
-			pipeline_state_.AddRootSignatureAssociation(hit_group_root_signature_.GetRootSignatureObject(),
-				{ {L"HitGroup"}, {L"HitGroup1"},  {L"HitGroup2"},  {L"HitGroupSphere"}});
+			pipeline_state_.AddRootSignatureAssociation(hit_group_root_signature_.GetRootSignatureObject(), kHitGroupName);
 		}
 
 		pipeline_state_.SetMaxAttributeSize(3 * sizeof(float));
@@ -512,30 +445,34 @@ namespace argent::graphics
 		{
 			std::vector<dxr::ShaderTable> tables(GeometryTypeCount);
 
-
 			//For Plane
-			tables.at(Plane).shader_identifier_ = L"HitGroup1";
+			tables.at(Plane).shader_identifier_ = kHitGroupName[Plane];
 			tables.at(Plane).input_data_.resize(RootSignatureBinderCount);
 			tables.at(Plane).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
 			tables.at(Plane).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
 			tables.at(Plane).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
 
-			//For Cube
-			tables.at(Cube).shader_identifier_ = L"HitGroup2";
-			tables.at(Cube).input_data_.resize(RootSignatureBinderCount);
-			tables.at(Cube).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
-
-			auto model_data = model_->GetShaderBindingData();
-
-			for(size_t i = 0; i < model_data.size(); ++i)
-			{
-				tables.at(Cube).input_data_.at(i + 1) = model_data.at(i);
-			}
-
-			tables.at(SphereAABB).shader_identifier_ = L"HitGroupSphere";
+			//For Sphere
+			tables.at(SphereAABB).shader_identifier_ = kHitGroupName.at(SphereAABB);
 			tables.at(SphereAABB).input_data_.resize(RootSignatureBinderCount);
 			tables.at(SphereAABB).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
 			tables.at(SphereAABB).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
+
+			//For Coral
+
+			for(size_t i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
+			{
+				auto& table = tables.at(kNoModelGeometryCounts + i);
+				table.shader_identifier_ = kHitGroupName.at(kNoModelGeometryCounts + i);
+				table.input_data_.resize(RootSignatureBinderCount);
+				table.input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * (kNoModelGeometryCounts + i));
+				auto model_data = model_[i]->GetShaderBindingData();
+				for(size_t j = 0; j < model_data.size(); ++j)
+				{
+					table.input_data_.at(j + 1) = model_data.at(j);
+				}
+			}
+
 			hit_group_shader_table_.AddShaderTables(tables);
 			hit_group_shader_table_.Generate(&graphics_device, 
 				pipeline_state_.GetStateObjectProperties(), L"HitGroupShaderTable");

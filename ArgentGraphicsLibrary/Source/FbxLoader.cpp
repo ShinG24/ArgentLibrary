@@ -100,7 +100,7 @@ namespace argent::game_resource
 
 			fbx_manager->Destroy();
 
-			auto model = std::make_shared<Model>(filename, meshes.at(0).name_, meshes.at(0).vertices_, meshes.at(0).indices_, "./Assets/Model/Texture/Coral.png", "./Assets/Model/Texture/CoralN.png");
+			auto model = std::make_shared<Model>(filename, meshes.at(0).name_, meshes.at(0).vertices_, meshes.at(0).indices_, "", "");
 			std::ofstream ofs(cereal_filename.c_str(), std::ios::binary);
 			cereal::BinaryOutputArchive serialization(ofs);
 			serialization(model);

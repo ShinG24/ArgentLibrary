@@ -39,6 +39,7 @@ struct Material
     float specular_coefficient_;
     float reflectance_coefficient_;
     float specular_power_;
+    float4 texcoord_offset_;
 };
 
 

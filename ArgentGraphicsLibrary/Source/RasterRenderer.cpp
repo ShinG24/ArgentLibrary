@@ -29,6 +29,14 @@ namespace argent::graphics
 
 	void RasterRenderer::OnRender(ID3D12GraphicsCommandList* command_list)
 	{
+		static bool is_wait = false;
+		if(!is_wait)
+		{
+			texture_->WaitBeforeUse();
+			is_wait = true;
+		}
+
+
 		auto* input_manager = input::InputManager::Get();
 		if(input_manager->GetKeyboard()->GetKey(input::Enter))
 		{

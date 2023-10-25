@@ -148,6 +148,7 @@ bool IntersectRaySphere(in Ray ray, out float t_hit, out float t_max, out Sphere
 bool IntersectRaySpheres(in Ray ray, out float t_hit, out SphereHitAttribute attr)
 {
     const int N = 2;
+    //The position on Local Space
     float3 centeres[N] =
     {
         float3(3, 0, 0),

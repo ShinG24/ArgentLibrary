@@ -40,9 +40,8 @@ int WINAPI wWinMain(
 		{
 			input_manager.Update();
 			timer.Tick();
-#ifdef _DEBUG
+
 			timer.ShowFrameTime(platform.GetHwnd());
-#endif
 			graphics_library.FrameBegin();
 			graphics_library.FrameEnd();
 		}

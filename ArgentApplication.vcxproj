@@ -161,7 +161,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shader\StaticMesh.ch.hlsl">
+    <None Include="Assets\Shader\StaticMesh.lib.hlsl">
       <FileType>Document</FileType>
     </None>
     <None Include="Assets\Shader\Hit.hlsl">
@@ -170,7 +170,7 @@
     <None Include="Assets\Shader\Miss.hlsl">
       <FileType>Document</FileType>
     </None>
-    <None Include="Assets\Shader\Plane.hlsl">
+    <None Include="Assets\Shader\Plane.lib.hlsl">
       <FileType>Document</FileType>
     </None>
     <None Include="Assets\Shader\RayGen.hlsl">

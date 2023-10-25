@@ -125,7 +125,8 @@ namespace argent::game_resource
 			template <class Archive>
 			void serialize(Archive& archive)
 			{
-				archive(color_, diffuse_coefficient_, specular_coefficient_, reflectance_coefficient_, specular_power_);
+				archive(color_, diffuse_coefficient_, specular_coefficient_, 
+					reflectance_coefficient_, specular_power_, texcoord_offset_);
 			}
 
 			DirectX::XMFLOAT4 color_{1, 1, 1, 1};
@@ -133,6 +134,7 @@ namespace argent::game_resource
 			float specular_coefficient_{ 0.3f };
 			float reflectance_coefficient_{ 0.3f};
 			float specular_power_{ 50.0f };
+			DirectX::XMFLOAT4 texcoord_offset_{ 0, 1, 0, 0 };
 		};
 
 		template <class Archive>
@@ -146,7 +148,7 @@ namespace argent::game_resource
 		Material(std::string name, std::string albedo_texture_name, std::string normal_texture_name);
 
 		void Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap);
-
+		void WaitBeforeUse();
 		void OnGui();
 
 		void CopyToGpu()
@@ -204,6 +206,8 @@ namespace argent::game_resource
 
 		void Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap);
 		const std::vector<void*>& GetShaderBindingData() { return shader_binding_data_; }
+
+		void WaitBeforeUse();
 
 		void UpdateMaterialData();
 

@@ -97,6 +97,49 @@ namespace argent::graphics
 	class Raytracer
 	{
 	public:
+		static constexpr UINT kNoModelGeometryCounts = 2u;
+		enum GeometryType
+		{
+			Plane,
+			SphereAABB,
+			Coral0,
+			GoldDome,
+			Basket0,
+			WoodTable0,
+			GeometryTypeCount,
+		};
+
+	private:
+		std::string name[GeometryTypeCount]
+		{
+			"Plane",
+			"SphereAABB",
+			"Coral0",
+			"GoldDome",
+			"Basket0",
+			"WoodTable",
+		};
+
+		std::vector<std::wstring> kHitGroupName/*[GeometryTypeCount]*/
+		{
+			L"HG_Plane",
+			L"HG_Sphere",
+			L"HG_Coral0",
+			L"HG_GoldDome",
+			L"HG_Basket0",
+			L"HG_WoodTable",
+		};
+
+		std::string filepaths[GeometryTypeCount - kNoModelGeometryCounts]
+		{
+			"./Assets/Model/Coral.fbx",
+			"./Assets/Model/GoldDome.fbx",
+			"./Assets/Model/WeaverBasket_0.fbx",
+			"./Assets/Model/TableWood_0.fbx",
+		};
+
+
+	public:
 		Raytracer() = default;
 		~Raytracer() = default;
 
@@ -135,9 +178,8 @@ namespace argent::graphics
 		//Shader
 		Microsoft::WRL::ComPtr<IDxcBlob> ray_gen_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> miss_library_;
-		Microsoft::WRL::ComPtr<IDxcBlob> hit_library_;
-		Microsoft::WRL::ComPtr<IDxcBlob> hit1_library_;
-		Microsoft::WRL::ComPtr<IDxcBlob> hit2_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> plane_library_;
+		Microsoft::WRL::ComPtr<IDxcBlob> static_mesh_library_;
 
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_intersection_library_;
 		Microsoft::WRL::ComPtr<IDxcBlob> sphere_library_;
@@ -151,27 +193,12 @@ namespace argent::graphics
 		UINT64 width_;
 		UINT height_;
 
-		enum GeometryType
-		{
-			Plane,
-			SphereAABB,
-			Cube,
-			GeometryTypeCount,
-		};
-		static constexpr UINT kNoModelGeometryCounts = 2u;
-
 		std::unique_ptr<VertexBuffer> vertex_buffers_[kNoModelGeometryCounts];
 		std::unique_ptr<IndexBuffer> index_buffers_[kNoModelGeometryCounts];
 
 		//Descriptor cube_vertex_descriptor_;
 		//Descriptor cube_index_descriptor_;
 
-		std::string name[GeometryTypeCount]
-		{
-			"Plane",
-			"SphereAABB",
-			"Cube",
-		};
 
 		struct ObjectConstant
 		{
@@ -186,6 +213,7 @@ namespace argent::graphics
 			float specular_coefficient_ = 0.2f;
 			float reflectance_coefficient_ = 0.2f;
 			float specular_power_ = 50.0f;
+			DirectX::XMFLOAT4 texcoord_offset_;
 
 			void OnGui()
 			{
@@ -239,13 +267,12 @@ namespace argent::graphics
 
 
 		static constexpr int kSkymapCounts = 4;
-		std::unique_ptr<Texture> texture_;
-		std::unique_ptr<Texture> texture1_;
 		std::unique_ptr<Texture> skymaps_[kSkymapCounts];
 		int skymap_index_ = 0;
 		Microsoft::WRL::ComPtr<ID3D12Resource> skymap_index_buffer_;
 		int* map_skymap_index_;
 
+		bool is_wait_ = false;
 	public:
 
 		struct Mesh
@@ -273,16 +300,11 @@ namespace argent::graphics
 
 		dxr::RaytracingPipelineState pipeline_state_;
 
-		std::shared_ptr<game_resource::Model> model_;
-
+		std::shared_ptr<game_resource::Model> model_[GeometryTypeCount - kNoModelGeometryCounts];
 
 		RootSignature global_root_signature_;
 		RootSignature raygen_miss_root_signature_;
 		RootSignature hit_group_root_signature_;
 
-		//std::string filepaths[]
-		//{
-		//	"./Asset/Model/Coral.fbx"
-		//};
 	};
 }

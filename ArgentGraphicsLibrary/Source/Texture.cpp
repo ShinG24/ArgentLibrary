@@ -43,8 +43,7 @@ namespace argent::graphics
 			CreateDummyTexture(graphics_device, resource_object_.ReleaseAndGetAddressOf());	
 		}
 
-		auto upload_resources_finished = resource_upload_batch.End(command_queue->GetCommandQueue());
-		upload_resources_finished.wait();
+		wait_for_finish_upload_ = resource_upload_batch.End(command_queue->GetCommandQueue());
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
 		desc.Format = resource_object_->GetDesc().Format;
@@ -55,6 +54,12 @@ namespace argent::graphics
 		graphics_device->GetDevice()->CreateShaderResourceView(resource_object_.Get(), &desc,
 			descriptor_.cpu_handle_);
 	}
+
+	void Texture::WaitBeforeUse()
+	{
+		wait_for_finish_upload_.wait();
+	}
+
 
 	void CreateDummyTexture(const GraphicsDevice* graphics_device, ID3D12Resource** pp_resource)
 	{

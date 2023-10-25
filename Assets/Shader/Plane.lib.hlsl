@@ -4,7 +4,7 @@ ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
 ConstantBuffer<Material> material_constant : register(b1, space1);
 
 _CLOSEST_HIT_SHADER_
-void CLHPlane(inout RayPayload payload, in HitAttribute attr)
+void PlaneClosestHit(inout RayPayload payload, in HitAttribute attr)
 {
     float4 albedo_color = material_constant.albedo_color_;
     float reflectance_coefficient = material_constant.reflectance_coefficient_;

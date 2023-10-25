@@ -7,6 +7,8 @@
 //Imgui
 #include "../External/Imgui/imgui.h"
 
+#include "../../ArgentUtilityLibrary/Inc/Timer.h"
+
 
 #include "../../ArgentInputLibrary/Inc/InputManager.h"
 
@@ -174,12 +176,25 @@ namespace argent::graphics
 
 				//Draw on ImGui
 				{
+					//‘€ì•û–@—p
 					ImGui::SetNextWindowPos(ImVec2(600, 400), ImGuiCond_Once);
 					ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Once);
 					ImGui::Begin("Instructions");
 					ImGui::Text("Camera");
 					ImGui::Text("Right Click + W, A, S, D");
 					ImGui::End();
+
+
+					if(ImGui::TreeNode("Performance"))
+					{
+						float delta_time = Timer::Get()->GetDeltaTime();
+						int fps = Timer::Get()->GetFps();
+						ImGui::InputFloat("Delta Time", &delta_time);
+						ImGui::InputInt("FPS", &fps);
+
+						ImGui::TreePop();
+					}
+					
 					if (ImGui::TreeNode("Camera"))
 					{
 						ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
@@ -188,7 +203,7 @@ namespace argent::graphics
 						ImGui::DragFloat("Rotation Speed", &rotation_speed_, 0.00001f, 0.00001f, 3.14f);
 						ImGui::TreePop();
 					}
-					ImGui::DragFloat3("Light", &light_position.x, 0.01f, -FLT_MAX, FLT_MAX);
+					ImGui::DragFloat3("Light Position", &light_position.x, 0.01f, -FLT_MAX, FLT_MAX);
 
 					//raster_renderer_.OnGui();
 				}

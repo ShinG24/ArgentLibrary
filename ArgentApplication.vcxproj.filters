@@ -22,7 +22,7 @@
     <None Include="Assets\Shader\Common.hlsli">
       <Filter>Shader\Raytracing</Filter>
     </None>
-    <None Include="Assets\Shader\StaticMesh.ch.hlsl">
+    <None Include="Assets\Shader\StaticMesh.lib.hlsl">
       <Filter>Shader\Raytracing</Filter>
     </None>
     <None Include="Assets\Shader\Hit.hlsl">
@@ -31,7 +31,7 @@
     <None Include="Assets\Shader\Miss.hlsl">
       <Filter>Shader\Raytracing</Filter>
     </None>
-    <None Include="Assets\Shader\Plane.hlsl">
+    <None Include="Assets\Shader\Plane.lib.hlsl">
       <Filter>Shader\Raytracing</Filter>
     </None>
     <None Include="Assets\Shader\RayGen.hlsl">

@@ -4,9 +4,10 @@
 
 namespace argent
 {
+	Timer* Timer::instance_ = nullptr;
 	Timer::Timer()
 	{
-		
+		instance_ = this;
 	}
 
 	void Timer::Awake()
@@ -51,11 +52,13 @@ namespace argent
 			const float fps = static_cast<float>(frames_);
 			const float frame_times = 1000.0f / fps;
 			frame_per_seconds_  = static_cast<int>(fps);
+
+#ifdef _DEBUG
 			std::wostringstream outs;
 			outs.precision(6);
 			outs << L"FPS : " << frame_per_seconds_ << L"/" << L"Frame Time : " << frame_times << L"(ms)";
 			SetWindowTextW(hwnd, outs.str().c_str());
-
+#endif
 			frames_ = 0;
 			elapsed_time_ += 1.0f;
 		}

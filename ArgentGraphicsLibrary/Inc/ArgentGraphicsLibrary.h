@@ -110,7 +110,7 @@ namespace argent::graphics
 		float rotation_speed_ = 0.003;
 		float move_speed_ = 0.5f;
 
-		DirectX::XMFLOAT4 light_position{ 100.0, 100.0f, -100.0f, 1.0f };
+		DirectX::XMFLOAT4 light_position{ 1000.0, 1000.0f, -1000.0f, 1.0f };
 		
 
 		bool on_raster_mode_ = false;

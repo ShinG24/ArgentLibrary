@@ -146,9 +146,14 @@ float4 AlbedoSampling(uint3 index, float2 barycentrics)
     float2 texcoord0 = vertices[index.x].texcoord_;
     float2 texcoord1 = vertices[index.y].texcoord_;
     float2 texcoord2 = vertices[index.z].texcoord_;
-    texcoord0.y = 1 - texcoord0.y;
-    texcoord1.y = 1 - texcoord1.y;
-    texcoord2.y = 1 - texcoord2.y;
+
+    texcoord0 = frac(texcoord0);
+    texcoord1 = frac(texcoord1);
+    texcoord2 = frac(texcoord2);
+
+    texcoord0 = abs(material_constant.texcoord_offset_.xy - texcoord0);
+    texcoord1 = abs(material_constant.texcoord_offset_.xy - texcoord1);
+    texcoord2 = abs(material_constant.texcoord_offset_.xy - texcoord2);
 
     uint2 dimension;
     albedo_texture.GetDimensions(dimension.x, dimension.y);
@@ -162,14 +167,15 @@ float4 AlbedoSampling(uint3 index, float2 barycentrics)
 #define _USE_MATERIAL_CONSTANT_ 1
 
 _CLOSEST_HIT_SHADER_
-void CubeHit(inout RayPayload payload, in HitAttribute attr)
+void StaticMeshClosestHit(inout RayPayload payload, in HitAttribute attr)
 {
     uint3 index = Load3x32BitIndices();
 	float3 world_normal = CalcWorldNormal(index, attr.barycentrics);
     float3 world_tangent = CalcWorldTangent(index, attr.barycentrics);
     float3 world_binormal = CalcWorldBinormal(index, attr.barycentrics);
     float2 texcoord = CalcTexcoord(index, attr.barycentrics);
-    texcoord.y = 1 - texcoord.y;
+    texcoord = frac(texcoord);
+    texcoord = abs(material_constant.texcoord_offset_.xy - texcoord);
 
     uint width, height;
 	albedo_texture.GetDimensions(width, height);
@@ -182,8 +188,7 @@ void CubeHit(inout RayPayload payload, in HitAttribute attr)
 
 
     float4 albedo_color = AlbedoSampling(index, attr.barycentrics);
-    //float4 albedo_color = AlbedoLinearSampling(albedo_texcoord, width);
-    //float4 albedo_color = albedo_texture[albedo_texcoord.xy] * 4.0f;
+  
 
     //Do Raytracing
     Ray ray;
