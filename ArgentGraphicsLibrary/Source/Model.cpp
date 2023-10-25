@@ -61,6 +61,21 @@ namespace argent::game_resource
 	{
 		if(ImGui::TreeNode("Material"))
 		{
+			ImGuiColorEditFlags flags =
+						ImGuiColorEditFlags_PickerHueWheel |
+						ImGuiColorEditFlags_NoInputs |
+						ImGuiColorEditFlags_NoAlpha |
+						ImGuiColorEditFlags_NoOptions |
+						ImGuiColorEditFlags_NoTooltip |
+						ImGuiColorEditFlags_NoSidePreview |
+						ImGuiColorEditFlags_NoDragDrop |
+						ImGuiColorEditFlags_NoBorder
+						;
+			ImGui::ColorEdit3("Color Edit", &data_.color_.x, flags);
+			ImGui::DragFloat("Diffuse Coef", &data_.diffuse_coefficient_, 0.001f, 0.0f, 1.0f);
+			ImGui::DragFloat("Specular Coef", &data_.specular_coefficient_, 0.001f, 0.0f, 1.0f);
+			ImGui::DragFloat("Reflectance Coef", &data_.reflectance_coefficient_, 0.001f, 0.0f, 1.0f);
+			ImGui::DragFloat("Specular Power", &data_.specular_power_, 0.1f, 0.0f, 100.0f);
 
 			if(!albedo_texture_name_.empty())
 			{
@@ -105,6 +120,11 @@ namespace argent::game_resource
 		shader_binding_data_.at(AlbedoTexture) = reinterpret_cast<void*>(material_->GetAlbedoTextureGpuHandle().ptr);
 		shader_binding_data_.at(NormalTexture) = reinterpret_cast<void*>(material_->GetNormalTextureGpuHandle().ptr);
 		shader_binding_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(mesh_->GetVertexGpuHandle().ptr);
+	}
+
+	void Model::UpdateMaterialData()
+	{
+		material_->CopyToGpu();
 	}
 
 	void Model::OnGui()

@@ -49,8 +49,8 @@ namespace argent::graphics
 		width_ = width;
 		height_ = height;
 
-		cube_vertex_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
-		cube_index_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		//cube_vertex_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
+		//cube_index_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		object_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
 		transforms_[Plane].position_.y = -5.0f;
@@ -64,11 +64,11 @@ namespace argent::graphics
 		materials_[Plane].specular_power_ = 50.f;
 		materials_[Plane].reflectance_coefficient_ = 0.8f;
 
-		materials_[Cube].albedo_color_ = float4(0.0f, 0.8f, 0.0f, 1.0f);
-		materials_[Cube].diffuse_coefficient_ = 1.0f;
-		materials_[Cube].specular_coefficient_ = 0.6f;
-		materials_[Cube].specular_power_ = 50.f;
-		materials_[Cube].reflectance_coefficient_ = 0.0f;
+		//materials_[Cube].albedo_color_ = float4(0.0f, 0.8f, 0.0f, 1.0f);
+		//materials_[Cube].diffuse_coefficient_ = 1.0f;
+		//materials_[Cube].specular_coefficient_ = 0.6f;
+		//materials_[Cube].specular_power_ = 50.f;
+		//materials_[Cube].reflectance_coefficient_ = 0.0f;
 
 		materials_[SphereAABB].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
 		materials_[SphereAABB].diffuse_coefficient_ = 0.2f;
@@ -103,6 +103,7 @@ namespace argent::graphics
 
 	void Raytracer::Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue)
 	{
+		model_->UpdateMaterialData();
 		if(ImGui::TreeNode("Skymap Texture"))
 		{
 			ImGui::SliderInt("Index", &skymap_index_, 0, kSkymapCounts - 1);
@@ -120,7 +121,8 @@ namespace argent::graphics
 			if(ImGui::TreeNode(name[i].c_str()))
 			{
 				transforms_[i].OnGui();
-				materials_[i].OnGui();
+				if(i < kNoModelGeometryCounts)
+					materials_[i].OnGui();
 				ImGui::Image(reinterpret_cast<ImTextureID>(texture_->GetGpuHandle().ptr), ImVec2(256, 256));
 				ImGui::Image(reinterpret_cast<ImTextureID>(texture1_->GetGpuHandle().ptr), ImVec2(256, 256));
 				ImGui::TreePop();
@@ -138,7 +140,8 @@ namespace argent::graphics
 			DirectX::XMStoreFloat4x4(&obj_constant.world_, m);
 			DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
 			memcpy(world_mat_map_ + i * sizeof(ObjectConstant), &obj_constant, sizeof(ObjectConstant));
-			memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
+			if(i < kNoModelGeometryCounts)
+				memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
 
 
 			DirectX::XMFLOAT4X4 mat;
@@ -265,18 +268,18 @@ namespace argent::graphics
 			vertex_buffers_[Cube] = std::make_unique<VertexBuffer>(&graphics_device, vertices, sizeof(Vertex), 24u);
 			index_buffers_[Cube] = std::make_unique<IndexBuffer>(&graphics_device, indices, 36u);
 #else
-			vertex_buffers_[Cube] = std::make_unique<VertexBuffer>(&graphics_device,
-				meshes_.at(0).vertices_.data(), sizeof(Vertex), meshes_.at(0).vertices_.size());
-			index_buffers_[Cube] = std::make_unique<IndexBuffer>(&graphics_device,
-				meshes_.at(0).indices_.data(), meshes_.at(0).indices_.size());
+			//vertex_buffers_[Cube] = std::make_unique<VertexBuffer>(&graphics_device,
+			//	meshes_.at(0).vertices_.data(), sizeof(Vertex), meshes_.at(0).vertices_.size());
+			//index_buffers_[Cube] = std::make_unique<IndexBuffer>(&graphics_device,
+			//	meshes_.at(0).indices_.data(), meshes_.at(0).indices_.size());
 
 
 #endif
-			graphics_device.CreateBufferSRV(vertex_buffers_[Cube]->GetBufferObject(), 
-				vertex_buffers_[Cube]->GetVertexCounts(), sizeof(Vertex), cube_vertex_descriptor_.cpu_handle_);
+			//graphics_device.CreateBufferSRV(vertex_buffers_[Cube]->GetBufferObject(), 
+			//	vertex_buffers_[Cube]->GetVertexCounts(), sizeof(Vertex), cube_vertex_descriptor_.cpu_handle_);
 
-			graphics_device.CreateBufferSRV(index_buffers_[Cube]->GetBufferObject(), 
-				index_buffers_[Cube]->GetIndexCounts(), sizeof(uint32_t), cube_index_descriptor_.cpu_handle_);
+			//graphics_device.CreateBufferSRV(index_buffers_[Cube]->GetBufferObject(), 
+			//	index_buffers_[Cube]->GetIndexCounts(), sizeof(uint32_t), cube_index_descriptor_.cpu_handle_);
 		}
 
 		//AABB
@@ -309,11 +312,21 @@ namespace argent::graphics
 		{
 			bool triangle = i != SphereAABB;
 			dxr::BLASBuildDesc build_desc;
-			build_desc.vertex_buffer_vec_.emplace_back(vertex_buffers_[i].get());
-			if(i == Cube)
+
+			if(i < kNoModelGeometryCounts)
 			{
-				build_desc.index_buffer_vec_.emplace_back(index_buffers_[i].get());
+				build_desc.vertex_buffer_vec_.emplace_back(vertex_buffers_[i].get());
 			}
+			else
+			{
+				build_desc.vertex_buffer_vec_.emplace_back(model_->GetMesh()->GetVertexBuffer());				
+				build_desc.index_buffer_vec_.emplace_back(model_->GetMesh()->GetIndexBuffer());				
+			}
+			
+			//if(i == Cube)
+			//{
+			//	build_desc.index_buffer_vec_.emplace_back(index_buffers_[i].get());
+			//}
 			
 			unique_id[i] = as_manager_.AddBottomLevelAS(&graphics_device, &command_list, &build_desc, triangle);
 		}

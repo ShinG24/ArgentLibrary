@@ -205,6 +205,8 @@ namespace argent::game_resource
 		void Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap);
 		const std::vector<void*>& GetShaderBindingData() { return shader_binding_data_; }
 
+		void UpdateMaterialData();
+
 		std::string GetFilePath() const { return filepath_; }
 		void OnGui();
 

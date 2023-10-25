@@ -160,11 +160,11 @@ namespace argent::graphics
 		};
 		static constexpr UINT kNoModelGeometryCounts = 2u;
 
-		std::unique_ptr<VertexBuffer> vertex_buffers_[GeometryTypeCount];
-		std::unique_ptr<IndexBuffer> index_buffers_[GeometryTypeCount];
+		std::unique_ptr<VertexBuffer> vertex_buffers_[kNoModelGeometryCounts];
+		std::unique_ptr<IndexBuffer> index_buffers_[kNoModelGeometryCounts];
 
-		Descriptor cube_vertex_descriptor_;
-		Descriptor cube_index_descriptor_;
+		//Descriptor cube_vertex_descriptor_;
+		//Descriptor cube_index_descriptor_;
 
 		std::string name[GeometryTypeCount]
 		{
@@ -229,7 +229,7 @@ namespace argent::graphics
 
 		uint8_t* material_map_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> material_buffer_;
-		Material materials_[GeometryTypeCount];
+		Material materials_[kNoModelGeometryCounts];
 
 		UINT hit_shader_table_size_;
 		UINT hit_shader_table_stride_;
