@@ -43,6 +43,7 @@ namespace argent::graphics
 
 	void GraphicsLibrary::Shutdown()
 	{
+		raytracer_.Shutdown();
 		imgui_wrapper_.Shutdown();
 		main_rendering_queue_.WaitForGpu();
 		resource_upload_queue_.WaitForGpu();

@@ -131,9 +131,18 @@ namespace argent::graphics
 		return hr;
 	}
 
+	HRESULT GraphicsDevice::CreateResource(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_DESC desc,
+		D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const
+	{
+		const HRESULT hr = device_->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, &desc, initial_state, nullptr, 
+			IID_PPV_ARGS(pp_resource));
+		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Buffer");
+		return hr;
+	}
+
 	HRESULT GraphicsDevice::CreateTexture2D(D3D12_HEAP_PROPERTIES heap_prop, 
-		D3D12_RESOURCE_FLAGS resource_flags, DXGI_FORMAT format,
-		UINT width, UINT height, D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const
+	                                        D3D12_RESOURCE_FLAGS resource_flags, DXGI_FORMAT format,
+	                                        UINT width, UINT height, D3D12_RESOURCE_STATES initial_state, ID3D12Resource** pp_resource) const
 	{
 		D3D12_RESOURCE_DESC desc{};
 		desc.Alignment = 0u;

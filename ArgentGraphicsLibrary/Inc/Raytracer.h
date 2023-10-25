@@ -25,6 +25,8 @@
 #include "RaytracingPipelineState.h"
 #include "RootSignature.h"
 
+#include "Model.h"
+
 using namespace DirectX;
 
 using float2 = DirectX::XMFLOAT2;
@@ -63,9 +65,11 @@ namespace argent::graphics
 			GraphicsCommandList& command_list, CommandQueue& command_queue,
 			UINT64 width, UINT height, 
 			DescriptorHeap& cbv_srv_uav_descriptor_heap);
+		void Shutdown();
 
 		void Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue);
 		void OnRender(const GraphicsCommandList& command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle);
+
 
 		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
 	private:
@@ -272,6 +276,8 @@ namespace argent::graphics
 		dxr::ShaderBindingTable hit_group_shader_table_;
 
 		dxr::RaytracingPipelineState pipeline_state_;
+
+		std::shared_ptr<game_resource::Model> model_;
 
 
 		RootSignature global_root_signature_;

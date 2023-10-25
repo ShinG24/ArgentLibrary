@@ -15,7 +15,7 @@ namespace argent::graphics
 	{
 	public:
 		Texture(const GraphicsDevice* graphics_device, const CommandQueue* command_queue,
-			DescriptorHeap* cbv_srv_uav_heap, const wchar_t * filename, bool is_dds);
+			DescriptorHeap* cbv_srv_uav_heap, const wchar_t * filename);
 		~Texture() = default;
 
 		Texture(const Texture&) = delete;

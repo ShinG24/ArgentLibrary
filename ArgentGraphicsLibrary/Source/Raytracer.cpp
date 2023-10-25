@@ -3,7 +3,13 @@
 #include <vector>
 
 #include <fbxsdk.h>
+
+#include <fstream>
+#include <filesystem>
 #include <functional>
+
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/memory.hpp>
 
 #include "../External/Imgui/imgui.h"
 
@@ -15,8 +21,12 @@
 #include "../Inc/ShaderCompiler.h"
 #include "../../Assets/Shader/Common.hlsli"
 
+#include "../Inc/FbxLoader.h"
+
 
 #define _USE_CUBE_	0
+
+#define _USE_MODEL_ 1
 
 namespace argent::graphics
 {
@@ -25,17 +35,17 @@ namespace argent::graphics
 			DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
 		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/Coral.png", false);
+			L"./Assets/Model/Texture/Coral.png");
 		texture1_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap, 
-			L"./Assets/Model/Texture/CoralN.png", false);
+			L"./Assets/Model/Texture/CoralN.png");
 		skymaps_[0] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap00.dds", true);
+			L"./Assets/Images/Skymap00.dds");
 		skymaps_[1] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap01.dds", true);
+			L"./Assets/Images/Skymap01.dds");
 		skymaps_[2] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap02.dds", true);
+			L"./Assets/Images/Skymap02.dds");
 		skymaps_[3] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap03.dds", true);
+			L"./Assets/Images/Skymap03.dds");
 
 		width_ = width;
 		height_ = height;
@@ -77,11 +87,25 @@ namespace argent::graphics
 		//Fbx Loader
 		FbxLoader("./Assets/Model/Coral.fbx");
 
+		model_ = game_resource::LoadFbx("./Assets/Model/Coral.fbx");
+		model_->Awake(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap);
+
 		CreateAS(graphics_device, command_list, command_queue);
 		CreatePipeline(graphics_device);
 		CreateOutputBuffer(graphics_device, width, height);
 		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
 		CreateShaderBindingTable(graphics_device);
+	}
+
+	void Raytracer::Shutdown()
+	{
+		std::filesystem::path path = model_->GetFilePath().c_str();
+		path.replace_extension("cereal");
+
+		std::ofstream ofs(path.c_str(), std::ios::binary);
+		cereal::BinaryOutputArchive serialization(ofs);
+		serialization(model_);
+
 	}
 
 	void Raytracer::Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue)
@@ -109,6 +133,7 @@ namespace argent::graphics
 				ImGui::TreePop();
 			}
 		}
+		model_->OnGui();
 
 		graphics_command_list->Activate();
 
@@ -506,11 +531,27 @@ namespace argent::graphics
 			tables.at(Cube).shader_identifier_ = L"HitGroup2";
 			tables.at(Cube).input_data_.resize(RootSignatureBinderCount);
 			tables.at(Cube).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
+
+
+#if _USE_MODEL_
+			auto model_data = model_->GetShaderBindingData();
+
+			using RootModel = game_resource::Model;
+			//for(size_t i = 0; i < model_data.size(); ++i)
+			//{
+			//	tables.at(Cube).input_data_.at(i + 1) = model_data.at(i);
+			//}
+			tables.at(Cube).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(model_->GetMaterial()->GetMaterialConstantBufferLocation());
+			tables.at(Cube).input_data_.at(AlbedoTexture) = reinterpret_cast<void*>(model_->GetMaterial()->GetAlbedoTextureGpuHandle().ptr);
+			tables.at(Cube).input_data_.at(NormalTexture) = reinterpret_cast<void*>(model_->GetMaterial()->GetNormalTextureGpuHandle().ptr);
+
+			tables.at(Cube).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
+#else
 			tables.at(Cube).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
 			tables.at(Cube).input_data_.at(AlbedoTexture) = reinterpret_cast<void*>(texture_->GetGpuHandle().ptr);
 			tables.at(Cube).input_data_.at(NormalTexture) = reinterpret_cast<void*>(texture1_->GetGpuHandle().ptr);
 			tables.at(Cube).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
-
+#endif
 			tables.at(SphereAABB).shader_identifier_ = L"HitGroupSphere";
 			tables.at(SphereAABB).input_data_.resize(RootSignatureBinderCount);
 			tables.at(SphereAABB).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);

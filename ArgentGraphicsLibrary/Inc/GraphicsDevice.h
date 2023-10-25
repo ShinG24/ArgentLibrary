@@ -56,6 +56,8 @@ namespace argent::graphics
 		HRESULT CreateBuffer(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_FLAGS resource_flags,
 			UINT size, D3D12_RESOURCE_STATES initial_state,
 			ID3D12Resource** pp_resource) const;
+		HRESULT CreateResource(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_DESC desc, D3D12_RESOURCE_STATES initial_state, 
+			ID3D12Resource** pp_resource) const;
 		HRESULT CreateTexture2D(D3D12_HEAP_PROPERTIES heap_prop, D3D12_RESOURCE_FLAGS resource_flags,
 			DXGI_FORMAT format, UINT width, UINT height, D3D12_RESOURCE_STATES initial_state, 
 			ID3D12Resource** pp_resource) const;
