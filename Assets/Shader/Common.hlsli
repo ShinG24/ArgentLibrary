@@ -90,8 +90,8 @@ float4 TraceRadianceRay(in Ray ray, in uint current_recursion_depth)
     RayDesc ray_desc;
     ray_desc.Origin = ray.origin_;
     ray_desc.Direction = ray.direction_;
-    ray_desc.TMin = 0.0f;
-    ray_desc.TMax = 1000.0f;
+    ray_desc.TMin = 0.001f;
+    ray_desc.TMax = 10000.0f;
 
     RayPayload payload;
 	payload.color_ = float4(0, 0, 0, 0);

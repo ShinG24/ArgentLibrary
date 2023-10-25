@@ -102,7 +102,7 @@ namespace argent::graphics
 		{
 			Plane,
 			Sphere,
-		//	Sphere1,
+			//Sphere1,
 
 			CoralRock,
 			Coral0,
@@ -427,6 +427,11 @@ namespace argent::graphics
 		RootSignature global_root_signature_;
 		RootSignature raygen_miss_root_signature_;
 		RootSignature hit_group_root_signature_;
+		UINT vertex_counts_ = 0u;
+		UINT index_counts_ = 0u;
 
+	public:
+		UINT GetVertexCounts() const { return vertex_counts_; }
+		UINT GetIndexCounts() const { return index_counts_; }
 	};
 }

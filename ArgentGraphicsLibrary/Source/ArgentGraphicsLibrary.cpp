@@ -189,8 +189,13 @@ namespace argent::graphics
 					{
 						float delta_time = Timer::Get()->GetDeltaTime();
 						int fps = Timer::Get()->GetFps();
+						int vertex_counts = raytracer_.GetVertexCounts();
+						int triangle_counts = raytracer_.GetIndexCounts() / 3;
 						ImGui::InputFloat("Delta Time", &delta_time);
 						ImGui::InputInt("FPS", &fps);
+						ImGui::InputInt("Vertex", &vertex_counts);
+						ImGui::InputInt("Triangle", &triangle_counts);
+						
 
 						ImGui::TreePop();
 					}

@@ -49,7 +49,7 @@ namespace argent::graphics
 
 		transforms_[Plane].position_ = {0.0f, -5.0f, 0.0f };
 		transforms_[Plane].scaling_ = DirectX::XMFLOAT3(1000.0f, 1.0f, 1000.0f);
-		transforms_[Sphere].position_ = { 0.0f, 50.0f, 100.0f };
+		transforms_[Sphere].position_ = { -300.0f, 200.0f, 750.0f };
 
 		//For Coral Group
 		{
@@ -192,6 +192,8 @@ namespace argent::graphics
 		for(int i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
 		{
 			model_[i] = game_resource::LoadFbx(filepaths[i].c_str());
+			vertex_counts_ += model_[i]->GetMesh()->GetVertexCounts(); 
+			index_counts_ += model_[i]->GetMesh()->GetIndexCounts(); 
 		}
 
 		for(auto& m : model_)
@@ -344,7 +346,7 @@ namespace argent::graphics
 		{
 			Microsoft::WRL::ComPtr<ID3D12Resource> aabb_buffer_;
 			D3D12_RAYTRACING_AABB rt_aabb;
-			float aabb_size = 100.0f;
+			float aabb_size = 500.0f;
 
 			rt_aabb.MaxX = 
 			rt_aabb.MaxY = 
@@ -471,8 +473,6 @@ namespace argent::graphics
 			{
 				pipeline_state_.AddHitGroup(kHitGroupName[i],  L"StaticMeshClosestHit");
 			}
-			//pipeline_state_.AddHitGroup(kHitGroupName[Coral0], L"StaticMeshClosestHit");
-			//pipeline_state_.AddHitGroup(kHitGroupName[Coral1], L"StaticMeshClosestHit");
 		}
 
 		//Add Root Signature Association

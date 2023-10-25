@@ -106,6 +106,8 @@ namespace argent::game_resource
 		D3D12_GPU_DESCRIPTOR_HANDLE GetVertexGpuHandle() const { return vertex_srv_descriptor_.gpu_handle_; }
 		D3D12_GPU_DESCRIPTOR_HANDLE GetIndexGpuHandle() const { return index_srv_descriptor_.gpu_handle_; }
 
+		UINT GetVertexCounts() const { return static_cast<UINT>(vertices_.size()); }
+		UINT GetIndexCounts() const { return static_cast<UINT>(indices_.size()); }
 	private:
 		std::string name_;
 		std::unique_ptr<graphics::VertexBuffer> vertex_buffer_;
@@ -213,6 +215,7 @@ namespace argent::game_resource
 
 		std::string GetFilePath() const { return filepath_; }
 		void OnGui();
+
 
 		std::shared_ptr<Mesh> GetMesh() const { return mesh_; }
 		std::shared_ptr<Material> GetMaterial() const { return material_; }

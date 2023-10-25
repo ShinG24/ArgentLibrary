@@ -151,13 +151,13 @@ bool IntersectRaySpheres(in Ray ray, out float t_hit, out SphereHitAttribute att
     //The position in Local Space
     float3 centeres[N] =
     {
-        float3(50, 0, 0),
-        float3(-50, 0, 0),
+        float3(250, 0, 0),
+        float3(-250, 0, 0),
     };
     float radius[N] =
     {
-        50.0f,
-        50.0f
+        200.0f,
+        200.0f
     };
 
     bool hit_found = false;
