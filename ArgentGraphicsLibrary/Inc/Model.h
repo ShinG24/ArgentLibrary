@@ -6,21 +6,16 @@
 #include <string>
 #include <vector>
 
-
-
 #include <cereal/archives/binary.hpp>
+#include<cereal/types/memory.hpp>
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
-
-
-
 
 #include "Texture.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "DescriptorHeap.h"
-
 
 namespace DirectX
 {
@@ -56,8 +51,6 @@ namespace DirectX
 }
 
 
-
-
 namespace argent::graphics
 {
 	class GraphicsDevice;
@@ -85,12 +78,12 @@ namespace argent::game_resource
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(vertices_, indices_);
+			archive(name_, vertices_, indices_);
 		}
 
 	public:
 		Mesh() = default;
-		Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+		Mesh(std::string name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 		~Mesh() = default;
 
 		Mesh(const Mesh&) = delete;
@@ -101,6 +94,11 @@ namespace argent::game_resource
 		void Awake(const graphics::GraphicsDevice* graphics_device,
 			graphics::DescriptorHeap* srv_descriptor_heap);
 
+		void OnGui();
+
+		graphics::VertexBuffer* GetVertexBuffer() const { return vertex_buffer_.get(); }
+		graphics::IndexBuffer* GetIndexBuffer() const { return index_buffer_.get(); }
+
 		D3D12_GPU_VIRTUAL_ADDRESS GetVertexBufferLocation() const
 			{ return vertex_buffer_->GetBufferLocation(); }
 		D3D12_GPU_VIRTUAL_ADDRESS GetIndexBufferLocation() const { return index_buffer_->GetBufferObject()->GetGPUVirtualAddress(); }
@@ -109,6 +107,7 @@ namespace argent::game_resource
 		D3D12_GPU_DESCRIPTOR_HANDLE GetIndexGpuHandle() const { return index_srv_descriptor_.gpu_handle_; }
 
 	private:
+		std::string name_;
 		std::unique_ptr<graphics::VertexBuffer> vertex_buffer_;
 		std::unique_ptr<graphics::IndexBuffer> index_buffer_;
 		std::vector<Vertex> vertices_;
@@ -144,7 +143,7 @@ namespace argent::game_resource
 
 	public:
 		Material() = default;
-		Material(std::string albedo_texture_name, std::string normal_texture_name);
+		Material(std::string name, std::string albedo_texture_name, std::string normal_texture_name);
 
 		void Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap);
 
@@ -167,7 +166,7 @@ namespace argent::game_resource
 			return constant_buffer_->GetGpuVirtualAddress(0);
 		}
 	private:
-
+		std::string name_;
 		std::string albedo_texture_name_;
 		std::string normal_texture_name_;
 		std::string albedo_texture_path_replacement_;
@@ -200,9 +199,8 @@ namespace argent::game_resource
 	public:
 		Model() = default;
 
-		Model(std::string filepath, const std::vector<Mesh::Vertex>& vertices, const std::vector<uint32_t>& indices, 
-			const std::string& albedo_texture_name, const std::string& normal_texture_name);
-		~Model() = default;
+		Model(std::string filepath,std::string mesh_name, const std::vector<Mesh::Vertex>& vertices, const std::vector<uint32_t>& indices,
+		const std::string& albedo_texture_name, const std::string& normal_texture_name);
 
 		void Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap);
 		const std::vector<void*>& GetShaderBindingData() { return shader_binding_data_; }

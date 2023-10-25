@@ -33,6 +33,51 @@ using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
 using float4 = DirectX::XMFLOAT4;
 
+struct Transform
+{
+	DirectX::XMFLOAT3 position_{};
+	DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
+	DirectX::XMFLOAT3 rotation_{};
+	INT coordinate_system_index_;
+	static constexpr DirectX::XMFLOAT4X4 kCoordinateSystem[4]
+	{
+		{ -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 }, // 0:RHS Y-UP
+		{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 }, // 1:LHS Y-UP
+		{ -1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1 }, // 2:RHS Z-UP
+		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1 }, // 3:LHS Z-UP
+
+	};
+
+	const std::string kCoordinateSystemStr[4]
+	{
+		{"RHS Y-UP"},
+		{"LHS Y-UP"},
+		{"RHS Z-UP"},
+		{"LHS Z-UP"},
+	};
+
+	DirectX::XMMATRIX CalcWorldMatrix() const
+	{
+		const auto C = DirectX::XMLoadFloat4x4(&kCoordinateSystem[coordinate_system_index_]);
+		const auto S = DirectX::XMMatrixScaling(scaling_.x, scaling_.y, scaling_.z);
+		const auto R = DirectX::XMMatrixRotationRollPitchYaw(rotation_.x, rotation_.y, rotation_.z);
+		const auto T = DirectX::XMMatrixTranslation(position_.x, position_.y, position_.z);
+		return C * S * R * T;
+	}
+
+	void OnGui()
+	{
+		if (ImGui::TreeNode("Transform"))
+		{
+			ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+			ImGui::DragFloat3("Scaling", &scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
+			ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
+			ImGui::SliderInt("CoordinateSystem", &coordinate_system_index_, 0, 3);
+			ImGui::Text(kCoordinateSystemStr[coordinate_system_index_].c_str());
+			ImGui::TreePop();
+		}
+	}
+};
 
 struct Vertex
 {
@@ -48,7 +93,6 @@ namespace argent::graphics
 	class GraphicsDevice;
 	class GraphicsCommandList;
 	class CommandQueue;
-	
 
 	class Raytracer
 	{
@@ -109,12 +153,12 @@ namespace argent::graphics
 
 		enum GeometryType
 		{
-			Polygon,
 			Plane,
-			Cube,
 			SphereAABB,
+			Cube,
 			GeometryTypeCount,
 		};
+		static constexpr UINT kNoModelGeometryCounts = 2u;
 
 		std::unique_ptr<VertexBuffer> vertex_buffers_[GeometryTypeCount];
 		std::unique_ptr<IndexBuffer> index_buffers_[GeometryTypeCount];
@@ -122,59 +166,11 @@ namespace argent::graphics
 		Descriptor cube_vertex_descriptor_;
 		Descriptor cube_index_descriptor_;
 
-		
-		struct Transform
-		{
-			DirectX::XMFLOAT3 position_{};
-			DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
-			DirectX::XMFLOAT3 rotation_{};
-			INT coordinate_system_index_;
-			static constexpr DirectX::XMFLOAT4X4 kCoordinateSystem[4]
-			{
-				{ -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 }, // 0:RHS Y-UP
-				{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 }, // 1:LHS Y-UP
-				{ -1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1 }, // 2:RHS Z-UP
-				{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1 }, // 3:LHS Z-UP
-
-			};
-
-			const std::string kCoordinateSystemStr[4]
-			{
-				{"RHS Y-UP"},
-				{"LHS Y-UP"},
-				{"RHS Z-UP"},
-				{"LHS Z-UP"},
-			};
-
-			DirectX::XMMATRIX CalcWorldMatrix() const
-			{
-				const auto C = DirectX::XMLoadFloat4x4(&kCoordinateSystem[coordinate_system_index_]);
-				const auto S = DirectX::XMMatrixScaling(scaling_.x, scaling_.y, scaling_.z);
-				const auto R = DirectX::XMMatrixRotationRollPitchYaw(rotation_.x, rotation_.y, rotation_.z);
-				const auto T = DirectX::XMMatrixTranslation(position_.x, position_.y, position_.z);
-				return C * S * R * T;
-			}
-
-			void OnGui()
-			{
-				if (ImGui::TreeNode("Transform"))
-				{
-					ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
-					ImGui::DragFloat3("Scaling", &scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
-					ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
-					ImGui::SliderInt("CoordinateSystem", &coordinate_system_index_, 0, 3);
-					ImGui::Text(kCoordinateSystemStr[coordinate_system_index_].c_str());
-					ImGui::TreePop();
-				}
-			}
-		};
-
 		std::string name[GeometryTypeCount]
 		{
-			"Polygon",
 			"Plane",
+			"SphereAABB",
 			"Cube",
-			"SphereAABB"
 		};
 
 		struct ObjectConstant
@@ -283,5 +279,10 @@ namespace argent::graphics
 		RootSignature global_root_signature_;
 		RootSignature raygen_miss_root_signature_;
 		RootSignature hit_group_root_signature_;
+
+		//std::string filepaths[]
+		//{
+		//	"./Asset/Model/Coral.fbx"
+		//};
 	};
 }

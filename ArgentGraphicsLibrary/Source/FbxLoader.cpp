@@ -41,6 +41,7 @@ namespace argent::game_resource
 
 	struct FbxMesh
 	{
+		std::string name_;
 		std::vector<Mesh::Vertex> vertices_;
 		std::vector<uint32_t> indices_;
 	};
@@ -99,7 +100,7 @@ namespace argent::game_resource
 
 			fbx_manager->Destroy();
 
-			auto model = std::make_shared<Model>(filename, meshes.at(0).vertices_, meshes.at(0).indices_, "./Assets/Model/Texture/Coral.png", "./Assets/Model/Texture/CoralN.png");
+			auto model = std::make_shared<Model>(filename, meshes.at(0).name_, meshes.at(0).vertices_, meshes.at(0).indices_, "./Assets/Model/Texture/Coral.png", "./Assets/Model/Texture/CoralN.png");
 			std::ofstream ofs(cereal_filename.c_str(), std::ios::binary);
 			cereal::BinaryOutputArchive serialization(ofs);
 			serialization(model);
@@ -122,6 +123,7 @@ namespace argent::game_resource
 			auto* fbx_mesh{ fbx_node->GetMesh() };
 
 			auto& mesh{ meshes.emplace_back() };
+			mesh.name_ = node.name_;
 
 			const int polygon_count{ fbx_mesh->GetPolygonCount() };
 			mesh.vertices_.resize(polygon_count * 3LL);

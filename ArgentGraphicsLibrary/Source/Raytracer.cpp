@@ -26,7 +26,6 @@
 
 #define _USE_CUBE_	0
 
-#define _USE_MODEL_ 1
 
 namespace argent::graphics
 {
@@ -58,12 +57,6 @@ namespace argent::graphics
 		transforms_[Plane].scaling_ = DirectX::XMFLOAT3(200.0f, 1.0f, 200.0f);
 		transforms_[Cube].position_.x = 3.0f;
 		transforms_[SphereAABB].position_.z = 10.0f;
-
-		materials_[Polygon].albedo_color_ = float4(1.0f, 0.0f, 0.0f, 1.0f);
-		materials_[Polygon].diffuse_coefficient_ = 1.0f;
-		materials_[Polygon].specular_coefficient_ = 0.2f;
-		materials_[Polygon].specular_power_ = 50.f;
-		materials_[Polygon].reflectance_coefficient_ = 0.4f;
 
 		materials_[Plane].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
 		materials_[Plane].diffuse_coefficient_ = 0.2f;
@@ -194,17 +187,6 @@ namespace argent::graphics
 
 	void Raytracer::BuildGeometry(const GraphicsDevice& graphics_device)
 	{
-		//Polygon
-		{
-			Vertex vertices[3]
-			{
-				 {{0.0f, 3.0f, 0}, {}},
-	        {{0.0f, -3.0f, 3.0f}, {}},
-	        {{-0.0f, -3.0f, -3.0f}, {}}
-			};
-
-			vertex_buffers_[Polygon] = std::make_unique<VertexBuffer>(&graphics_device, vertices, sizeof(Vertex), 3);
-		}
 
 		//Plane
 		{
@@ -517,8 +499,6 @@ namespace argent::graphics
 		{
 			std::vector<dxr::ShaderTable> tables(GeometryTypeCount);
 
-			//For Polygon
-			tables.at(Polygon).shader_identifier_ = L"HitGroup";
 
 			//For Plane
 			tables.at(Plane).shader_identifier_ = L"HitGroup1";
@@ -532,31 +512,17 @@ namespace argent::graphics
 			tables.at(Cube).input_data_.resize(RootSignatureBinderCount);
 			tables.at(Cube).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Cube);
 
-
-#if _USE_MODEL_
 			auto model_data = model_->GetShaderBindingData();
 
-			using RootModel = game_resource::Model;
-			//for(size_t i = 0; i < model_data.size(); ++i)
-			//{
-			//	tables.at(Cube).input_data_.at(i + 1) = model_data.at(i);
-			//}
-			tables.at(Cube).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(model_->GetMaterial()->GetMaterialConstantBufferLocation());
-			tables.at(Cube).input_data_.at(AlbedoTexture) = reinterpret_cast<void*>(model_->GetMaterial()->GetAlbedoTextureGpuHandle().ptr);
-			tables.at(Cube).input_data_.at(NormalTexture) = reinterpret_cast<void*>(model_->GetMaterial()->GetNormalTextureGpuHandle().ptr);
+			for(size_t i = 0; i < model_data.size(); ++i)
+			{
+				tables.at(Cube).input_data_.at(i + 1) = model_data.at(i);
+			}
 
-			tables.at(Cube).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
-#else
-			tables.at(Cube).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Cube);
-			tables.at(Cube).input_data_.at(AlbedoTexture) = reinterpret_cast<void*>(texture_->GetGpuHandle().ptr);
-			tables.at(Cube).input_data_.at(NormalTexture) = reinterpret_cast<void*>(texture1_->GetGpuHandle().ptr);
-			tables.at(Cube).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(cube_vertex_descriptor_.gpu_handle_.ptr);
-#endif
 			tables.at(SphereAABB).shader_identifier_ = L"HitGroupSphere";
 			tables.at(SphereAABB).input_data_.resize(RootSignatureBinderCount);
 			tables.at(SphereAABB).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * SphereAABB);
 			tables.at(SphereAABB).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * SphereAABB);
-
 			hit_group_shader_table_.AddShaderTables(tables);
 			hit_group_shader_table_.Generate(&graphics_device, 
 				pipeline_state_.GetStateObjectProperties(), L"HitGroupShaderTable");

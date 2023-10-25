@@ -3,17 +3,13 @@
 #include <filesystem>
 #include <fstream>
 
-#include<cereal/types/memory.hpp>
-
 #include "../External/Imgui/imgui.h"
-
-
-
 
 namespace argent::game_resource
 {
-	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices):
-		vertices_(vertices)
+	Mesh::Mesh(std::string name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices):
+		name_(name)
+	,	vertices_(vertices)
 	,	indices_(indices)
 	{}
 
@@ -30,8 +26,22 @@ namespace argent::game_resource
 			sizeof(uint32_t), index_srv_descriptor_.cpu_handle_);
 	}
 
-	Material::Material(std::string albedo_texture_name, std::string normal_texture_name) :
-		albedo_texture_name_(albedo_texture_name)
+	void Mesh::OnGui()
+	{
+		if(ImGui::TreeNode("Mesh"))
+		{
+			ImGui::Text(name_.c_str());
+			int vertex_counts = vertex_buffer_->GetVertexCounts();
+			int index_counts = index_buffer_->GetIndexCounts();
+			ImGui::InputInt("Vertex Counts", &vertex_counts);
+			ImGui::InputInt("Index Counts", &index_counts);
+			ImGui::TreePop();
+		}
+	}
+
+	Material::Material(std::string name, std::string albedo_texture_name, std::string normal_texture_name) :
+		name_(name)
+	,	albedo_texture_name_(albedo_texture_name)
 	,	normal_texture_name_(normal_texture_name)
 	{}
 
@@ -49,25 +59,39 @@ namespace argent::game_resource
 
 	void Material::OnGui()
 	{
-		ImGui::Image(reinterpret_cast<ImTextureID>(GetAlbedoTextureGpuHandle().ptr), ImVec2(256, 256));
-		ImGui::Image(reinterpret_cast<ImTextureID>(GetNormalTextureGpuHandle().ptr), ImVec2(256, 256));
-		ImGui::Text(albedo_texture_name_.c_str());
-#ifdef _DEBUG
-		ImGui::InputText("AlbedoTextureFilePath", &albedo_texture_path_replacement_.at(0), albedo_texture_path_replacement_.capacity());
-		if(ImGui::Button("Accept Albedo"))
+		if(ImGui::TreeNode("Material"))
 		{
-			albedo_texture_name_ = albedo_texture_path_replacement_;
+
+			if(!albedo_texture_name_.empty())
+			{
+				ImGui::Text("Albedo");
+				ImGui::Image(reinterpret_cast<ImTextureID>(GetAlbedoTextureGpuHandle().ptr), ImVec2(256, 256));
+			}
+			if(!normal_texture_name_.empty())
+			{
+				ImGui::Text("Normal");	
+				ImGui::Image(reinterpret_cast<ImTextureID>(GetNormalTextureGpuHandle().ptr), ImVec2(256, 256));
+			}
+	#ifdef _DEBUG
+			ImGui::Text(albedo_texture_name_.c_str());
+			ImGui::InputText("AlbedoTextureFilePath", &albedo_texture_path_replacement_.at(0), albedo_texture_path_replacement_.capacity());
+			if(ImGui::Button("Accept Albedo"))
+			{
+				albedo_texture_name_ = albedo_texture_path_replacement_;
+			}
+	#endif
+
+			ImGui::TreePop();
 		}
-#endif
 
 	}
 
-	Model::Model(std::string filepath, const std::vector<Mesh::Vertex>& vertices, const std::vector<uint32_t>& indices,
+	Model::Model(std::string filepath,std::string mesh_name, const std::vector<Mesh::Vertex>& vertices, const std::vector<uint32_t>& indices,
 		const std::string& albedo_texture_name, const std::string& normal_texture_name):
 		filepath_(filepath)
 	{
-		mesh_ = std::make_shared<Mesh>(vertices, indices);
-		material_ = std::make_shared<Material>(albedo_texture_name, normal_texture_name);
+		mesh_ = std::make_shared<Mesh>(mesh_name, vertices, indices);
+		material_ = std::make_shared<Material>("Material", albedo_texture_name, normal_texture_name);
 	}
 
 	void Model::Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap)
@@ -80,13 +104,16 @@ namespace argent::game_resource
 		shader_binding_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_->GetMaterialConstantBufferLocation());
 		shader_binding_data_.at(AlbedoTexture) = reinterpret_cast<void*>(material_->GetAlbedoTextureGpuHandle().ptr);
 		shader_binding_data_.at(NormalTexture) = reinterpret_cast<void*>(material_->GetNormalTextureGpuHandle().ptr);
-		shader_binding_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(mesh_->GetVertexBufferLocation());
+		shader_binding_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(mesh_->GetVertexGpuHandle().ptr);
 	}
 
 	void Model::OnGui()
 	{
-		if(ImGui::TreeNode("Model"))
+		std::filesystem::path path = filepath_;
+
+		if(ImGui::TreeNode(path.stem().string().c_str()))
 		{
+			mesh_->OnGui();
 			material_->OnGui();
 			
 			ImGui::TreePop();
