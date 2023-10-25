@@ -42,7 +42,7 @@ namespace argent::graphics
 
 			if(std::filesystem::exists(path))
 			{
-				hr = DirectX::CreateDDSTextureFromFile(graphics_device->GetDevice(), resource_upload_batch, filename,
+				hr = DirectX::CreateDDSTextureFromFile(graphics_device->GetDevice(), resource_upload_batch, path.wstring().c_str(),
 					resource_object_.ReleaseAndGetAddressOf());}
 			else
 			{

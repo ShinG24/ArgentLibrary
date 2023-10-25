@@ -187,7 +187,7 @@ void StaticMeshClosestHit(inout RayPayload payload, in HitAttribute attr)
     float3 normal = CalcNormal(world_normal, world_tangent.xyz, world_binormal.xyz, normal_texcoord);
 
 
-    float4 albedo_color = AlbedoSampling(index, attr.barycentrics);
+    float4 albedo_color = AlbedoSampling(index, attr.barycentrics) * material_constant.albedo_color_;
   
 
     //Do Raytracing

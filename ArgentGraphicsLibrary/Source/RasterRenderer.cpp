@@ -22,7 +22,7 @@ namespace argent::graphics
 		compiler.Compile(L"./Assets/Shader/PixelShader.hlsl", L"ps_6_6", pixel_shader_.ReleaseAndGetAddressOf());
 
 		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &descriptor_heap,
-			L"./Assets/Images/Title.png");
+			L"./Assets/Images/Title.dds");
 		CreateVertexBuffer(graphics_device);
 		CreateRootSignatureAndPipeline(graphics_device);
 	}
