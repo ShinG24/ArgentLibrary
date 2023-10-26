@@ -36,6 +36,7 @@
     <ClInclude Include="Inc\DescriptorHeap.h" />
     <ClInclude Include="Inc\FbxLoader.h" />
     <ClInclude Include="Inc\FrameResource.h" />
+    <ClInclude Include="Inc\GameResource.h" />
     <ClInclude Include="Inc\GraphicsCommandList.h" />
     <ClInclude Include="Inc\CommandQueue.h" />
     <ClInclude Include="Inc\DxgiFactory.h" />
@@ -43,6 +44,7 @@
     <ClInclude Include="Inc\GraphicsDevice.h" />
     <ClInclude Include="Inc\ImGuiWrapper.h" />
     <ClInclude Include="Inc\IndexBuffer.h" />
+    <ClInclude Include="Inc\Material.h" />
     <ClInclude Include="Inc\Mesh.h" />
     <ClInclude Include="Inc\Model.h" />
     <ClInclude Include="Inc\Platform.h" />
@@ -70,12 +72,14 @@
     <ClCompile Include="Source\DescriptorHeap.cpp" />
     <ClCompile Include="Source\FbxLoader.cpp" />
     <ClCompile Include="Source\FrameResource.cpp" />
+    <ClCompile Include="Source\GameResource.cpp" />
     <ClCompile Include="Source\GraphicsCommandList.cpp" />
     <ClCompile Include="Source\CommandQueue.cpp" />
     <ClCompile Include="Source\DxgiFactory.cpp" />
     <ClCompile Include="Source\GraphicsDevice.cpp" />
     <ClCompile Include="Source\ImGuiWrapper.cpp" />
     <ClCompile Include="Source\IndexBuffer.cpp" />
+    <ClCompile Include="Source\Material.cpp" />
     <ClCompile Include="Source\Mesh.cpp" />
     <ClCompile Include="Source\Model.cpp" />
     <ClCompile Include="Source\Platform.cpp" />

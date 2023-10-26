@@ -75,7 +75,6 @@
     <ClInclude Include="Inc\AccelerationStructureManager.h">
       <Filter>API\Direct3D12\DXR</Filter>
     </ClInclude>
-    <ClInclude Include="Inc\Texture.h" />
     <ClInclude Include="Inc\ShaderBindingTable.h">
       <Filter>API\Direct3D12\DXR</Filter>
     </ClInclude>
@@ -95,6 +94,15 @@
       <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\FrameResource.h" />
+    <ClInclude Include="Inc\Texture.h">
+      <Filter>GameResource\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Material.h">
+      <Filter>GameResource\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\GameResource.h">
+      <Filter>GameResource\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -161,7 +169,6 @@
     <ClCompile Include="Source\AccelerationStructureManager.cpp">
       <Filter>API\Direct3D12\DXR</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\ShaderBindingTable.cpp">
       <Filter>API\Direct3D12\DXR</Filter>
     </ClCompile>
@@ -178,6 +185,15 @@
       <Filter>GameResource\3D</Filter>
     </ClCompile>
     <ClCompile Include="Source\FrameResource.cpp" />
+    <ClCompile Include="Source\Texture.cpp">
+      <Filter>GameResource\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Material.cpp">
+      <Filter>GameResource\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GameResource.cpp">
+      <Filter>GameResource\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shader">
@@ -221,6 +237,9 @@
     </Filter>
     <Filter Include="GameResource\2D">
       <UniqueIdentifier>{40990582-ba52-4b4a-a109-2820a385f560}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameResource\Common">
+      <UniqueIdentifier>{b8e740aa-b09f-48fe-8747-9008e8175b38}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
