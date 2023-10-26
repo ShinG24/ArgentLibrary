@@ -25,7 +25,7 @@
 #include "RaytracingPipelineState.h"
 #include "RootSignature.h"
 
-#include "Model.h"
+#include "Model0.h"
 
 using namespace DirectX;
 
@@ -174,7 +174,6 @@ namespace argent::graphics
 
 		void CreateShaderBindingTable(const dx12::GraphicsDevice& graphics_device);
 
-		void FbxLoader(const char* filename);
 	private:
 		//Shader
 		Microsoft::WRL::ComPtr<IDxcBlob> ray_gen_library_;
@@ -197,10 +196,6 @@ namespace argent::graphics
 
 		std::unique_ptr<dx12::VertexBuffer> vertex_buffers_[kNoModelGeometryCounts];
 		std::unique_ptr<dx12::IndexBuffer> index_buffers_[kNoModelGeometryCounts];
-
-		//Descriptor cube_vertex_descriptor_;
-		//Descriptor cube_index_descriptor_;
-
 
 		struct ObjectConstant
 		{
@@ -275,25 +270,10 @@ namespace argent::graphics
 		int* map_skymap_index_;
 
 		bool is_wait_ = false;
-	public:
 
-		struct Mesh
-		{
-			uint64_t unique_id_{};
-			std::string name_;
-			int64_t node_index_{};
-
-			std::vector<Vertex> vertices_;
-			std::vector<uint32_t> indices_;
-
-			std::unique_ptr<dx12::VertexBuffer> vertex_buffer_;
-			std::unique_ptr<dx12::IndexBuffer> index_buffer_;
-		};
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> blas_transform_cube_;
-		std::vector<Mesh> meshes_;
-
 
 		//For Shader Binding Table
 		dx12::ShaderBindingTable raygen_shader_table_;

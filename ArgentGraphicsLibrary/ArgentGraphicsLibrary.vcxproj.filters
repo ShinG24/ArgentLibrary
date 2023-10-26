@@ -84,7 +84,7 @@
     <ClInclude Include="Inc\FbxLoader.h">
       <Filter>GameResource\AssetsLoader\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Inc\Model.h">
+    <ClInclude Include="Inc\Model0.h">
       <Filter>GameResource</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Mesh.h">
@@ -102,6 +102,12 @@
     </ClInclude>
     <ClInclude Include="Inc\GameResource.h">
       <Filter>GameResource\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Model.h">
+      <Filter>GameResource\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\GraphicsContext.h">
+      <Filter>API</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -178,7 +184,7 @@
     <ClCompile Include="Source\FbxLoader.cpp">
       <Filter>GameResource\AssetsLoader\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Model.cpp">
+    <ClCompile Include="Source\Model0.cpp">
       <Filter>GameResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Mesh.cpp">
@@ -193,6 +199,9 @@
     </ClCompile>
     <ClCompile Include="Source\GameResource.cpp">
       <Filter>GameResource\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Inc\Model.cpp">
+      <Filter>GameResource\3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

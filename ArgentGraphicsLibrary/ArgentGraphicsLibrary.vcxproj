@@ -41,12 +41,14 @@
     <ClInclude Include="Inc\CommandQueue.h" />
     <ClInclude Include="Inc\DxgiFactory.h" />
     <ClInclude Include="Inc\GraphicsCommon.h" />
+    <ClInclude Include="Inc\GraphicsContext.h" />
     <ClInclude Include="Inc\GraphicsDevice.h" />
     <ClInclude Include="Inc\ImGuiWrapper.h" />
     <ClInclude Include="Inc\IndexBuffer.h" />
     <ClInclude Include="Inc\Material.h" />
     <ClInclude Include="Inc\Mesh.h" />
     <ClInclude Include="Inc\Model.h" />
+    <ClInclude Include="Inc\Model0.h" />
     <ClInclude Include="Inc\Platform.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
     <ClInclude Include="Inc\Raytracer.h" />
@@ -66,6 +68,7 @@
     <ClCompile Include="External\Imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="External\Imgui\imgui_tables.cpp" />
     <ClCompile Include="External\Imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Inc\Model.cpp" />
     <ClCompile Include="Source\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -81,7 +84,7 @@
     <ClCompile Include="Source\IndexBuffer.cpp" />
     <ClCompile Include="Source\Material.cpp" />
     <ClCompile Include="Source\Mesh.cpp" />
-    <ClCompile Include="Source\Model.cpp" />
+    <ClCompile Include="Source\Model0.cpp" />
     <ClCompile Include="Source\Platform.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
     <ClCompile Include="Source\Raytracer.cpp" />

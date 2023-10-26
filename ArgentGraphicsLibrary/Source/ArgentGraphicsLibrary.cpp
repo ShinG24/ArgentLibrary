@@ -176,14 +176,6 @@ namespace argent::graphics
 
 				//Draw on ImGui
 				{
-					//ëÄçÏï˚ñ@óp
-					ImGui::SetNextWindowPos(ImVec2(600, 400), ImGuiCond_Once);
-					ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Once);
-					ImGui::Begin("Instructions");
-					ImGui::Text("Camera");
-					ImGui::Text("Right Click + W, A, S, D");
-					ImGui::End();
-
 
 					if(ImGui::TreeNode("Performance"))
 					{

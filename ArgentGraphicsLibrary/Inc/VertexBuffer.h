@@ -10,7 +10,7 @@ namespace argent::graphics::dx12
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(const GraphicsDevice* graphics_device, const void* p_data, UINT size_of_structure, UINT vertex_counts, bool allow_update = false);
+		VertexBuffer(const GraphicsDevice* graphics_device, const void* p_data, UINT structure_size, UINT vertex_counts, bool allow_update = false);
 
 		~VertexBuffer()
 		{

@@ -19,9 +19,9 @@ namespace argent::graphics
 	class GameResource
 	{
 	public:
-	public:
-		GameResource(const std::string& name):
-			name_(name) {}
+		GameResource() = default;
+		explicit GameResource(std::string name):
+			name_(std::move(name)) {}
 
 		virtual ~GameResource() = default;
 
