@@ -147,52 +147,19 @@ bool IntersectRaySphere(in Ray ray, out float t_hit, out float t_max, out Sphere
 
 bool IntersectRaySpheres(in Ray ray, out float t_hit, out SphereHitAttribute attr)
 {
-    const int N = 2;
-    //The position in Local Space
-    float3 centeres[N] =
-    {
-        float3(250, 0, 0),
-        float3(-250, 0, 0),
-    };
-    float radius[N] =
-    {
-        200.0f,
-        200.0f
-    };
-
-    bool hit_found = false;
-    t_hit = RayTCurrent();
-
-    float _t_hit;
-    float _t_max;
-    SphereHitAttribute _attr = (SphereHitAttribute) 0;
-
-    for (int i = 0; i < N; ++i)
-    {
-        if (IntersectRaySphere(ray, _t_hit, _t_max, _attr, centeres[i], radius[i]))
-        {
-            if (_t_hit < t_hit)
-            {
-                t_hit = _t_hit;
-                attr = _attr;
-                hit_found = true;
-            }
-        }
-    }
-    return hit_found;
-}
-
-bool IntersectRaySphere1(in Ray ray, out float t_hit, out SphereHitAttribute attr)
-{
     const int N = 1;
     //The position in Local Space
     float3 centeres[N] =
     {
-        float3(0, 0, 0),
+        float3(0, 0, 0)
+       // float3(250, 0, 0),
+       // float3(-250, 0, 0),
     };
     float radius[N] =
     {
-        100.0f,
+        50.0f
+        //200.0f,
+        //200.0f
     };
 
     bool hit_found = false;
@@ -230,28 +197,6 @@ void SphereIntersection()
     SphereHitAttribute attr = (SphereHitAttribute) 0;
 
     if (IntersectRaySpheres(ray, t_hit, attr))
-    {
-        attr.normal_ = mul(attr.normal_, (float3x3) object_constant.world_);
-        attr.normal_ = normalize(attr.normal_);
-        //attr.normal_ = normalize(mul((float3x3) ObjectToWorld3x4(), attr.normal_));
-
-        ReportHit(t_hit, 1, attr);
-    }
-}
-
-_INTERSECTION_SHADER_
-void SphereIntersection1()
-{
-    Ray ray;
-    ray.origin_ = mul(float4(WorldRayOrigin(), 1), object_constant.inv_world_).xyz;
-    ray.direction_ = mul(float4(WorldRayDirection(), 0), object_constant.inv_world_).xyz;
-    //ray.origin_ = mul(float4(ObjectRayOrigin(), 1), object_constant.inv_world_);
-    //ray.direction_ = mul(ObjectRayDirection(), (float3x3)object_constant.inv_world_);
-    float t_hit;
-
-    SphereHitAttribute attr = (SphereHitAttribute) 0;
-
-    if (IntersectRaySphere1(ray, t_hit, attr))
     {
         attr.normal_ = mul(attr.normal_, (float3x3) object_constant.world_);
         attr.normal_ = normalize(attr.normal_);

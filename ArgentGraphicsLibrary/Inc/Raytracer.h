@@ -35,7 +35,7 @@ using float4 = DirectX::XMFLOAT4;
 
 struct Transform
 {
-	DirectX::XMFLOAT3 position_{ 0.0f, 0.0f, 500.0f };
+	DirectX::XMFLOAT3 position_{ 0.0f, 0.0f, 0.0f };
 	DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT3 rotation_{};
 	INT coordinate_system_index_;
@@ -102,40 +102,9 @@ namespace argent::graphics
 		{
 			Plane,
 			Sphere,
-			//Sphere1,
 
 			CoralRock,
-			Coral0,
-			Coral4,
-			Coral5,
-			Coral6,
-			Coral7,
 			Coral8,
-
-			GoldDome,
-
-			WoodTable0,
-			TreasureChest,
-			Skull,
-
-			Flower0,
-			Flower1,
-			Flower2,
-			Flower3,
-
-			Cliff,
-			DecorPillarA,
-			DecorPillarB,
-			EntryTotem,
-
-			Book01,
-			Book02,
-			Book03,
-			BookOpen,
-
-			BlueCrystal01,
-			RedCrystal01,
-			PurpleCrystal01,
 
 			GeometryTypeCount,
 		};
@@ -145,41 +114,9 @@ namespace argent::graphics
 		{
 			"Plane",
 			"Sphere",
-		//	"Sphere1",
 
 			"CoralRock",
-			"Coral0",
-			"Coral4",
-			"Coral5",
-			"Coral6",
-			"Coral7",
 			"Coral8",
-
-			"GoldDome",
-
-			"WoodTable",
-			"TreasureChest",
-			"Skull",
-
-			"Flower0",
-			"Flower1",
-			"Flower2",
-			"Flower3",
-
-			"Cliff",
-			"DecorPillarA",
-			"DecorPillarB",
-			"EntryTotem",
-
-			"Book01",
-			"Book02",
-			"Book03",
-			"BookOpen",
-
-			"BlueCrystal01",
-			"RedCrystal01",
-			"PurpleCrystal01",
-
 
 		};
 
@@ -187,76 +124,15 @@ namespace argent::graphics
 		{
 			L"HG_Plane",
 			L"HG_Sphere",
-		//	L"HG_Sphere1",
 
 			L"HG_CoralRock",
-			L"HG_Coral0",
-			L"HG_Coral4",
-			L"HG_Coral5",
-			L"HG_Coral6",
-			L"HG_Coral7",
 			L"HG_Coral8",
-
-			L"HG_GoldDome",
-
-			L"HG_WoodTable",
-			L"HG_TreasureChest",
-			L"HG_Skull",
-
-			L"HG_Flower0",
-			L"HG_Flower1",
-			L"HG_Flower2",
-			L"HG_Flower3",
-
-			L"HG_Cliff",
-			L"HG_DecorPillarA",
-			L"HG_DecorPillarB",
-			L"HG_EntryTotem",
-
-			L"HG_Book01",
-			L"HG_Book02",
-			L"HG_Book03",
-			L"HG_BookOpen",
-
-			L"HG_BlueCrystal01",
-			L"HG_RedCrystal01",
-			L"HG_PurpleCrystal01",
 		};
 
 		std::string filepaths[GeometryTypeCount - kNoModelGeometryCounts]
 		{
 			"./Assets/Model/CoralRock.fbx",
-			"./Assets/Model/Coral_0.fbx",
-			"./Assets/Model/Coral_4.fbx",
-			"./Assets/Model/Coral_5.fbx",
-			"./Assets/Model/Coral_6.fbx",
-			"./Assets/Model/Coral_7.fbx",
 			"./Assets/Model/Coral_8.fbx",
-
-			"./Assets/Model/GoldDome.fbx",
-
-			"./Assets/Model/TableWood_0.fbx",
-			"./Assets/Model/TreasureChest.fbx",
-			"./Assets/Model/SkeletonSkull.fbx",
-
-			"./Assets/Model/Flower_0.fbx",
-			"./Assets/Model/Flower_1.fbx",
-			"./Assets/Model/Flower_2.fbx",
-			"./Assets/Model/Flower_3.fbx",
-
-			"./Assets/Model/Cliff_01.fbx",
-			"./Assets/Model/DecorPillar_A.fbx",
-			"./Assets/Model/DecorPillar_B.fbx",
-			"./Assets/Model/EntryDecor.fbx",
-
-			"./Assets/Model/Book_01.fbx",
-			"./Assets/Model/Book_02.fbx",
-			"./Assets/Model/Book_03.fbx",
-			"./Assets/Model/BookOpen.fbx",
-
-			"./Assets/Model/Crystal_01_Blue.fbx",
-			"./Assets/Model/CrystalRed.fbx",
-			"./Assets/Model/CrystalPurple.fbx",
 		};
 
 

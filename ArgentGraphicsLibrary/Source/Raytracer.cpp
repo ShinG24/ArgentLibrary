@@ -24,9 +24,6 @@
 #include "../Inc/FbxLoader.h"
 
 
-#define _USE_CUBE_	0
-
-
 namespace argent::graphics
 {
 	void Raytracer::Awake(const GraphicsDevice& graphics_device, GraphicsCommandList& command_list,
@@ -47,128 +44,17 @@ namespace argent::graphics
 
 		object_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 
-		transforms_[Plane].position_ = {0.0f, -5.0f, 0.0f };
+		transforms_[Plane].position_ = {0.0f, 0.0f, 0.0f };
 		transforms_[Plane].scaling_ = DirectX::XMFLOAT3(1000.0f, 1.0f, 1000.0f);
-		transforms_[Sphere].position_ = { -300.0f, 200.0f, 750.0f };
-
+		transforms_[Sphere].position_ = {0.0f, 50.0f, 0.0f };
 		//For Coral Group
 		{
-			transforms_[CoralRock].position_ = { -50.0f, 10.0f, 0.0f };
-			transforms_[CoralRock].scaling_ = { 0.1f, 0.1f, 0.1f};
-			transforms_[CoralRock].rotation_ = { 2.2f, -3.8f, 0.0f };
-			transforms_[Coral0].position_ = { -35.f, 13.f, 0.f};
-			transforms_[Coral0].scaling_ = { 0.1f, 0.1f, 0.1f };
-			transforms_[Coral0].rotation_ = { -2.2f, -1.465f, -5.36f };
-			transforms_[Coral4].position_ = { -47.58f, 19.33f, 0.0f};
-			transforms_[Coral4].scaling_ = { 0.1f, 0.1f, 0.1f};
-			transforms_[Coral4].rotation_ = { -1.832f, -0.843f, 0.0f};
-			transforms_[Coral5].position_ = { -53.49, 21.f, -0.7f};
-			transforms_[Coral5].scaling_ = { 0.2f, 0.2f, 0.2f};
-			transforms_[Coral5].rotation_ = { -2.015f, -0.62f, 0.0f};
-			transforms_[Coral6].position_ = { -47.78f, 11.66f, -15.39f};
-			transforms_[Coral6].scaling_ = { 0.2f, 0.2f, 0.2f};
-			transforms_[Coral6].rotation_ = { -2.327f, -0.761f, 0.0f};
-			transforms_[Coral7].position_ = { -52.97f, 15.58f, -14.2f};
-			transforms_[Coral7].scaling_ = { 0.2f, 0.2f, 0.2f};
-			transforms_[Coral7].rotation_ = { -2.156f, -0.597f, 0.0f};
-			transforms_[Coral8].position_ = { -42.70f, 20.93f, 8.97f};
-			transforms_[Coral8].scaling_ = { 0.2f, 0.2f, 0.2f};
+			transforms_[CoralRock].position_ = { -100.0f, 0.0f, 0.0f };
+			transforms_[CoralRock].scaling_ = { 0.1f, 0.1f, 0.1f };
+			transforms_[CoralRock].rotation_ = { -1.57f, 0.0f, 0.0f };
+			transforms_[Coral8].position_ = { 100.0f, 0.0f, 0.0f};
 			transforms_[Coral8].rotation_ = { -1.57f, -0.0f, 0.0f};
 
-		}
-
-		//For Rock Object
-		{
-			transforms_[GoldDome].position_ = { 500.0f, -5.0f, 500.0f };
-			transforms_[GoldDome].scaling_ = { 1.0f, 1.0f, 1.0f};
-			transforms_[GoldDome].rotation_ = { -1.57f, 3.0f, 0.0f };
-		}
-
-		//Wooden & skeleton
-		{
-			transforms_[WoodTable0].position_ = { 100.0f, 32.5f, -50.0f };
-			transforms_[WoodTable0].scaling_ = { 0.5f, 0.5f, 0.5f };
-			transforms_[WoodTable0].rotation_ = { -1.57f, 1.57f, 0.0f };
-			transforms_[TreasureChest].position_ = { 100.0f, -5.0f, -40.0f };
-			transforms_[TreasureChest].scaling_ = { 0.5f, 0.5f, 0.5f };
-			transforms_[TreasureChest].rotation_ = { -1.57f, 0.0f, 0.0f };
-			transforms_[Skull].position_ = { 80.0f, -3.6f, -84.36f };
-			transforms_[Skull].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[Skull].rotation_ = { -1.57f, 0.0f, 0.0f };
-		}
-
-		//Plant
-		{
-			transforms_[Flower0].position_ = { -500.0f, 3.0f, 0.f };
-			transforms_[Flower0].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[Flower0].rotation_ = { -1.57f, 3.14f, 0.0f };
-
-			transforms_[Flower1].position_ = { -500.0f, 3.0f, -70.f };
-			transforms_[Flower1].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[Flower1].rotation_ = { -1.57f, 3.14f, 0.0f };
-
-			transforms_[Flower2].position_ = { -500.0f, 3.0f, -109.f };
-			transforms_[Flower2].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[Flower2].rotation_ = { -1.57f, 1.9f, 0.0f };
-
-			transforms_[Flower3].position_ = { -500.0f, 3.0f, -160.0f };
-			transforms_[Flower3].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[Flower3].rotation_ = { -1.57f, 0.0f, 0.0f };
-		}
-
-		//Rock Object
-		{
-			transforms_[Cliff].position_ = { -500.0f, 500.0f, 500.0f };
-			transforms_[Cliff].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[Cliff].rotation_ = { -1.57f, 0.0f, 0.0f };
-
-			transforms_[DecorPillarA].position_ = { -500.0f, -5.0f, 500.0f };
-			transforms_[DecorPillarA].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[DecorPillarA].rotation_ = { -1.57f, 0.0f, 0.0f };
-
-			transforms_[DecorPillarB].position_ = { -500.0f, -5.0f, 400.0f };
-			transforms_[DecorPillarB].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[DecorPillarB].rotation_ = { -1.57f, 0.0f, 0.0f };
-
-			transforms_[EntryTotem].position_ = { -500.0f, -5.0f, 300.0f };
-			transforms_[EntryTotem].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[EntryTotem].rotation_ = { -1.57f, 0.0f, 0.0f };
-
-		}
-
-		//Book
-		{
-			transforms_[Book01].position_ = { 100.0f, 46.3f, -10.0f };
-			transforms_[Book01].scaling_ = { 0.3f, 0.3f, 0.3f };
-			transforms_[Book01].rotation_ = { -1.57f, 2.0f, 0.0f };
-
-			transforms_[Book02].position_ = { 100.0f, 51.33f, -21.68f };
-			transforms_[Book02].scaling_ = { 0.3f, 0.3f, 0.3f };
-			transforms_[Book02].rotation_ = { -1.2f, -2.689f, 0.0f };
-
-			transforms_[Book03].position_ = { 100.0f, 47.0f, -50.0f };
-			transforms_[Book03].scaling_ = { 0.3f, 0.3f, 0.3f };
-			transforms_[Book03].rotation_ = { -1.57f, -1.570f, 0.0f };
-
-			transforms_[BookOpen].position_ = { 100.0f, 47.0f, -82.0f };
-			transforms_[BookOpen].scaling_ = { 0.3f, 0.3f, 0.3f };
-			transforms_[BookOpen].rotation_ = { -1.57f, 0.0f, 0.0f };
-
-		}
-
-		//Crystal
-		{
-			transforms_[BlueCrystal01].position_ = { -0.0f, 50.0f, -500.0f };
-			transforms_[BlueCrystal01].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[BlueCrystal01].rotation_ = { -1.57f, 0.0f, 0.0f };
-
-			transforms_[RedCrystal01].position_ = { 300.0f, 50.0f, -500.0f };
-			transforms_[RedCrystal01].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[RedCrystal01].rotation_ = { -1.57f, 0.0f, 0.0f };
-
-			transforms_[PurpleCrystal01].position_ = { -300.0f, 50.0f, -500.0f };
-			transforms_[PurpleCrystal01].scaling_ = { 1.0f, 1.0f, 1.0f };
-			transforms_[PurpleCrystal01].rotation_ = { -1.57f, 0.0f, 0.0f };
 
 		}
 		//Initialize Sphere
@@ -460,14 +346,13 @@ namespace argent::graphics
 			pipeline_state_.AddLibrary(miss_library_.Get(), {L"Miss"});
 			pipeline_state_.AddLibrary(plane_library_.Get(), {L"PlaneClosestHit"});
 			pipeline_state_.AddLibrary(static_mesh_library_.Get(), {L"StaticMeshClosestHit"});
-			pipeline_state_.AddLibrary(sphere_library_.Get(), {{L"SphereClosestHit"}, {L"SphereIntersection"}, {L"SphereIntersection1"}});
+			pipeline_state_.AddLibrary(sphere_library_.Get(), {{L"SphereClosestHit"}, {L"SphereIntersection"}});
 		}
 
 		//Add Hit Group
 		{
 			pipeline_state_.AddHitGroup(kHitGroupName[Plane], L"PlaneClosestHit");
 			pipeline_state_.AddHitGroup(kHitGroupName[Sphere], L"SphereClosestHit", L"", L"SphereIntersection");
-		//	pipeline_state_.AddHitGroup(kHitGroupName[Sphere1], L"SphereClosestHit", L"", L"SphereIntersection1");
 
 			for(int i = kNoModelGeometryCounts; i < GeometryTypeCount; ++i)
 			{
@@ -592,12 +477,6 @@ namespace argent::graphics
 			tables.at(Sphere).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Sphere);
 			tables.at(Sphere).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Sphere);
 
-			//tables.at(Sphere1).shader_identifier_ = kHitGroupName.at(Sphere1);
-			//tables.at(Sphere1).input_data_.resize(RootSignatureBinderCount);
-			//tables.at(Sphere1).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Sphere1);
-			//tables.at(Sphere1).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Sphere1);
-
-			//For Coral
 
 			for(size_t i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
 			{
