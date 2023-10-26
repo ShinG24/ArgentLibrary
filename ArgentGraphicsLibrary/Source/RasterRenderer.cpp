@@ -11,8 +11,8 @@
 
 namespace argent::graphics
 {
-	void RasterRenderer::Awake(const GraphicsDevice& graphics_device, const CommandQueue& command_queue, 
-		DescriptorHeap& descriptor_heap)
+	void RasterRenderer::Awake(const dx12::GraphicsDevice& graphics_device, const dx12::CommandQueue& command_queue, 
+		dx12::DescriptorHeap& descriptor_heap)
 	{
 		const ShaderCompiler compiler;
 		compiler.Compile(L"./Assets/Shader/FullscreenQuad.VS.hlsl", L"vs_6_6", fullscreen_quad_vs_.ReleaseAndGetAddressOf());
@@ -77,7 +77,7 @@ namespace argent::graphics
 		}
 	}
 
-	void RasterRenderer::CreateVertexBuffer(const GraphicsDevice& graphics_device)
+	void RasterRenderer::CreateVertexBuffer(const dx12::GraphicsDevice& graphics_device)
 	{
 		Vertex vertices[4]
 		{
@@ -121,7 +121,7 @@ namespace argent::graphics
 		v[3] = vertices[3];
 	}
 
-	void RasterRenderer::CreateRootSignatureAndPipeline(const GraphicsDevice& graphics_device)
+	void RasterRenderer::CreateRootSignatureAndPipeline(const dx12::GraphicsDevice& graphics_device)
 	{
 		HRESULT hr{};
 

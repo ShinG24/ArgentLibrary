@@ -17,6 +17,7 @@
 #include "ConstantBuffer.h"
 #include "DescriptorHeap.h"
 
+
 namespace DirectX
 {
 	template<class T>
@@ -51,7 +52,7 @@ namespace DirectX
 }
 
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class GraphicsDevice;
 }
@@ -91,13 +92,13 @@ namespace argent::game_resource
 		Mesh& operator=(const Mesh&) = delete;
 		Mesh& operator=(const Mesh&&) = delete;
 
-		void Awake(const graphics::GraphicsDevice* graphics_device,
-			graphics::DescriptorHeap* srv_descriptor_heap);
+		void Awake(const graphics::dx12::GraphicsDevice* graphics_device,
+			graphics::dx12::DescriptorHeap* srv_descriptor_heap);
 
 		void OnGui();
 
-		graphics::VertexBuffer* GetVertexBuffer() const { return vertex_buffer_.get(); }
-		graphics::IndexBuffer* GetIndexBuffer() const { return index_buffer_.get(); }
+		graphics::dx12::VertexBuffer* GetVertexBuffer() const { return vertex_buffer_.get(); }
+		graphics::dx12::IndexBuffer* GetIndexBuffer() const { return index_buffer_.get(); }
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetVertexBufferLocation() const
 			{ return vertex_buffer_->GetBufferLocation(); }
@@ -110,12 +111,12 @@ namespace argent::game_resource
 		UINT GetIndexCounts() const { return static_cast<UINT>(indices_.size()); }
 	private:
 		std::string name_;
-		std::unique_ptr<graphics::VertexBuffer> vertex_buffer_;
-		std::unique_ptr<graphics::IndexBuffer> index_buffer_;
+		std::unique_ptr<graphics::dx12::VertexBuffer> vertex_buffer_;
+		std::unique_ptr<graphics::dx12::IndexBuffer> index_buffer_;
 		std::vector<Vertex> vertices_;
 		std::vector<uint32_t> indices_;
-		graphics::Descriptor vertex_srv_descriptor_{};
-		graphics::Descriptor index_srv_descriptor_{};
+		graphics::dx12::Descriptor vertex_srv_descriptor_{};
+		graphics::dx12::Descriptor index_srv_descriptor_{};
 	};
 
 	class Material
@@ -149,7 +150,7 @@ namespace argent::game_resource
 		Material() = default;
 		Material(std::string name, std::string albedo_texture_name, std::string normal_texture_name);
 
-		void Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap);
+		void Awake(const graphics::dx12::GraphicsDevice* graphics_device, const graphics::dx12::CommandQueue* command_queue, graphics::dx12::DescriptorHeap* srv_heap);
 		void WaitBeforeUse();
 		void OnGui();
 
@@ -178,7 +179,7 @@ namespace argent::game_resource
 
 		std::unique_ptr<graphics::Texture> albedo_texture_{};
 		std::unique_ptr<graphics::Texture> normal_texture_{};
-		std::unique_ptr<graphics::ConstantBuffer<Constant>> constant_buffer_{};
+		std::unique_ptr<graphics::dx12::ConstantBuffer<Constant>> constant_buffer_{};
 		Constant data_;
 	};
 
@@ -206,7 +207,9 @@ namespace argent::game_resource
 		Model(std::string filepath,std::string mesh_name, const std::vector<Mesh::Vertex>& vertices, const std::vector<uint32_t>& indices,
 		const std::string& albedo_texture_name, const std::string& normal_texture_name);
 
-		void Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap);
+		Model(std::vector<std::shared_ptr<Mesh>> mesh_vec, std::vector<std::shared_ptr<Material>> material_vec);
+
+		void Awake(const graphics::dx12::GraphicsDevice* graphics_device, const graphics::dx12::CommandQueue* command_queue, graphics::dx12::DescriptorHeap* srv_heap);
 		const std::vector<void*>& GetShaderBindingData() { return shader_binding_data_; }
 
 		void WaitBeforeUse();
@@ -224,5 +227,10 @@ namespace argent::game_resource
 		std::vector<void*> shader_binding_data_;
 		std::shared_ptr<Mesh> mesh_;
 		std::shared_ptr<Material> material_;
+
+
+
+		std::vector<std::shared_ptr<Mesh>> mesh_vec_;
+		std::vector<std::shared_ptr<Material>> material_vec_;
 	};
 }

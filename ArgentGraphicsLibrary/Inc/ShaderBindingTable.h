@@ -6,11 +6,11 @@
 #include <string>
 #include <vector>
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class GraphicsDevice;
 }
-namespace argent::graphics::dxr
+namespace argent::graphics::dx12
 {
 
 

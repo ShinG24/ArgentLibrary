@@ -1,5 +1,6 @@
 #include "../Inc/BottomLevelAccelerationStructure.h"
 
+#include "../Inc/D3D12Common.h"
 #include "../Inc/GraphicsCommandList.h"
 #include "../Inc/GraphicsCommon.h"
 #include "../Inc/GraphicsDevice.h"
@@ -7,7 +8,7 @@
 #include "../Inc/VertexBuffer.h"
 #include "../Inc/IndexBuffer.h"
 
-namespace argent::graphics::dxr
+namespace argent::graphics::dx12
 {
 	BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device,
 		const GraphicsCommandList* graphics_command_list, const BLASBuildDesc* build_desc, UINT unique_id,

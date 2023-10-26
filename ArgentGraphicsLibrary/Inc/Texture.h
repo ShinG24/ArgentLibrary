@@ -6,17 +6,21 @@
 
 #include "DescriptorHeap.h"
 
-
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class CommandQueue;
 	class GraphicsDevice;
+}
+
+namespace argent::graphics
+{
+	
 
 	class Texture
 	{
 	public:
-		Texture(const GraphicsDevice* graphics_device, const CommandQueue* command_queue,
-			DescriptorHeap* cbv_srv_uav_heap, const wchar_t * filename);
+		Texture(const dx12::GraphicsDevice* graphics_device, const dx12::CommandQueue* command_queue,
+			dx12::DescriptorHeap* cbv_srv_uav_heap, const wchar_t * filename);
 		~Texture() = default;
 
 		Texture(const Texture&) = delete;
@@ -31,7 +35,7 @@ namespace argent::graphics
 
 		std::future<void> wait_for_finish_upload_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource_object_;
-		Descriptor descriptor_;
+		dx12::Descriptor descriptor_;
 		bool need_to_wait_ = true;
 	};
 }

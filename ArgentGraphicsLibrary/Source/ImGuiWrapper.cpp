@@ -12,7 +12,7 @@
 
 namespace argent::graphics
 {
-	void ImGuiWrapper::Awake(const GraphicsDevice* graphics_device, DescriptorHeap* cbv_srv_uav_heap, HWND hwnd)
+	void ImGuiWrapper::Awake(const dx12::GraphicsDevice* graphics_device, dx12::DescriptorHeap* cbv_srv_uav_heap, HWND hwnd)
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();

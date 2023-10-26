@@ -32,6 +32,7 @@
     <ClInclude Include="Inc\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
     <ClInclude Include="Inc\ConstantBuffer.h" />
+    <ClInclude Include="Inc\D3D12Common.h" />
     <ClInclude Include="Inc\DescriptorHeap.h" />
     <ClInclude Include="Inc\FbxLoader.h" />
     <ClInclude Include="Inc\FrameResource.h" />
@@ -42,6 +43,7 @@
     <ClInclude Include="Inc\GraphicsDevice.h" />
     <ClInclude Include="Inc\ImGuiWrapper.h" />
     <ClInclude Include="Inc\IndexBuffer.h" />
+    <ClInclude Include="Inc\Mesh.h" />
     <ClInclude Include="Inc\Model.h" />
     <ClInclude Include="Inc\Platform.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
@@ -74,6 +76,7 @@
     <ClCompile Include="Source\GraphicsDevice.cpp" />
     <ClCompile Include="Source\ImGuiWrapper.cpp" />
     <ClCompile Include="Source\IndexBuffer.cpp" />
+    <ClCompile Include="Source\Mesh.cpp" />
     <ClCompile Include="Source\Model.cpp" />
     <ClCompile Include="Source\Platform.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />

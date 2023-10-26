@@ -1,6 +1,6 @@
 #include "../Inc/VertexBuffer.h"
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	VertexBuffer::VertexBuffer(const GraphicsDevice* graphics_device, const void* p_data, UINT size_of_structure, UINT vertex_counts, bool allow_update)
 	{

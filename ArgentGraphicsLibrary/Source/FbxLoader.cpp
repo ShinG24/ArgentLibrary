@@ -48,11 +48,18 @@ namespace argent::game_resource
 
 	void FetchMesh(FbxScene* fbx_scene, const Scene& scene_view, std::vector<FbxMesh>& meshes);
 
+	/**
+	 * \brief モデルをFbxファイルからロードする
+	 * \param filename Fbxのファイルパス
+	 * \return ロードしたモデル
+	 */
 	std::shared_ptr<Model> LoadFbx(const char* filename)
 	{
 		std::filesystem::path cereal_filename(filename);
 		cereal_filename.replace_extension("cereal");
 
+		//シリアライズされたデータがあるかどうか
+		//TODO GLFTを読み込めるようにしたときに一括管理に変更する
 		if(std::filesystem::exists(cereal_filename.c_str()))
 		{
 			std::ifstream ifs(cereal_filename.c_str(), std::ios::binary);
@@ -115,9 +122,9 @@ namespace argent::game_resource
 	}
 
 
-	void FetchMesh(FbxScene* fbx_scene, const Scene& scene_view, std::vector<FbxMesh>& meshes)
 	//Fbxシーンからメッシュのアトリビュートを持っているノードを探し、そこから
 	//メッシュデータを取って来る
+	void FetchMesh(FbxScene* fbx_scene, const Scene& scene_view, std::vector<FbxMesh>& meshes)
 	{
 		for(const auto& node : scene_view.nodes_)
 		{

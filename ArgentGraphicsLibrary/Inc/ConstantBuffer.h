@@ -3,11 +3,12 @@
 #include <d3d12.h>
 #include <wrl.h>
 
+#include "D3D12Common.h"
 #include "GraphicsCommon.h"
 
 #include "GraphicsDevice.h"
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	//Wrap Class of Constant Buffer
 	//This class has back_buffer_counts id3d12resource object.
@@ -46,7 +47,7 @@ namespace argent::graphics
 	{
 		num_instances_ = back_buffer_counts;
 		aligned_data_size_ = _ALIGNMENT_(sizeof(T), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-		graphics_device->CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
+		graphics_device->CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
 			aligned_data_size_ * num_instances_, D3D12_RESOURCE_STATE_GENERIC_READ, resource_objects_.ReleaseAndGetAddressOf());
 
 		resource_objects_->Map(0u, nullptr, reinterpret_cast<void**>(&mapped_data));

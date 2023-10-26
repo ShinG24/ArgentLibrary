@@ -15,7 +15,7 @@ namespace argent::graphics
 		ImGuiWrapper& operator=(const ImGuiWrapper&) = delete;
 		ImGuiWrapper& operator=(const ImGuiWrapper&&) = delete;
 
-		void Awake(const GraphicsDevice* graphics_device, DescriptorHeap* cbv_srv_uav_heap, HWND hwnd);
+		void Awake(const dx12::GraphicsDevice* graphics_device, dx12::DescriptorHeap* cbv_srv_uav_heap, HWND hwnd);
 		void Shutdown();
 
 		void FrameBegin();
@@ -23,7 +23,7 @@ namespace argent::graphics
 
 	private:
 
-		Descriptor font_descriptor_;
+		dx12::Descriptor font_descriptor_;
 	};
 
 }

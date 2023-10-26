@@ -99,7 +99,7 @@ namespace argent::graphics
 	{
 		//scene_constant_buffer_.Awake(graphics_device_, cbv_srv_uav_heap_);
 		//scene_constant_buffer_.Create(graphics_device_, kNumBackBuffers);
-		scene_constant_buffer_ = std::make_unique<ConstantBuffer<SceneConstant>>(&graphics_device_, kNumBackBuffers);
+		scene_constant_buffer_ = std::make_unique<dx12::ConstantBuffer<SceneConstant>>(&graphics_device_, kNumBackBuffers);
 
 		raster_renderer_.Awake(graphics_device_, resource_upload_queue_, cbv_srv_uav_heap_);
 
@@ -272,10 +272,10 @@ namespace argent::graphics
 		main_rendering_queue_.Awake(graphics_device_.GetLatestDevice(), L"Main Rendering Queue");
 		resource_upload_queue_.Awake(graphics_device_.GetLatestDevice(), L"Resource Upload Queue");
 
-		cbv_srv_uav_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::CbvSrvUav, 10000);
-		rtv_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Rtv, 100);
-		dsv_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Dsv, 100);
-		smp_heap_.Awake(graphics_device_, DescriptorHeap::HeapType::Smp, 50);
+		cbv_srv_uav_heap_.Awake(graphics_device_, dx12::DescriptorHeap::HeapType::CbvSrvUav, 10000);
+		rtv_heap_.Awake(graphics_device_, dx12::DescriptorHeap::HeapType::Rtv, 100);
+		dsv_heap_.Awake(graphics_device_, dx12::DescriptorHeap::HeapType::Dsv, 100);
+		smp_heap_.Awake(graphics_device_, dx12::DescriptorHeap::HeapType::Smp, 50);
 
 		graphics_command_list_[0].Awake(graphics_device_.GetDevice());
 		graphics_command_list_[1].Awake(graphics_device_.GetDevice());

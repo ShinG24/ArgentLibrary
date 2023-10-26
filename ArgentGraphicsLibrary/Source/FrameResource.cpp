@@ -7,8 +7,8 @@
 
 namespace argent::graphics
 {
-	void FrameResource::Awake(const GraphicsDevice& graphics_device, const SwapChain& swap_chain,
-		UINT back_buffer_index, const Descriptor& rtv_descriptor, const Descriptor& dsv_descriptor)
+	void FrameResource::Awake(const dx12::GraphicsDevice& graphics_device, const SwapChain& swap_chain,
+		UINT back_buffer_index, const dx12::Descriptor& rtv_descriptor, const dx12::Descriptor& dsv_descriptor)
 	{
 		back_buffer_index_ = back_buffer_index;
 		rtv_descriptor_ = rtv_descriptor;
@@ -53,7 +53,7 @@ namespace argent::graphics
 		resource_object_->SetName(L"Frame Resource");
 	}
 
-	void FrameResource::Activate(const GraphicsCommandList& command_list) const
+	void FrameResource::Activate(const dx12::GraphicsCommandList& command_list) const
 	{
 		float clear_color[4]{0, 0, 0, 1};
 
@@ -63,7 +63,7 @@ namespace argent::graphics
 		command_list.SetRenderTarget(&rtv_descriptor_.cpu_handle_, &dsv_descriptor_.cpu_handle_);
 	}
 
-	void FrameResource::Deactivate(const GraphicsCommandList& command_list) const
+	void FrameResource::Deactivate(const dx12::GraphicsCommandList& command_list) const
 	{
 		command_list.SetTransitionBarrier(resource_object_.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 	}

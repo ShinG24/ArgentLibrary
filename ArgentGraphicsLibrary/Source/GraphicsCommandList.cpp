@@ -1,6 +1,6 @@
 #include "../Inc/GraphicsCommandList.h"
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	void GraphicsCommandList::Awake(ID3D12Device* device)
 	{

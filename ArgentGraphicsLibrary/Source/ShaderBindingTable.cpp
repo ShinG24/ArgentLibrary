@@ -1,9 +1,10 @@
 #include"../Inc/ShaderBindingTable.h"
 
+#include "../Inc/D3D12Common.h"
 #include "../Inc/GraphicsCommon.h"
 #include "../Inc/GraphicsDevice.h"
 
-namespace argent::graphics::dxr
+namespace argent::graphics::dx12
 {
 	UINT ShaderBindingTable::AddShaderIdentifierAndInputData(const std::wstring& shader_identifier,
 		const std::vector<void*>& data)

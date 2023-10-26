@@ -3,7 +3,12 @@
 #include <filesystem>
 #include <fstream>
 
+#include "../Inc/GraphicsDevice.h"
 #include "../External/Imgui/imgui.h"
+
+
+
+
 
 namespace argent::game_resource
 {
@@ -13,10 +18,10 @@ namespace argent::game_resource
 	,	indices_(indices)
 	{}
 
-	void Mesh::Awake(const graphics::GraphicsDevice* graphics_device, graphics::DescriptorHeap* srv_descriptor_heap)
+	void Mesh::Awake(const graphics::dx12::GraphicsDevice* graphics_device, graphics::dx12::DescriptorHeap* srv_descriptor_heap)
 	{
-		vertex_buffer_ = std::make_unique<graphics::VertexBuffer>(graphics_device, vertices_.data(), sizeof(Vertex), vertices_.size());
-		index_buffer_ = std::make_unique<graphics::IndexBuffer>(graphics_device, indices_.data(), indices_.size());
+		vertex_buffer_ = std::make_unique<graphics::dx12::VertexBuffer>(graphics_device, vertices_.data(), sizeof(Vertex), vertices_.size());
+		index_buffer_ = std::make_unique<graphics::dx12::IndexBuffer>(graphics_device, indices_.data(), indices_.size());
 
 		vertex_srv_descriptor_ = srv_descriptor_heap->PopDescriptor();
 		index_srv_descriptor_ = srv_descriptor_heap->PopDescriptor();
@@ -45,7 +50,7 @@ namespace argent::game_resource
 	,	normal_texture_name_(normal_texture_name)
 	{}
 
-	void Material::Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap)
+	void Material::Awake(const graphics::dx12::GraphicsDevice* graphics_device, const graphics::dx12::CommandQueue* command_queue, graphics::dx12::DescriptorHeap* srv_heap)
 	{
 		albedo_texture_path_replacement_.resize(256);
 		normal_texture_path_replacement_.resize(256);
@@ -54,7 +59,7 @@ namespace argent::game_resource
 		std::filesystem::path normal = normal_texture_name_;
 		albedo_texture_ = std::make_unique<graphics::Texture>(graphics_device, command_queue, srv_heap, albedo.wstring().c_str());
 		normal_texture_ = std::make_unique<graphics::Texture>(graphics_device, command_queue, srv_heap, normal.wstring().c_str());
-		constant_buffer_ = std::make_unique<graphics::ConstantBuffer<Constant>>(graphics_device, 1u);
+		constant_buffer_ = std::make_unique<graphics::dx12::ConstantBuffer<Constant>>(graphics_device, 1u);
 		constant_buffer_->CopyToGpu(data_, 0u);
 	}
 
@@ -129,7 +134,12 @@ namespace argent::game_resource
 		material_ = std::make_shared<Material>("Material", albedo_texture_name, normal_texture_name);
 	}
 
-	void Model::Awake(const graphics::GraphicsDevice* graphics_device, const graphics::CommandQueue* command_queue, graphics::DescriptorHeap* srv_heap)
+	Model::Model(std::vector<std::shared_ptr<Mesh>> mesh_vec, std::vector<std::shared_ptr<Material>> material_vec):
+		mesh_vec_(mesh_vec)
+	,	material_vec_(material_vec)
+	{}
+
+	void Model::Awake(const graphics::dx12::GraphicsDevice* graphics_device, const graphics::dx12::CommandQueue* command_queue, graphics::dx12::DescriptorHeap* srv_heap)
 	{
 		//TODO
 		mesh_->Awake(graphics_device, srv_heap);
@@ -140,6 +150,16 @@ namespace argent::game_resource
 		shader_binding_data_.at(AlbedoTexture) = reinterpret_cast<void*>(material_->GetAlbedoTextureGpuHandle().ptr);
 		shader_binding_data_.at(NormalTexture) = reinterpret_cast<void*>(material_->GetNormalTextureGpuHandle().ptr);
 		shader_binding_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(mesh_->GetVertexGpuHandle().ptr);
+
+		for(auto& m : mesh_vec_)
+		{
+			m->Awake(graphics_device, srv_heap);
+		}
+
+		for(auto& m : material_vec_)
+		{
+			m->Awake(graphics_device, command_queue, srv_heap);
+		}
 	}
 
 	void Model::WaitBeforeUse()

@@ -13,14 +13,14 @@
 #include <unordered_map>
 
 
-std::unordered_map<std::wstring, argent::graphics::Descriptor> loaded_texture;
+std::unordered_map<std::wstring, argent::graphics::dx12::Descriptor> loaded_texture;
 
 namespace argent::graphics
 {
-	void CreateDummyTexture(const GraphicsDevice* graphics_device, ID3D12Resource** pp_resource);
+	void CreateDummyTexture(const dx12::GraphicsDevice* graphics_device, ID3D12Resource** pp_resource);
 
-	Texture::Texture(const GraphicsDevice* graphics_device, const CommandQueue* command_queue,
-		DescriptorHeap* cbv_srv_uav_heap, const wchar_t* filename)
+	Texture::Texture(const dx12::GraphicsDevice* graphics_device, const dx12::CommandQueue* command_queue,
+		dx12::DescriptorHeap* cbv_srv_uav_heap, const wchar_t* filename)
 	{
 		if(loaded_texture.contains(filename))
 		{
@@ -82,7 +82,7 @@ namespace argent::graphics
 	}
 
 
-	void CreateDummyTexture(const GraphicsDevice* graphics_device, ID3D12Resource** pp_resource)
+	void CreateDummyTexture(const dx12::GraphicsDevice* graphics_device, ID3D12Resource** pp_resource)
 	{
 		D3D12_HEAP_PROPERTIES heap_prop{};
 		heap_prop.Type = D3D12_HEAP_TYPE_CUSTOM;

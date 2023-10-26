@@ -4,7 +4,7 @@
 #include <d3d12.h>
 #include <wrl.h>
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	//Wrap Class of ID3D12Device.
 	//Only be used like a DirectX12 API Device.

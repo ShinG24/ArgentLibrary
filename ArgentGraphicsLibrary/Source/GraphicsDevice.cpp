@@ -1,9 +1,10 @@
 #include  "../Inc/GraphicsDevice.h"
 
+#include "../Inc/D3D12Common.h"
 #include "../Inc/GraphicsCommon.h"
 
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	void GraphicsDevice::Awake(IDXGIFactory6* idxgi_factory)
 	{
@@ -91,7 +92,7 @@ namespace argent::graphics
 	void GraphicsDevice::CreateVertexBufferAndView(UINT size_of_data_type, UINT num_data, ID3D12Resource** pp_vertex_buffer,
 	                                               D3D12_VERTEX_BUFFER_VIEW& vertex_buffer_view) const
 	{
-		CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, size_of_data_type * num_data, D3D12_RESOURCE_STATE_GENERIC_READ, pp_vertex_buffer);
+		CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, size_of_data_type * num_data, D3D12_RESOURCE_STATE_GENERIC_READ, pp_vertex_buffer);
 
 		vertex_buffer_view.BufferLocation = (*pp_vertex_buffer)->GetGPUVirtualAddress();
 		vertex_buffer_view.SizeInBytes = size_of_data_type * num_data;
@@ -100,7 +101,7 @@ namespace argent::graphics
 
 	void GraphicsDevice::CreateIndexBufferAndView(UINT size_of_data_type, UINT num_data, DXGI_FORMAT format, ID3D12Resource** pp_resource, D3D12_INDEX_BUFFER_VIEW& index_buffer_view) const
 	{
-		CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, size_of_data_type * num_data, D3D12_RESOURCE_STATE_GENERIC_READ, pp_resource);
+		CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, size_of_data_type * num_data, D3D12_RESOURCE_STATE_GENERIC_READ, pp_resource);
 
 		index_buffer_view.Format = format;
 		index_buffer_view.BufferLocation =(*pp_resource)->GetGPUVirtualAddress();

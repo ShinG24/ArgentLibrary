@@ -5,7 +5,7 @@
 
 #include "GraphicsDevice.h"
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class VertexBuffer
 	{

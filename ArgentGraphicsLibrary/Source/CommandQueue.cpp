@@ -2,7 +2,7 @@
 
 #include "../Inc/GraphicsCommandList.h"
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	CommandQueue::CommandQueue():
 		command_queue_object_(nullptr)

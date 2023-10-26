@@ -3,37 +3,34 @@
   <ItemGroup>
     <ClInclude Include="Inc\ArgentGraphicsLibrary.h" />
     <ClInclude Include="Inc\DxgiFactory.h">
-      <Filter>DXGI</Filter>
+      <Filter>API\DXGI</Filter>
     </ClInclude>
     <ClInclude Include="Inc\SwapChain.h">
-      <Filter>DXGI</Filter>
+      <Filter>API\DXGI</Filter>
     </ClInclude>
     <ClInclude Include="Inc\GraphicsDevice.h">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\CommandQueue.h">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\GraphicsCommandList.h">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\DescriptorHeap.h">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\GraphicsCommon.h" />
-    <ClInclude Include="Inc\FrameResource.h">
-      <Filter>Direct3D12</Filter>
-    </ClInclude>
     <ClInclude Include="Inc\ShaderCompiler.h">
       <Filter>Shader</Filter>
     </ClInclude>
     <ClInclude Include="Inc\RootSignature.h">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Raytracer.h" />
     <ClInclude Include="Inc\RasterRenderer.h" />
     <ClInclude Include="Inc\ConstantBuffer.h">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="External\Imgui\imconfig.h">
       <Filter>External\Imgui</Filter>
@@ -64,26 +61,26 @@
     </ClInclude>
     <ClInclude Include="Inc\ImGuiWrapper.h" />
     <ClInclude Include="Inc\BottomLevelAccelerationStructure.h">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClInclude>
     <ClInclude Include="Inc\VertexBuffer.h">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\IndexBuffer.h">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\TopLevelAccelerationStructure.h">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClInclude>
     <ClInclude Include="Inc\AccelerationStructureManager.h">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Texture.h" />
     <ClInclude Include="Inc\ShaderBindingTable.h">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClInclude>
     <ClInclude Include="Inc\RaytracingPipelineState.h">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClInclude>
     <ClInclude Include="Inc\FbxLoader.h">
       <Filter>GameResource\AssetsLoader\Model</Filter>
@@ -91,35 +88,39 @@
     <ClInclude Include="Inc\Model.h">
       <Filter>GameResource</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Mesh.h">
+      <Filter>GameResource\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\D3D12Common.h">
+      <Filter>API\Direct3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\FrameResource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
     <ClCompile Include="Source\DxgiFactory.cpp">
-      <Filter>DXGI</Filter>
+      <Filter>API\DXGI</Filter>
     </ClCompile>
     <ClCompile Include="Source\SwapChain.cpp">
-      <Filter>DXGI</Filter>
+      <Filter>API\DXGI</Filter>
     </ClCompile>
     <ClCompile Include="Source\GraphicsDevice.cpp">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\CommandQueue.cpp">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\GraphicsCommandList.cpp">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\DescriptorHeap.cpp">
-      <Filter>Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\FrameResource.cpp">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\ShaderCompiler.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
     <ClCompile Include="Source\RootSignature.cpp">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Raytracer.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />
@@ -146,26 +147,26 @@
     </ClCompile>
     <ClCompile Include="Source\ImGuiWrapper.cpp" />
     <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClCompile>
     <ClCompile Include="Source\IndexBuffer.cpp">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\VertexBuffer.cpp">
-      <Filter>Direct3D12</Filter>
+      <Filter>API\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\TopLevelAccelerationStructure.cpp">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClCompile>
     <ClCompile Include="Source\AccelerationStructureManager.cpp">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClCompile>
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\ShaderBindingTable.cpp">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClCompile>
     <ClCompile Include="Source\RaytracingPipelineState.cpp">
-      <Filter>Direct3D12\DXR</Filter>
+      <Filter>API\Direct3D12\DXR</Filter>
     </ClCompile>
     <ClCompile Include="Source\FbxLoader.cpp">
       <Filter>GameResource\AssetsLoader\Model</Filter>
@@ -173,14 +174,12 @@
     <ClCompile Include="Source\Model.cpp">
       <Filter>GameResource</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Mesh.cpp">
+      <Filter>GameResource\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FrameResource.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Direct3D12">
-      <UniqueIdentifier>{b5fdfe99-dcd1-4ec2-920f-28aa9100690c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="DXGI">
-      <UniqueIdentifier>{44b19db6-7e93-42ce-9d6e-1f1c65b645ca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{7d22f3f5-6b9a-4609-8760-6ab5b33c9275}</UniqueIdentifier>
     </Filter>
@@ -193,9 +192,6 @@
     <Filter Include="Platform">
       <UniqueIdentifier>{4a1bef5c-8ac2-4526-87e3-7a3ca06f6dbe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Direct3D12\DXR">
-      <UniqueIdentifier>{44a0cdea-1a87-4d58-9355-187b70813c7d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameResource">
       <UniqueIdentifier>{ed81a35b-26b6-4b9d-99b9-14b03be3d130}</UniqueIdentifier>
     </Filter>
@@ -207,6 +203,24 @@
     </Filter>
     <Filter Include="GameResource\AssetsLoader\Texture">
       <UniqueIdentifier>{44678b64-2346-41fc-8441-9bc9d7fa9e79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="API">
+      <UniqueIdentifier>{112ee4e9-7f07-489c-b078-d78703df571d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="API\DXGI">
+      <UniqueIdentifier>{44b19db6-7e93-42ce-9d6e-1f1c65b645ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="API\Direct3D12">
+      <UniqueIdentifier>{b5fdfe99-dcd1-4ec2-920f-28aa9100690c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="API\Direct3D12\DXR">
+      <UniqueIdentifier>{44a0cdea-1a87-4d58-9355-187b70813c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameResource\3D">
+      <UniqueIdentifier>{fe6b46af-431f-4ae5-b146-743a9e8f9e7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameResource\2D">
+      <UniqueIdentifier>{40990582-ba52-4b4a-a109-2820a385f560}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

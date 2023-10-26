@@ -3,7 +3,7 @@
 #include "../Inc/GraphicsDevice.h"
 
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	void RootSignature::AddHeapRangeParameter(UINT base_shader_register, UINT num_descriptors,
 		D3D12_DESCRIPTOR_RANGE_TYPE range_type, UINT register_space, UINT offset_in_descriptors_from_table_start)

@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class GraphicsDevice;
 	class GraphicsCommandList;
@@ -15,7 +15,7 @@ namespace argent::graphics
 	class IndexBuffer;
 }
 
-namespace argent::graphics::dxr
+namespace argent::graphics::dx12
 {
 	/**
 	 * \brief Under Development

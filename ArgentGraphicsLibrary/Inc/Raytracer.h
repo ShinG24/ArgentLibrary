@@ -88,11 +88,15 @@ struct Vertex
 	float2 texcoord_;
 };
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class GraphicsDevice;
 	class GraphicsCommandList;
 	class CommandQueue;
+}
+
+namespace argent::graphics
+{
 
 	class Raytracer
 	{
@@ -145,30 +149,30 @@ namespace argent::graphics
 		Raytracer& operator=(Raytracer&) = delete;
 		Raytracer& operator=(Raytracer&&) = delete;
 
-		void Awake(const GraphicsDevice& graphics_device, 
-			GraphicsCommandList& command_list, CommandQueue& command_queue,
+		void Awake(const dx12::GraphicsDevice& graphics_device, 
+			dx12::GraphicsCommandList& command_list, dx12::CommandQueue& command_queue,
 			UINT64 width, UINT height, 
-			DescriptorHeap& cbv_srv_uav_descriptor_heap);
+			dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap);
 		void Shutdown();
 
-		void Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue);
-		void OnRender(const GraphicsCommandList& command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle);
+		void Update(dx12::GraphicsCommandList* graphics_command_list, dx12::CommandQueue* upload_command_queue);
+		void OnRender(const dx12::GraphicsCommandList& command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle);
 
 
 		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
 	private:
 
-		void BuildGeometry(const GraphicsDevice& graphics_device);
-		void CreateAS(const GraphicsDevice& graphics_device, 
-		GraphicsCommandList& command_list, CommandQueue& command_queue);
+		void BuildGeometry(const dx12::GraphicsDevice& graphics_device);
+		void CreateAS(const dx12::GraphicsDevice& graphics_device, 
+			dx12::GraphicsCommandList& command_list, dx12::CommandQueue& command_queue);
 
-		void CreatePipeline(const GraphicsDevice& graphics_device);
+		void CreatePipeline(const dx12::GraphicsDevice& graphics_device);
 
-		void CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height);
-		void CreateShaderResourceHeap(const GraphicsDevice& graphics_device, 
-			DescriptorHeap& cbv_srv_uav_descriptor_heap);
+		void CreateOutputBuffer(const dx12::GraphicsDevice& graphics_device, UINT64 width, UINT height);
+		void CreateShaderResourceHeap(const dx12::GraphicsDevice& graphics_device, 
+			dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap);
 
-		void CreateShaderBindingTable(const GraphicsDevice& graphics_device);
+		void CreateShaderBindingTable(const dx12::GraphicsDevice& graphics_device);
 
 		void FbxLoader(const char* filename);
 	private:
@@ -185,14 +189,14 @@ namespace argent::graphics
 
 		//Output buffer
 		Microsoft::WRL::ComPtr<ID3D12Resource> output_buffer_;
-		Descriptor output_descriptor_;
-		Descriptor tlas_result_descriptor_;
+		dx12::Descriptor output_descriptor_;
+		dx12::Descriptor tlas_result_descriptor_;
 		
 		UINT64 width_;
 		UINT height_;
 
-		std::unique_ptr<VertexBuffer> vertex_buffers_[kNoModelGeometryCounts];
-		std::unique_ptr<IndexBuffer> index_buffers_[kNoModelGeometryCounts];
+		std::unique_ptr<dx12::VertexBuffer> vertex_buffers_[kNoModelGeometryCounts];
+		std::unique_ptr<dx12::IndexBuffer> index_buffers_[kNoModelGeometryCounts];
 
 		//Descriptor cube_vertex_descriptor_;
 		//Descriptor cube_index_descriptor_;
@@ -251,7 +255,7 @@ namespace argent::graphics
 		uint8_t* world_mat_map_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> world_matrix_buffer_;
 
-		Descriptor object_descriptor_;
+		dx12::Descriptor object_descriptor_;
 
 		uint8_t* material_map_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> material_buffer_;
@@ -260,7 +264,7 @@ namespace argent::graphics
 		UINT hit_shader_table_size_;
 		UINT hit_shader_table_stride_;
 
-		dxr::AccelerationStructureManager as_manager_;
+		dx12::AccelerationStructureManager as_manager_;
 		UINT tlas_unique_id_[GeometryTypeCount];
 
 
@@ -282,8 +286,8 @@ namespace argent::graphics
 			std::vector<Vertex> vertices_;
 			std::vector<uint32_t> indices_;
 
-			std::unique_ptr<VertexBuffer> vertex_buffer_;
-			std::unique_ptr<IndexBuffer> index_buffer_;
+			std::unique_ptr<dx12::VertexBuffer> vertex_buffer_;
+			std::unique_ptr<dx12::IndexBuffer> index_buffer_;
 		};
 
 	private:
@@ -292,17 +296,17 @@ namespace argent::graphics
 
 
 		//For Shader Binding Table
-		dxr::ShaderBindingTable raygen_shader_table_;
-		dxr::ShaderBindingTable miss_shader_table_;
-		dxr::ShaderBindingTable hit_group_shader_table_;
+		dx12::ShaderBindingTable raygen_shader_table_;
+		dx12::ShaderBindingTable miss_shader_table_;
+		dx12::ShaderBindingTable hit_group_shader_table_;
 
-		dxr::RaytracingPipelineState pipeline_state_;
+		dx12::RaytracingPipelineState pipeline_state_;
 
 		std::shared_ptr<game_resource::Model> model_[GeometryTypeCount - kNoModelGeometryCounts];
 
-		RootSignature global_root_signature_;
-		RootSignature raygen_miss_root_signature_;
-		RootSignature hit_group_root_signature_;
+		dx12::RootSignature global_root_signature_;
+		dx12::RootSignature raygen_miss_root_signature_;
+		dx12::RootSignature hit_group_root_signature_;
 		UINT vertex_counts_ = 0u;
 		UINT index_counts_ = 0u;
 

@@ -3,7 +3,7 @@
 #include <d3d12.h>
 #include <wrl.h>
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class GraphicsCommandList
 	{

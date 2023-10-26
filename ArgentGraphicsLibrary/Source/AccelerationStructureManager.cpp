@@ -1,10 +1,11 @@
 #include "../Inc/AccelerationStructureManager.h"
 
+#include "../Inc/D3D12Common.h"
 #include "../Inc/GraphicsDevice.h"
 #include "../Inc/GraphicsCommandList.h"
 #include "../Inc/GraphicsCommon.h"
 
-namespace argent::graphics::dxr
+namespace argent::graphics::dx12
 {
 	UINT AccelerationStructureManager::AddBottomLevelAS(const GraphicsDevice* graphics_device, 
 		const GraphicsCommandList* graphics_command_list, BLASBuildDesc* build_desc, bool is_triangle)

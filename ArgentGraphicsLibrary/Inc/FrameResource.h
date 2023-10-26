@@ -7,9 +7,16 @@
 
 namespace argent::graphics
 {
-	class GraphicsDevice;
+	namespace dx12
+	{
+		class GraphicsDevice;
+		class GraphicsCommandList;
+	}
+
 	class SwapChain;
-	class GraphicsCommandList;
+}
+namespace argent::graphics
+{
 
 	class FrameResource
 	{
@@ -22,17 +29,17 @@ namespace argent::graphics
 		FrameResource& operator=(FrameResource&) = delete;
 		FrameResource& operator=(FrameResource&&) = delete;
 
-		void Awake(const GraphicsDevice& graphics_device, const SwapChain& swap_chain, UINT back_buffer_index,
-			const Descriptor& rtv_descriptor, const Descriptor& dsv_descriptor);
-		void Activate(const GraphicsCommandList& command_list) const;
-		void Deactivate(const GraphicsCommandList& command_list) const;
+		void Awake(const dx12::GraphicsDevice& graphics_device, const SwapChain& swap_chain, UINT back_buffer_index,
+			const dx12::Descriptor& rtv_descriptor, const dx12::Descriptor& dsv_descriptor);
+		void Activate(const dx12::GraphicsCommandList& command_list) const;
+		void Deactivate(const dx12::GraphicsCommandList& command_list) const;
 
 		ID3D12Resource* GetBackBuffer() const { return resource_object_.Get(); }
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource_object_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> depth_buffer_;
-		Descriptor rtv_descriptor_;
-		Descriptor dsv_descriptor_;
+		dx12::Descriptor rtv_descriptor_;
+		dx12::Descriptor dsv_descriptor_;
 		UINT back_buffer_index_;
 	};
 }

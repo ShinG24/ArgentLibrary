@@ -7,12 +7,12 @@
 
 #include "../External/DXC/Inc/dxcapi.h"
 
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class GraphicsDevice;
 }
 
-namespace argent::graphics::dxr
+namespace argent::graphics::dx12
 {
 
 	class RaytracingPipelineState

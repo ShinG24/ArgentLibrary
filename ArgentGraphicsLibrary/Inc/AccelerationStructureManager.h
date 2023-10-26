@@ -9,7 +9,7 @@
 #include "BottomLevelAccelerationStructure.h"
 #include "TopLevelAccelerationStructure.h"
 
-namespace argent::graphics::dxr
+namespace argent::graphics::dx12
 {
 	class AccelerationStructureManager
 	{

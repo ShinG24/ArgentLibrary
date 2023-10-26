@@ -44,8 +44,8 @@ namespace argent::graphics
 		void Awake(HWND hwnd);
 		void Shutdown();
 
-		[[nodiscard]] const GraphicsDevice& GetGraphicsDevice() const { return graphics_device_; }
-		[[nodiscard]] const CommandQueue& GetMainRenderingQueue() const { return main_rendering_queue_; }
+		[[nodiscard]] const dx12::GraphicsDevice& GetGraphicsDevice() const { return graphics_device_; }
+		[[nodiscard]] const dx12::CommandQueue& GetMainRenderingQueue() const { return main_rendering_queue_; }
 
 		void FrameBegin();
 		void FrameEnd();
@@ -62,17 +62,17 @@ namespace argent::graphics
 	private:
 		HWND hwnd_;	//Window handle
 
-		GraphicsDevice graphics_device_;	//Wraped device object
+		dx12::GraphicsDevice graphics_device_;	//Wraped device object
 		DxgiFactory dxgi_factory_;			//Wraped factory
 		SwapChain swap_chain_;				//Wraped SwapChain object
-		CommandQueue main_rendering_queue_;	//Wraped Command Queue for the screen 
-		CommandQueue resource_upload_queue_;	//Wraped Command Queue for resource upload for gpu 
-		GraphicsCommandList graphics_command_list_[kNumBackBuffers];	//Wraped Command List for rendering
-		GraphicsCommandList resource_upload_command_list_;	//Wraped Command List for upload resource
-		DescriptorHeap cbv_srv_uav_heap_;	//Wraped DescriptorHeap for CBV, SRV and UAV.
-		DescriptorHeap rtv_heap_;
-		DescriptorHeap dsv_heap_;
-		DescriptorHeap smp_heap_;
+		dx12::CommandQueue main_rendering_queue_;	//Wraped Command Queue for the screen 
+		dx12::CommandQueue resource_upload_queue_;	//Wraped Command Queue for resource upload for gpu 
+		dx12::GraphicsCommandList graphics_command_list_[kNumBackBuffers];	//Wraped Command List for rendering
+		dx12::GraphicsCommandList resource_upload_command_list_;	//Wraped Command List for upload resource
+		dx12::DescriptorHeap cbv_srv_uav_heap_;	//Wraped DescriptorHeap for CBV, SRV and UAV.
+		dx12::DescriptorHeap rtv_heap_;
+		dx12::DescriptorHeap dsv_heap_;
+		dx12::DescriptorHeap smp_heap_;
 
 
 		FrameResource frame_resources_[kNumBackBuffers];
@@ -98,7 +98,7 @@ namespace argent::graphics
 			DirectX::XMFLOAT4 light_position_;
 		};
 
-		std::unique_ptr<ConstantBuffer<SceneConstant>> scene_constant_buffer_;
+		std::unique_ptr<dx12::ConstantBuffer<SceneConstant>> scene_constant_buffer_;
 
 		//Camera
 		DirectX::XMFLOAT4 camera_position_{ 0.0, 100.0f, -100.0f, 1.0f };
@@ -118,7 +118,7 @@ namespace argent::graphics
 
 	private:
 		//For imgui
-		Descriptor imgui_font_srv_descriptor_;
+		dx12::Descriptor imgui_font_srv_descriptor_;
 		ImGuiWrapper imgui_wrapper_;
 	};
 }

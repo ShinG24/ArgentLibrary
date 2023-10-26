@@ -1,7 +1,7 @@
 #include "../Inc/IndexBuffer.h"
 
 #include "../Inc/GraphicsDevice.h"
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	IndexBuffer::IndexBuffer(const GraphicsDevice* graphics_device, const UINT32* p_data, UINT index_counts)
 	{

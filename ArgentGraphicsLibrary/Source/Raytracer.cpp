@@ -13,6 +13,7 @@
 
 #include "../External/Imgui/imgui.h"
 
+#include "../Inc/D3D12Common.h"
 #include "../Inc/GraphicsCommon.h"
 #include "../Inc/GraphicsDevice.h"
 #include "../Inc/GraphicsCommandList.h"
@@ -26,9 +27,9 @@
 
 namespace argent::graphics
 {
-	void Raytracer::Awake(const GraphicsDevice& graphics_device, GraphicsCommandList& command_list,
-		CommandQueue& command_queue, UINT64 width, UINT height, 
-			DescriptorHeap& cbv_srv_uav_descriptor_heap)
+	void Raytracer::Awake(const dx12::GraphicsDevice& graphics_device, dx12::GraphicsCommandList& command_list,
+		dx12::CommandQueue& command_queue, UINT64 width, UINT height, 
+			dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
 		skymaps_[0] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
 			L"./Assets/Images/Skymap00.dds");
@@ -54,8 +55,6 @@ namespace argent::graphics
 			transforms_[CoralRock].rotation_ = { -1.57f, 0.0f, 0.0f };
 			transforms_[Coral8].position_ = { 100.0f, 0.0f, 0.0f};
 			transforms_[Coral8].rotation_ = { -1.57f, -0.0f, 0.0f};
-
-
 		}
 		//Initialize Sphere
 		{
@@ -107,7 +106,7 @@ namespace argent::graphics
 		}
 	}
 
-	void Raytracer::Update(GraphicsCommandList* graphics_command_list, CommandQueue* upload_command_queue)
+	void Raytracer::Update(dx12::GraphicsCommandList* graphics_command_list, dx12::CommandQueue* upload_command_queue)
 	{
 		if(!is_wait_)
 		{
@@ -179,7 +178,7 @@ namespace argent::graphics
 		upload_command_queue->WaitForGpu();
 	}
 
-	void Raytracer::OnRender(const GraphicsCommandList& graphics_command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle)
+	void Raytracer::OnRender(const dx12::GraphicsCommandList& graphics_command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle)
 	{
 		auto command_list = graphics_command_list.GetCommandList4();
 
@@ -210,7 +209,7 @@ namespace argent::graphics
 		graphics_command_list.SetTransitionBarrier(output_buffer_.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	}
 
-	void Raytracer::BuildGeometry(const GraphicsDevice& graphics_device)
+	void Raytracer::BuildGeometry(const dx12::GraphicsDevice& graphics_device)
 	{
 		//Plane
 		{
@@ -225,7 +224,7 @@ namespace argent::graphics
 				{{ 1.0f, 0.0f, -1.0f}, {}},
 			};
 
-			vertex_buffers_[Plane] = std::make_unique<VertexBuffer>(&graphics_device, vertices1, sizeof(Vertex), 6u);
+			vertex_buffers_[Plane] = std::make_unique<dx12::VertexBuffer>(&graphics_device, vertices1, sizeof(Vertex), 6u);
 		}
 
 		//AABB
@@ -241,8 +240,8 @@ namespace argent::graphics
 			rt_aabb.MinY = 
 			rt_aabb.MinZ = -aabb_size;
 
-			vertex_buffers_[Sphere] = std::make_unique<VertexBuffer>(&graphics_device,
-				&rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
+			vertex_buffers_[Sphere] = std::make_unique<dx12::VertexBuffer>(&graphics_device,
+			                                                               &rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
 
 
 			aabb_size = 1000.0f;
@@ -260,8 +259,8 @@ namespace argent::graphics
 		}
 	}
 
-	void Raytracer::CreateAS(const GraphicsDevice& graphics_device, 
-	                         GraphicsCommandList& command_list, CommandQueue& command_queue)
+	void Raytracer::CreateAS(const dx12::GraphicsDevice& graphics_device,
+	                         dx12::GraphicsCommandList& command_list, dx12::CommandQueue& command_queue)
 	{
 		BuildGeometry(graphics_device);
 
@@ -271,7 +270,7 @@ namespace argent::graphics
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
 			bool triangle = i != Sphere;
-			dxr::BLASBuildDesc build_desc;
+			dx12::BLASBuildDesc build_desc;
 
 			if(i < kNoModelGeometryCounts)
 			{
@@ -307,7 +306,7 @@ namespace argent::graphics
 		command_queue.WaitForGpu();
 	}
 
-	void Raytracer::CreatePipeline(const GraphicsDevice& graphics_device)
+	void Raytracer::CreatePipeline(const dx12::GraphicsDevice& graphics_device)
 	{
 		//Global Root Signature
 		global_root_signature_.AddHeapRangeParameters(
@@ -372,15 +371,15 @@ namespace argent::graphics
 		pipeline_state_.Generate(&graphics_device, global_root_signature_.GetRootSignatureObject(), raygen_miss_root_signature_.GetRootSignatureObject());
 	}
 
-	void Raytracer::CreateOutputBuffer(const GraphicsDevice& graphics_device, UINT64 width, UINT height)
+	void Raytracer::CreateOutputBuffer(const dx12::GraphicsDevice& graphics_device, UINT64 width, UINT height)
 	{
-		graphics_device.CreateTexture2D(kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		graphics_device.CreateTexture2D(dx12::kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			DXGI_FORMAT_R8G8B8A8_UNORM, width, height, D3D12_RESOURCE_STATE_COPY_SOURCE, 
 			output_buffer_.ReleaseAndGetAddressOf());
 	}
 
-	void Raytracer::CreateShaderResourceHeap(const GraphicsDevice& graphics_device, 
-			DescriptorHeap& cbv_srv_uav_descriptor_heap)
+	void Raytracer::CreateShaderResourceHeap(const dx12::GraphicsDevice& graphics_device,
+	                                         dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap)
 	{
 		output_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
 		tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap.PopDescriptor();
@@ -396,7 +395,7 @@ namespace argent::graphics
 		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srv_desc.RaytracingAccelerationStructure.Location = as_manager_.GetResultResourceObject()->GetGPUVirtualAddress();
 
-		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
+		graphics_device.CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
 			sizeof(Material) * as_manager_.GetInstanceCounts(), 
 			D3D12_RESOURCE_STATE_GENERIC_READ, material_buffer_.ReleaseAndGetAddressOf());
 
@@ -413,7 +412,7 @@ namespace argent::graphics
 		uint stride = sizeof(ObjectConstant);
 		uint num = as_manager_.GetInstanceCounts();
 
-		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
+		graphics_device.CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
 			stride * num,
 			D3D12_RESOURCE_STATE_GENERIC_READ, world_matrix_buffer_.ReleaseAndGetAddressOf());
 
@@ -432,13 +431,13 @@ namespace argent::graphics
 		world_matrix_buffer_->Unmap(0u, nullptr);
 
 		//Skymap buffer
-		graphics_device.CreateBuffer(kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
+		graphics_device.CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
 			sizeof(int), D3D12_RESOURCE_STATE_GENERIC_READ, skymap_index_buffer_.ReleaseAndGetAddressOf());
 
 		skymap_index_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map_skymap_index_));
 	}
 
-	void Raytracer::CreateShaderBindingTable(const GraphicsDevice& graphics_device)
+	void Raytracer::CreateShaderBindingTable(const dx12::GraphicsDevice& graphics_device)
 	{
 
 		{
@@ -462,7 +461,7 @@ namespace argent::graphics
 
 		//hit
 		{
-			std::vector<dxr::ShaderTable> tables(GeometryTypeCount);
+			std::vector<dx12::ShaderTable> tables(GeometryTypeCount);
 
 			//For Plane
 			tables.at(Plane).shader_identifier_ = kHitGroupName[Plane];

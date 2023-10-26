@@ -5,7 +5,7 @@
 #include <vector>
 
 //TODO Make RootSignature wrap class
-namespace argent::graphics
+namespace argent::graphics::dx12
 {
 	class GraphicsDevice;
 
