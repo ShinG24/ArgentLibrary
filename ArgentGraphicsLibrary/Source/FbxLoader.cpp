@@ -9,6 +9,8 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/memory.hpp>
 
+#include "../Inc/DescriptorHeap.h"
+
 #include "../Inc/Mesh.h"
 #include "../Inc/Material.h"
 #include "../Inc/StandardMaterial.h"

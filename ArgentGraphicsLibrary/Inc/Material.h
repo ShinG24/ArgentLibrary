@@ -4,6 +4,12 @@
 #include <memory>
 #include <unordered_map>
 
+#include "Texture.h"
+
+namespace argent::graphics::dx12
+{
+	struct Descriptor;
+}
 namespace argent::graphics
 {
 	struct GraphicsContext;
@@ -71,6 +77,14 @@ namespace argent::graphics
 		 * \return Textureへのポインタ
 		 */
 		std::shared_ptr<Texture> GetTexture(TextureUsage type);
+
+		/**
+		 * \brief テクスチャのGPUハンドルを取得する
+		 * //TODO この関数はマテリアルが保持しているテクスチャが同じディスクリプタヒープ上に存在し、
+		 * かつ連続している前提で組んでいるので変更する
+		 * \return d3d12 Gpu Descriptor handle
+		 */
+		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGpuHandleBegin() const { return texture_map_.begin()->second->GetGpuHandle(); }
 
 		//継承前提の組み方で継承先からアクセスする可能性が大いにあるため、処理速度を考えGetterではなくportectedにしてアクセスできるようにする
 	protected:

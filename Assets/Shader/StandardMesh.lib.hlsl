@@ -19,7 +19,7 @@ StructuredBuffer<float2> sb_texcoord	: register(t6, space1);
 ByteAddressBuffer Indices				: register(t7, space1);
 
 ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
-ConstantBuffer<StandardMaterial> material_constant : register(b1, space1);
+//ConstantBuffer<StandardMaterial> material_constant : register(b1, space1);
 
 uint3 Load3x32BitIndices()
 {
@@ -123,9 +123,9 @@ float4 AlbedoSampling(uint3 index, float2 barycentrics)
 	texcoord1 = frac(texcoord1);
 	texcoord2 = frac(texcoord2);
 
-	texcoord0 = abs(material_constant.texcoord_offset_.xy - texcoord0);
-	texcoord1 = abs(material_constant.texcoord_offset_.xy - texcoord1);
-	texcoord2 = abs(material_constant.texcoord_offset_.xy - texcoord2);
+	//texcoord0 = abs(material_constant.texcoord_offset_.xy - texcoord0);
+	//texcoord1 = abs(material_constant.texcoord_offset_.xy - texcoord1);
+	//texcoord2 = abs(material_constant.texcoord_offset_.xy - texcoord2);
 
 	uint2 dimension;
 	albedo_texture.GetDimensions(dimension.x, dimension.y);
@@ -147,7 +147,7 @@ void StaticMeshClosestHit(inout RayPayload payload, in HitAttribute attr)
 	float3 world_binormal = CalcWorldBinormal(index, attr.barycentrics);
 	float2 texcoord = CalcTexcoord(index, attr.barycentrics);
 	texcoord = frac(texcoord);
-	texcoord = abs(material_constant.texcoord_offset_.xy - texcoord);
+	//texcoord = abs(material_constant.texcoord_offset_.xy - texcoord);
 
 	uint width, height;
 	albedo_texture.GetDimensions(width, height);
@@ -161,7 +161,7 @@ void StaticMeshClosestHit(inout RayPayload payload, in HitAttribute attr)
 
 	float4 albedo_color = AlbedoSampling(index, attr.barycentrics) ;
   
-
+	
     //Do Raytracing
 	Ray ray;
 	ray.origin_ = CalcHitWorldPosition();

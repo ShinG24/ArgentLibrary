@@ -237,8 +237,7 @@ namespace argent::graphics
 		{
 			ObjectCbv,		//CBV
 			MaterialCbv,	//CBV
-			AlbedoTexture,		//SRV
-			NormalTexture,		//SRV
+			TextureStart,		//SRV
 			VertexBufferGpuDescriptorHandle,	//SRV
 			RootSignatureBinderCount,
 		};

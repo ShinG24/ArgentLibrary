@@ -2,9 +2,11 @@
 
 #include "../External/Imgui/imgui.h"
 
+#include "../Inc/GraphicsDevice.h"
+#include "../Inc/CommandQueue.h"
+#include "../Inc/DescriptorHeap.h"
 #include "../Inc/GraphicsContext.h"
 
-#include "../Inc/GraphicsDevice.h"
 #include "../Inc/VertexBuffer.h"
 #include "../Inc/IndexBuffer.h"
 #include "../Inc/Material.h"
@@ -54,6 +56,27 @@ namespace argent::graphics
 
 		index_buffer_ = std::make_unique<dx12::IndexBuffer>(graphics_context->graphics_device_, 
 			data_.index_vec_.data(), static_cast<UINT>(data_.index_vec_.size()));
+
+		//レイトレーシング用　Shaderにバインドするために頂点バッファのSRVを作る
+		position_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+		normal_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+		tangent_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+		binormal_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+		texcoord_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+		index_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+
+		graphics_context->graphics_device_->CreateBufferSRV(position_buffer_->GetBufferObject(),
+			position_buffer_->GetVertexCounts(), sizeof(Position), position_srv_descriptor_.cpu_handle_);
+		graphics_context->graphics_device_->CreateBufferSRV(normal_buffer_->GetBufferObject(),
+			normal_buffer_->GetVertexCounts(), sizeof(Normal), normal_srv_descriptor_.cpu_handle_);
+		graphics_context->graphics_device_->CreateBufferSRV(tangent_buffer_->GetBufferObject(),
+			tangent_buffer_->GetVertexCounts(), sizeof(Tangent), tangent_srv_descriptor_.cpu_handle_);
+		graphics_context->graphics_device_->CreateBufferSRV(binormal_buffer_->GetBufferObject(),
+			binormal_buffer_->GetVertexCounts(), sizeof(Binormal), binormal_srv_descriptor_.cpu_handle_);
+		graphics_context->graphics_device_->CreateBufferSRV(texcoord_buffer_->GetBufferObject(),
+			texcoord_buffer_->GetVertexCounts(), sizeof(Texcoord), texcoord_srv_descriptor_.cpu_handle_);
+		graphics_context->graphics_device_->CreateBufferSRV(index_buffer_->GetBufferObject(),
+			index_buffer_->GetIndexCounts(), sizeof(uint32_t), index_srv_descriptor_.cpu_handle_);
 
 		//TODO BLASのクラスを作り直す必要あり
 		//Raytracingをサポートしている場合のみ

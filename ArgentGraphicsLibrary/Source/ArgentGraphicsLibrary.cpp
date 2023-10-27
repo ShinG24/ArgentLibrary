@@ -180,7 +180,6 @@ namespace argent::graphics
 
 				//Draw on ImGui
 				{
-
 					if(ImGui::TreeNode("Performance"))
 					{
 						float delta_time = Timer::Get()->GetDeltaTime();

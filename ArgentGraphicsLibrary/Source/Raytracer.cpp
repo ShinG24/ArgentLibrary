@@ -25,6 +25,7 @@
 #include "../../Assets/Shader/Common.hlsli"
 
 #include "../Inc/FbxLoader.h"
+#include "../Inc/Material.h"
 #include "../Inc/Mesh.h"
 
 
@@ -328,9 +329,12 @@ namespace argent::graphics
 		//Hit Group Root Signature
 		hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
 		hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
-		hit_group_root_signature_.AddHeapRangeParameter(0u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Abledo
-		hit_group_root_signature_.AddHeapRangeParameter(1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Normal
+		hit_group_root_signature_.AddHeapRangeParameter(0u, 2u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Abledo
+#if _USE_MODEL0_
 		hit_group_root_signature_.AddHeapRangeParameter(2u, 2u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
+#else
+		hit_group_root_signature_.AddHeapRangeParameter(2u, 6u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
+#endif
 		hit_group_root_signature_.Create(&graphics_device, true);
 
 		//Compile the shader library.
@@ -445,7 +449,6 @@ namespace argent::graphics
 
 	void Raytracer::CreateShaderBindingTable(const dx12::GraphicsDevice& graphics_device)
 	{
-
 		{
 			raygen_shader_table_.AddShaderIdentifier(L"RayGen");
 			raygen_shader_table_.Generate(&graphics_device, 
@@ -487,11 +490,14 @@ namespace argent::graphics
 				table.shader_identifier_ = kHitGroupName.at(kNoModelGeometryCounts + i);
 				table.input_data_.resize(RootSignatureBinderCount);
 				table.input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * (kNoModelGeometryCounts + i));
-				auto model_data = model_[i]->GetShaderBindingData();
-				for(size_t j = 0; j < model_data.size(); ++j)
-				{
-					table.input_data_.at(j + 1) = model_data.at(j);
-				}
+				table.input_data_.at(TextureStart) = reinterpret_cast<void*>(graphics_model_->GetMaterials().at(0)->GetTextureGpuHandleBegin().ptr);
+				table.input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(
+					graphics_model_->GetMeshes().at(0)->GetVertexPositionDescriptor().gpu_handle_.ptr);
+				//auto model_data = model_[i]->GetShaderBindingData();
+				//for(size_t j = 0; j < model_data.size(); ++j)
+				//{
+				//	table.input_data_.at(j + 1) = model_data.at(j);
+				//}
 			}
 
 			hit_group_shader_table_.AddShaderTables(tables);

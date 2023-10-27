@@ -77,7 +77,7 @@ namespace argent::graphics
 		 * \brief モデルが保持しているMaterialをすべて取得する関数
 		 * \return Material
 		 */
-		const std::vector<std::shared_ptr<Material>>& GetMaterial() const { return material_vec_; }
+		const std::vector<std::shared_ptr<Material>>& GetMaterials() const { return material_vec_; }
 
 	private:
 		std::string filepath_;	//ファイルパス

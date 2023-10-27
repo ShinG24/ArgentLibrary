@@ -5,6 +5,7 @@
 #include "../External/Imgui/imgui.h"
 
 #include "../Inc/GraphicsDevice.h"
+#include "../Inc/DescriptorHeap.h"
 #include "../Inc/GraphicsContext.h"
 
 #include "../Inc/VertexBuffer.h"
