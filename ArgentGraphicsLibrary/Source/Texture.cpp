@@ -128,7 +128,7 @@ namespace argent::graphics
 
 	}
 
-	void Texture::WaitBeforeUse()
+	void Texture::WaitBeforeUse() const
 	{
 		if(need_to_wait_)
 		{

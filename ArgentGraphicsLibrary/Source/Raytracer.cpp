@@ -19,26 +19,24 @@
 #include "../Inc/GraphicsCommandList.h"
 #include "../Inc/CommandQueue.h"
 
+#include "../Inc/GraphicsContext.h"
+
 #include "../Inc/ShaderCompiler.h"
 #include "../../Assets/Shader/Common.hlsli"
 
 #include "../Inc/FbxLoader.h"
+#include "../Inc/Mesh.h"
 
 
 namespace argent::graphics
 {
 	void Raytracer::Awake(const dx12::GraphicsDevice& graphics_device, dx12::GraphicsCommandList& command_list,
-		dx12::CommandQueue& command_queue, UINT64 width, UINT height, 
-			dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap)
+		dx12::CommandQueue& command_queue, UINT64 width, UINT height, dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap,
+		const GraphicsContext* graphics_context)
 	{
-		skymaps_[0] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
+		skymaps_ = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
 			L"./Assets/Images/Skymap00.dds");
-		skymaps_[1] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap01.dds");
-		skymaps_[2] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap02.dds");
-		skymaps_[3] = std::make_unique<Texture>(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap03.dds");
+
 
 		width_ = width;
 		height_ = height;
@@ -53,8 +51,6 @@ namespace argent::graphics
 			transforms_[CoralRock].position_ = { -100.0f, 0.0f, 0.0f };
 			transforms_[CoralRock].scaling_ = { 0.1f, 0.1f, 0.1f };
 			transforms_[CoralRock].rotation_ = { -1.57f, 0.0f, 0.0f };
-			transforms_[Coral8].position_ = { 100.0f, 0.0f, 0.0f};
-			transforms_[Coral8].rotation_ = { -1.57f, -0.0f, 0.0f};
 		}
 		//Initialize Sphere
 		{
@@ -74,27 +70,34 @@ namespace argent::graphics
 		//Fbx Loader
 		//FbxLoader("./Assets/Model/Coral.fbx");
 
-		for(int i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
-		{
-			model_[i] = game_resource::LoadFbx(filepaths[i].c_str());
-			vertex_counts_ += model_[i]->GetMesh()->GetVertexCounts(); 
-			index_counts_ += model_[i]->GetMesh()->GetIndexCounts(); 
-		}
+		//for(int i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
+		//{
+		//	model_[i] = game_resource::LoadFbx(filepaths[i].c_str());
+		//	vertex_counts_ += model_[i]->GetMesh()->GetVertexCounts(); 
+		//	index_counts_ += model_[i]->GetMesh()->GetIndexCounts(); 
+		//}
 
-		for(auto& m : model_)
-		{
-			m->Awake(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap);
-		}
+		//for(auto& m : model_)
+		//{
+		//	m->Awake(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap);
+		//}
+
+		//TODO 新しいバージョンのLoader調整
+		graphics_model_ = LoadFbxFromFile("./Assets/Model/Plantune.FBX");
+	
+		graphics_model_->Awake(graphics_context);
 
 		CreateAS(graphics_device, command_list, command_queue);
 		CreatePipeline(graphics_device);
 		CreateOutputBuffer(graphics_device, width, height);
 		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
 		CreateShaderBindingTable(graphics_device);
+
 	}
 
 	void Raytracer::Shutdown()
 	{
+#if _USE_MODEL0_
 		for(auto& m : model_)
 		{
 			std::filesystem::path path = m->GetFilePath().c_str();
@@ -104,34 +107,37 @@ namespace argent::graphics
 			cereal::BinaryOutputArchive serialization(ofs);
 			serialization(m);
 		}
+#endif
 	}
 
 	void Raytracer::Update(dx12::GraphicsCommandList* graphics_command_list, dx12::CommandQueue* upload_command_queue)
 	{
 		if(!is_wait_)
 		{
-			for(int i = 0; i < kSkymapCounts; ++i)
-			{
-				skymaps_[i]->WaitBeforeUse();
-			}
+			skymaps_->WaitBeforeUse();
 
+#if _USE_MODEL0_
 			for(int i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
 			{
 				model_[i]->WaitBeforeUse();
 			}
+#else
+			graphics_model_->WaitForUploadGpuResource();
+
+#endif
 			is_wait_ = true;
 		}
+
+#if _USE_MODEL0_
 		for(auto& m : model_)
 		{
 			m->UpdateMaterialData();
 		}
+#endif
+
 		if(ImGui::TreeNode("Skymap Texture"))
 		{
-			ImGui::SliderInt("Index", &skymap_index_, 0, kSkymapCounts - 1);
-			for(int i = 0; i < kSkymapCounts; ++i)
-			{
-				ImGui::Image(reinterpret_cast<ImTextureID>(skymaps_[i]->GetGpuHandle().ptr), ImVec2(256, 256));
-			}
+			ImGui::Image(reinterpret_cast<ImTextureID>(skymaps_->GetGpuHandle().ptr), ImVec2(256, 256));
 			ImGui::TreePop();
 		}
 
@@ -148,11 +154,15 @@ namespace argent::graphics
 				}
 				else
 				{
+#if _USE_MODEL0_
 					model_[i - kNoModelGeometryCounts]->OnGui();
+#endif
 				}
 				ImGui::TreePop();
 			}
 		}
+
+		graphics_model_->OnGui();
 
 		graphics_command_list->Activate();
 
@@ -242,20 +252,6 @@ namespace argent::graphics
 
 			vertex_buffers_[Sphere] = std::make_unique<dx12::VertexBuffer>(&graphics_device,
 			                                                               &rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
-
-
-			aabb_size = 1000.0f;
-
-			rt_aabb.MaxX = 
-			rt_aabb.MaxY = 
-			rt_aabb.MaxZ = aabb_size;
-			rt_aabb.MinX = 
-			rt_aabb.MinY = 
-			rt_aabb.MinZ = -aabb_size;
-
-			//vertex_buffers_[Sphere1] = std::make_unique<VertexBuffer>(&graphics_device,
-			//	&rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
-
 		}
 	}
 
@@ -278,8 +274,14 @@ namespace argent::graphics
 			}
 			else
 			{
+#if _USE_MODEL0_
 				build_desc.vertex_buffer_vec_.emplace_back(model_[i - kNoModelGeometryCounts]->GetMesh()->GetVertexBuffer());				
-				build_desc.index_buffer_vec_.emplace_back(model_[i - kNoModelGeometryCounts]->GetMesh()->GetIndexBuffer());				
+				build_desc.index_buffer_vec_.emplace_back(model_[i - kNoModelGeometryCounts]->GetMesh()->GetIndexBuffer());
+#else
+				build_desc.vertex_buffer_vec_.emplace_back(graphics_model_->GetMeshes().at(0)->GetPositionBuffer());				
+				build_desc.index_buffer_vec_.emplace_back(graphics_model_->GetMeshes().at(0)->GetIndexBuffer());				
+
+#endif
 			}
 			unique_id[i] = as_manager_.AddBottomLevelAS(&graphics_device, &command_list, &build_desc, triangle);
 		}
@@ -320,7 +322,7 @@ namespace argent::graphics
 
 		//Shared root signature
 		raygen_miss_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);
-		raygen_miss_root_signature_.AddHeapRangeParameter(0u, kSkymapCounts, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);
+		raygen_miss_root_signature_.AddHeapRangeParameter(0u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);
 		raygen_miss_root_signature_.Create(&graphics_device, true);
 
 		//Hit Group Root Signature
@@ -336,7 +338,11 @@ namespace argent::graphics
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Plane.lib.hlsl", plane_library_.ReleaseAndGetAddressOf());
+#if _USE_MODEL0_
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/StaticMesh.lib.hlsl", static_mesh_library_.ReleaseAndGetAddressOf());
+#else
+		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/StandardMesh.lib.hlsl", static_mesh_library_.ReleaseAndGetAddressOf());
+#endif
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Sphere.lib.hlsl", sphere_library_.ReleaseAndGetAddressOf());
 
 		//Add Shader Library
@@ -448,12 +454,10 @@ namespace argent::graphics
 
 		//Miss Shader
 		{
-			std::vector<void*> data(kSkymapCounts + 1);
+			std::vector<void*> data(1 + 1);
 			data.at(0u) = reinterpret_cast<void*>(skymap_index_buffer_->GetGPUVirtualAddress());
-			for (int i = 0; i < kSkymapCounts; ++i)
-			{
-				data.at(i + 1) = reinterpret_cast<void*>(skymaps_[i]->GetGpuHandle().ptr);
-			}
+			data.at(1) = reinterpret_cast<void*>(skymaps_->GetGpuHandle().ptr);
+			
 			miss_shader_table_.AddShaderIdentifierAndInputData(L"Miss", data);
 			miss_shader_table_.Generate(&graphics_device, 
 				pipeline_state_.GetStateObjectProperties(), L"MissShaderTable");
@@ -495,29 +499,4 @@ namespace argent::graphics
 				pipeline_state_.GetStateObjectProperties(), L"HitGroupShaderTable");
 		}
 	}
-
-	//For Fbx
-	struct Scene
-	{
-		struct Node
-		{
-			uint64_t unique_id_{};
-			std::string name_;
-			UINT attribute_{};
-			int64_t parent_index_{ -1 };
-		};
-
-		std::vector<Node> nodes_;
-		int64_t IndexOf(uint64_t unique_id) const
-		{
-			int64_t index{ 0 };
-			for (const auto& node : nodes_)
-			{
-				if (node.unique_id_ == unique_id)
-					return index;
-				++index;
-			}
-			return -1;
-		}
-	};
 }

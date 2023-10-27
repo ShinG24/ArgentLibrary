@@ -10,14 +10,11 @@
     <Filter Include="Shader\Raytracing">
       <UniqueIdentifier>{36c28b37-d5f4-4652-b246-f93d3b80576e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\Rasterizer">
+      <UniqueIdentifier>{389f53c2-ce73-4d78-a7b9-08ebb95ecd65}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shader\VertexShader.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Assets\Shader\PixelShader.hlsl">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="packages.config" />
     <None Include="Assets\Shader\Common.hlsli">
       <Filter>Shader\Raytracing</Filter>
@@ -40,11 +37,20 @@
     <None Include="Assets\Shader\Sphere.lib.hlsl">
       <Filter>Shader\Raytracing</Filter>
     </None>
-    <None Include="Assets\Shader\FullscreenQuad.VS.hlsl">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Assets\Shader\FullscreenQuad.PS.hlsl">
-      <Filter>Shader</Filter>
+      <Filter>Shader\Rasterizer</Filter>
+    </None>
+    <None Include="Assets\Shader\FullscreenQuad.VS.hlsl">
+      <Filter>Shader\Rasterizer</Filter>
+    </None>
+    <None Include="Assets\Shader\PixelShader.hlsl">
+      <Filter>Shader\Rasterizer</Filter>
+    </None>
+    <None Include="Assets\Shader\VertexShader.hlsl">
+      <Filter>Shader\Rasterizer</Filter>
+    </None>
+    <None Include="Assets\Shader\StandardMesh.lib.hlsl">
+      <Filter>Shader\Raytracing</Filter>
     </None>
   </ItemGroup>
 </Project>

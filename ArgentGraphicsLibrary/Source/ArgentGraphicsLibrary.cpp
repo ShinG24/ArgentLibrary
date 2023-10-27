@@ -40,6 +40,10 @@ namespace argent::graphics
 		CreateDeviceDependencyObjects();
 		CreateWindowDependencyObjects();
 
+		graphics_context_.graphics_device_ = &graphics_device_;
+		graphics_context_.command_queue_ = &resource_upload_queue_;
+		graphics_context_.cbv_srv_uav_descriptor_ = &cbv_srv_uav_heap_;
+
 		InitializeScene();
 	}
 
@@ -109,7 +113,7 @@ namespace argent::graphics
 		{
 			raytracer_.Awake(graphics_device_, resource_upload_command_list_,
 				resource_upload_queue_, swap_chain_.GetWidth(), swap_chain_.GetHeight(),
-				cbv_srv_uav_heap_);
+				cbv_srv_uav_heap_, &graphics_context_);
 		}
 #endif
 	}

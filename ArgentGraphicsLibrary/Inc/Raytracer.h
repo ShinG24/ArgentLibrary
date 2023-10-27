@@ -25,7 +25,12 @@
 #include "RaytracingPipelineState.h"
 #include "RootSignature.h"
 
+
+#include "Model.h"
 #include "Model0.h"
+
+
+#define _USE_MODEL0_	0
 
 using namespace DirectX;
 
@@ -97,6 +102,7 @@ namespace argent::graphics::dx12
 
 namespace argent::graphics
 {
+	struct GraphicsContext;
 
 	class Raytracer
 	{
@@ -106,10 +112,7 @@ namespace argent::graphics
 		{
 			Plane,
 			Sphere,
-
 			CoralRock,
-			Coral8,
-
 			GeometryTypeCount,
 		};
 
@@ -118,25 +121,19 @@ namespace argent::graphics
 		{
 			"Plane",
 			"Sphere",
-
 			"CoralRock",
-			"Coral8",
-
 		};
 
 		std::vector<std::wstring> kHitGroupName/*[GeometryTypeCount]*/
 		{
 			L"HG_Plane",
 			L"HG_Sphere",
-
 			L"HG_CoralRock",
-			L"HG_Coral8",
 		};
 
 		std::string filepaths[GeometryTypeCount - kNoModelGeometryCounts]
 		{
 			"./Assets/Model/CoralRock.fbx",
-			"./Assets/Model/Coral_8.fbx",
 		};
 
 
@@ -152,7 +149,7 @@ namespace argent::graphics
 		void Awake(const dx12::GraphicsDevice& graphics_device, 
 			dx12::GraphicsCommandList& command_list, dx12::CommandQueue& command_queue,
 			UINT64 width, UINT height, 
-			dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap);
+			dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap, const GraphicsContext* graphics_context);
 		void Shutdown();
 
 		void Update(dx12::GraphicsCommandList* graphics_command_list, dx12::CommandQueue* upload_command_queue);
@@ -263,8 +260,7 @@ namespace argent::graphics
 		UINT tlas_unique_id_[GeometryTypeCount];
 
 
-		static constexpr int kSkymapCounts = 4;
-		std::unique_ptr<Texture> skymaps_[kSkymapCounts];
+		std::unique_ptr<Texture> skymaps_;
 		int skymap_index_ = 0;
 		Microsoft::WRL::ComPtr<ID3D12Resource> skymap_index_buffer_;
 		int* map_skymap_index_;
@@ -282,7 +278,11 @@ namespace argent::graphics
 
 		dx12::RaytracingPipelineState pipeline_state_;
 
+#if _USE_MODEL0_
 		std::shared_ptr<game_resource::Model> model_[GeometryTypeCount - kNoModelGeometryCounts];
+#else
+		std::shared_ptr<Model> graphics_model_;
+#endif
 
 		dx12::RootSignature global_root_signature_;
 		dx12::RootSignature raygen_miss_root_signature_;

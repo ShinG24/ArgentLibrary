@@ -53,6 +53,7 @@
     <ClInclude Include="Inc\RasterRenderer.h" />
     <ClInclude Include="Inc\Raytracer.h" />
     <ClInclude Include="Inc\RaytracingPipelineState.h" />
+    <ClInclude Include="Inc\RenderContext.h" />
     <ClInclude Include="Inc\RootSignature.h" />
     <ClInclude Include="Inc\ShaderBindingTable.h" />
     <ClInclude Include="Inc\ShaderCompiler.h" />

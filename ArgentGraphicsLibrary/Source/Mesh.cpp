@@ -44,13 +44,13 @@ namespace argent::graphics
 		position_buffer_ = std::make_unique<dx12::VertexBuffer>(graphics_context->graphics_device_,
 			data_.position_vec_.data(), sizeof(Position), data_.position_vec_.size());
 		normal_buffer_ = std::make_unique<dx12::VertexBuffer>(graphics_context->graphics_device_, data_.normal_vec_.data(),
-			sizeof(Position), data_.normal_vec_.size());
+			sizeof(Normal), data_.normal_vec_.size());
 		tangent_buffer_ = std::make_unique<dx12::VertexBuffer>(graphics_context->graphics_device_, 
-			data_.tangent_vec_.data(), sizeof(Position), data_.tangent_vec_.size());
+			data_.tangent_vec_.data(), sizeof(Tangent), data_.tangent_vec_.size());
 		binormal_buffer_ = std::make_unique<dx12::VertexBuffer>(graphics_context->graphics_device_, data_.binormal_vec_.data(),
-			sizeof(Position), data_.binormal_vec_.size());
+			sizeof(Binormal), data_.binormal_vec_.size());
 		texcoord_buffer_ = std::make_unique<dx12::VertexBuffer>(graphics_context->graphics_device_, 
-			data_.texcoord_vec_.data(), sizeof(Position), data_.texcoord_vec_.size());
+			data_.texcoord_vec_.data(), sizeof(Texcoord), data_.texcoord_vec_.size());
 
 		index_buffer_ = std::make_unique<dx12::IndexBuffer>(graphics_context->graphics_device_, 
 			data_.index_vec_.data(), static_cast<UINT>(data_.index_vec_.size()));

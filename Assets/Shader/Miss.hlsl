@@ -1,12 +1,7 @@
 #include "Common.hlsli"
 
-Texture2D skymap_texture[4] : register(t0, space1);
+Texture2D skymap_texture[1] : register(t0, space1);
 
-struct Constant
-{
-    int material_index_;
-};
-ConstantBuffer<Constant> material_index : register(b0, space1);
 
 _MISS_SHADER_
 void Miss(inout RayPayload payload : SV_RayPayload)
@@ -25,8 +20,8 @@ void Miss(inout RayPayload payload : SV_RayPayload)
     uv.y = 1.0 - (asin(vec.y) + PI * 0.5) / PI;
 
     uint2 dimension;
-    skymap_texture[material_index.material_index_].GetDimensions(dimension.x, dimension.y);
-    float4 sky_color = skymap_texture[material_index.material_index_][uv * dimension];
+    skymap_texture[0].GetDimensions(dimension.x, dimension.y);
+    float4 sky_color = skymap_texture[0][uv * dimension];
 
 
     float y = position.y - scene_constant.camera_position_.y;

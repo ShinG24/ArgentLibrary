@@ -90,12 +90,14 @@ namespace argent::graphics
 			GameResource(name)
 		,	data_(mesh_data)
 		,	collision_data_(mesh_data)
+		,	blas_unique_id_(~0u)
 		{}
 
 		Mesh(const std::string& name, const Data& rendering_mesh_data, const Data& collision_mesh_data):
 			GameResource(name)
 		,	data_(rendering_mesh_data)
 		,	collision_data_(collision_mesh_data)
+		,	blas_unique_id_(~0u)
 		{}
 
 		~Mesh() override = default;
@@ -106,6 +108,14 @@ namespace argent::graphics
 		Mesh& operator=(const Mesh&&) = delete;
 
 	public:
+
+		//TODO 頂点バッファ取得の関数はユーザーには触れてほしくないので隠す
+		dx12::VertexBuffer* GetPositionBuffer() const { return position_buffer_.get(); }
+		dx12::VertexBuffer* GetNormalBuffer() const { return normal_buffer_.get(); }
+		dx12::VertexBuffer* GetTangentBuffer() const { return tangent_buffer_.get(); }
+		dx12::VertexBuffer* GetBinormalBuffer() const { return binormal_buffer_.get(); }
+		dx12::VertexBuffer* GetTexcoordBuffer() const { return texcoord_buffer_.get(); }
+		dx12::IndexBuffer*	GetIndexBuffer() const { return index_buffer_.get(); }
 
 		/**
 		 * \brief 描画用の生データ取得
@@ -241,7 +251,7 @@ namespace argent::graphics
 		std::unique_ptr<dx12::IndexBuffer> index_buffer_{};
 
 		//In Progress レイトレーシング用の構造体
-		//std::unique_ptr<dx12::BottomLevelAccelerationStructure> blas_{};
+		uint64_t blas_unique_id_;
 
 		//TODO 複数マテリアルへの対応 レイトレの場合はどうすればいいでしょうね
 		//マテリアルへのポインタ or Unique ID

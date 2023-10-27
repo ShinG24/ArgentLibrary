@@ -112,6 +112,9 @@
     <ClInclude Include="Inc\StandardMaterial.h">
       <Filter>GameResource\Material</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\RenderContext.h">
+      <Filter>API</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />

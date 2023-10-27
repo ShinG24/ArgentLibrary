@@ -60,6 +60,11 @@ namespace argent::graphics
 		virtual void Awake(const GraphicsContext* graphics_context) = 0;
 
 		/**
+		 * \brief テクスチャのアップロードが終了するまで待つ
+		 */
+		virtual void WaitForGpu();
+
+		/**
 		 * \brief マテリアルインスタンスでのテクスチャの使い道から該当のテクスチャを取得する
 		 * もし持っていなかった場合はNullptrが変える
 		 * \param type インスタンスでのテクスチャの使用用途

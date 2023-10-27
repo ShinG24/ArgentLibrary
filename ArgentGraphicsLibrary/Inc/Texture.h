@@ -29,7 +29,7 @@ namespace argent::graphics
 		Texture& operator=(const Texture&) = delete;
 		Texture& operator=(const Texture&&) = delete;
 
-		void WaitBeforeUse();
+		void WaitBeforeUse() const;
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const { return descriptor_.gpu_handle_; }
 
 	private:

@@ -14,6 +14,8 @@
 #include "CommandQueue.h"
 #include "GraphicsCommandList.h"
 
+#include "GraphicsContext.h"
+
 
 #include "FrameResource.h"
 
@@ -58,6 +60,8 @@ namespace argent::graphics
 		void CreateWindowDependencyObjects();
 
 		void OnDebugLayer() const;
+
+		const GraphicsContext* GetGraphicsContext() const { return &graphics_context_; }
 
 	private:
 		HWND hwnd_;	//Window handle
@@ -115,6 +119,7 @@ namespace argent::graphics
 
 		bool on_raster_mode_ = false;
 
+		GraphicsContext graphics_context_;
 
 	private:
 		//For imgui

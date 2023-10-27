@@ -34,8 +34,10 @@ namespace argent::graphics
 	}
 
 	//‰Šú‰»ŠÖ”
-	void Model::Awake(const GraphicsContext* graphics_context) const
+	void Model::Awake(const GraphicsContext* graphics_context)
 	{
+		if(is_awake_) return;
+
 		if(mesh_vec_.empty() || material_vec_.empty())  _ASSERT_EXPR(FALSE, L"Mesh and Material can not be null");
 
 		for (auto& m : mesh_vec_)
@@ -47,6 +49,8 @@ namespace argent::graphics
 		{
 			m->Awake(graphics_context);
 		}
+
+		is_awake_ = true;
 	}
 
 	//Gui‚Ö‚Ì•`‰æ
@@ -74,5 +78,10 @@ namespace argent::graphics
 			}
 			ImGui::TreePop();
 		}
+	}
+
+	void Model::WaitForUploadGpuResource()
+	{
+
 	}
 }

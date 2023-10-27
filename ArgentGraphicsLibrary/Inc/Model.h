@@ -44,17 +44,22 @@ namespace argent::graphics
 
 	public:
 
-		//TODO　この下2つの関数はユーザーには触れてほしくないのでprivateにする
+		//TODO　この下3つの関数はユーザーには触れてほしくないのでprivateにする
 		/**
 		 * \brief 描画API依存のBufferオブジェクトを作成 Constにしてるけど不具合があった場合は消してもいい
 		 * \param graphics_context GraphcisContextのポインタ
 		 */
-		void Awake(const GraphicsContext* graphics_context) const;
+		void Awake(const GraphicsContext* graphics_context);
 
 		/**
 		 * \brief Guiに描画する用の関数
 		 */
 		void OnGui() override;
+
+		/**
+		 * \brief テクスチャなどのGPUへのアップロードが終了するまで待つ
+		 */
+		void WaitForUploadGpuResource();
 
 		/**
 		 * \brief .exeからの相対ファイルパス取得 
@@ -79,6 +84,7 @@ namespace argent::graphics
 		std::vector<std::shared_ptr<Mesh>> mesh_vec_;
 		std::vector<std::shared_ptr<Material>> material_vec_;
 
+		bool is_awake_ = false;
 		//TODO アニメーションに対応
 	};
 }
