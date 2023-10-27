@@ -25,9 +25,13 @@ namespace argent::graphics
 		enum class TextureUsage
 		{
 			Albedo,		//Albedo (Base Color)	1番基本な色の出力を担う　デフォルトは真っ白なテクスチャ
+						//Diffuseテクスチャはこれに該当する前提で組んでます
 			Normal,		//Normal Map 接線空間の法線情報を格納したテクスチャ　法線の計算に使う
 			Metallic,	//Metallic	金属感を表すためのテクスチャ　デフォルトは多分黒のテクスチャ
 			Roughness,	//Roughness 表面の粗さを表現するためのテクスチャ デフォルトは多分黒のテクスチャ
+			Emissive,	//Emissive	輝度調節用？のテクスチャ　輝きが増えます
+			Height,		//Height Map 高さとかに使うらしい　実装は出来てない
+			Mask,		//Mask		多分色々使えるけど知らない
 		};
 
 	public:

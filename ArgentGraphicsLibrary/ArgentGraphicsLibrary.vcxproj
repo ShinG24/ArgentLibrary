@@ -61,7 +61,6 @@
     <ClInclude Include="Inc\Texture.h" />
     <ClInclude Include="Inc\TopLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\VertexBuffer.h" />
-    <ClInclude Include="Source\StandardMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp" />
@@ -94,6 +93,7 @@
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\ShaderBindingTable.cpp" />
     <ClCompile Include="Source\ShaderCompiler.cpp" />
+    <ClCompile Include="Source\StandardMaterial.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\TopLevelAccelerationStructure.cpp" />

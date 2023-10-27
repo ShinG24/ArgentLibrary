@@ -112,9 +112,6 @@
     <ClInclude Include="Inc\StandardMaterial.h">
       <Filter>GameResource\Material</Filter>
     </ClInclude>
-    <ClInclude Include="Source\StandardMaterial.cpp">
-      <Filter>GameResource\Material</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -207,6 +204,9 @@
       <Filter>GameResource\3D</Filter>
     </ClCompile>
     <ClCompile Include="Source\Material.cpp">
+      <Filter>GameResource\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StandardMaterial.cpp">
       <Filter>GameResource\Material</Filter>
     </ClCompile>
   </ItemGroup>

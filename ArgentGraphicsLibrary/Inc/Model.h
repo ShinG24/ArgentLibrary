@@ -25,7 +25,6 @@ namespace argent::graphics
 	{
 	public:
 		Model() = default;
-		~Model() override = default;
 
 		/**
 		 * \brief コンストラクタ　データはstd::move()で移行させるため所有権がなくなることに注意
@@ -36,11 +35,14 @@ namespace argent::graphics
 		Model(std::string filepath, std::vector<std::shared_ptr<Mesh>>& mesh_vec,
 		      std::vector<std::shared_ptr<Material>>& material_vec);
 
+		~Model() override = default;
 
 		Model(const Model&) = delete;
 		Model(const Model&&) = delete;
 		Model& operator=(const Model&) = delete;
 		Model& operator=(const Model&&) = delete;
+
+	public:
 
 		//TODO　この下2つの関数はユーザーには触れてほしくないのでprivateにする
 		/**
@@ -54,8 +56,22 @@ namespace argent::graphics
 		 */
 		void OnGui() override;
 
+		/**
+		 * \brief .exeからの相対ファイルパス取得 
+		 * \return ファイルパス
+		 */
 		const std::string& GetFilePath() const { return filepath_; }
+
+		/**
+		 * \brief モデルが保持しているMeshをすべて取得する関数
+		 * \return Mesh
+		 */
 		const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return mesh_vec_; }
+
+		/**
+		 * \brief モデルが保持しているMaterialをすべて取得する関数
+		 * \return Material
+		 */
 		const std::vector<std::shared_ptr<Material>>& GetMaterial() const { return material_vec_; }
 
 	private:

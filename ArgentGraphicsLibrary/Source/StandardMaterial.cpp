@@ -7,8 +7,8 @@
 
 namespace argent::graphics
 {
-	StandardMaterial::StandardMaterial(const Data& data) :
-		Material(data.name_)
+	StandardMaterial::StandardMaterial(const std::string& name, const Data& data) :
+		Material(name)
 	,	data_(data)
 	,	constant_data_(data.metallic_factor_, data.smoothness_factor_)
 	{}

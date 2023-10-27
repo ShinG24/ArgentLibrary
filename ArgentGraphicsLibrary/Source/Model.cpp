@@ -12,6 +12,7 @@
 
 #include "../Inc/Mesh.h"
 #include "../Inc/Material.h"
+#include "../Inc/StandardMaterial.h"
 
 namespace argent::graphics
 {
@@ -28,11 +29,15 @@ namespace argent::graphics
 	,	filepath_(std::move(filepath))
 	,	mesh_vec_(std::move(mesh_vec))
 	,	material_vec_(std::move(material_vec))
-	{}
+	{
+		if(mesh_vec_.empty() || material_vec_.empty())  _ASSERT_EXPR(FALSE, L"Mesh and Material can not be null");
+	}
 
 	//‰Šú‰»ŠÖ”
 	void Model::Awake(const GraphicsContext* graphics_context) const
 	{
+		if(mesh_vec_.empty() || material_vec_.empty())  _ASSERT_EXPR(FALSE, L"Mesh and Material can not be null");
+
 		for (auto& m : mesh_vec_)
 		{
 			m->Awake(graphics_context);
