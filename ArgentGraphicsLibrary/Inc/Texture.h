@@ -14,11 +14,12 @@ namespace argent::graphics::dx12
 
 namespace argent::graphics
 {
-	
+	struct GraphicsContext;
 
 	class Texture
 	{
 	public:
+		Texture(const GraphicsContext* graphics_context, const char* filename);
 		Texture(const dx12::GraphicsDevice* graphics_device, const dx12::CommandQueue* command_queue,
 			dx12::DescriptorHeap* cbv_srv_uav_heap, const wchar_t * filename);
 		~Texture() = default;

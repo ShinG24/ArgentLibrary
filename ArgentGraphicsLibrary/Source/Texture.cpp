@@ -12,15 +12,70 @@
 
 #include <unordered_map>
 
+#include "../Inc/GraphicsContext.h"
 
+//TODO è¡ÇµÇ‹ÇµÇÂÇ§
 std::unordered_map<std::wstring, argent::graphics::dx12::Descriptor> loaded_texture;
 
 namespace argent::graphics
 {
 	void CreateDummyTexture(const dx12::GraphicsDevice* graphics_device, ID3D12Resource** pp_resource);
 
+	Texture::Texture(const GraphicsContext* graphics_context, const char* filename)
+	{
+		std::filesystem::path path = filename;
+		if(loaded_texture.contains(path.wstring()))
+		{
+			descriptor_ = loaded_texture[path.wstring()];
+			need_to_wait_ = false;
+		}
+		else
+		{
+			need_to_wait_ = true;
+			descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+			DirectX::ResourceUploadBatch resource_upload_batch(graphics_context->graphics_device_->GetDevice());
+
+			resource_upload_batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+			HRESULT hr{ S_OK };
+
+			std::filesystem::path path = filename;
+			path.replace_extension(".DDS");
+
+			if(std::filesystem::exists(path))
+			{
+				hr = DirectX::CreateDDSTextureFromFile(graphics_context->graphics_device_->GetDevice(), resource_upload_batch, path.wstring().c_str(),
+					resource_object_.ReleaseAndGetAddressOf());}
+			else
+			{
+				hr = DirectX::CreateWICTextureFromFile(graphics_context->graphics_device_->GetDevice(), 
+					resource_upload_batch, path.wstring().c_str(),
+					resource_object_.ReleaseAndGetAddressOf());
+			}
+
+			if(FAILED(hr))
+			{
+				CreateDummyTexture(graphics_context->graphics_device_, resource_object_.ReleaseAndGetAddressOf());	
+			}
+
+			wait_for_finish_upload_ = resource_upload_batch.End(graphics_context->command_queue_->GetCommandQueue());
+
+			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+			desc.Format = resource_object_->GetDesc().Format;
+			desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			desc.Texture2D.MipLevels = resource_object_->GetDesc().MipLevels;
+
+			graphics_context->graphics_device_->GetDevice()->CreateShaderResourceView(resource_object_.Get(), &desc,
+				descriptor_.cpu_handle_);
+
+			loaded_texture[path] = descriptor_;
+			
+		}
+	}
+
 	Texture::Texture(const dx12::GraphicsDevice* graphics_device, const dx12::CommandQueue* command_queue,
-		dx12::DescriptorHeap* cbv_srv_uav_heap, const wchar_t* filename)
+	                 dx12::DescriptorHeap* cbv_srv_uav_heap, const wchar_t* filename)
 	{
 		if(loaded_texture.contains(filename))
 		{
@@ -113,7 +168,7 @@ namespace argent::graphics
 		}
 
 		HRESULT hr = (*pp_resource)->WriteToSubresource(0, nullptr, data.data(), sizeof(UINT), 
-			static_cast<UINT>(sizeof(UINT)) * data.size());
+			static_cast<UINT>(sizeof(UINT)) * static_cast<UINT>(data.size()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Write To Subresource");
 	}
 }

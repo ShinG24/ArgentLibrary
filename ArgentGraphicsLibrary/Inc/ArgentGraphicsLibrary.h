@@ -107,7 +107,7 @@ namespace argent::graphics
 		float far_z_ = 1000.0f;
 		float fov_angle_ = 60.0f;
 		float aspect_ratio_ = 16.0f / 9.0f;
-		float rotation_speed_ = 0.003;
+		float rotation_speed_ = 0.003f;
 		float move_speed_ = 0.5f;
 
 		DirectX::XMFLOAT4 light_position{ 1000.0, 1000.0f, -1000.0f, 1.0f };

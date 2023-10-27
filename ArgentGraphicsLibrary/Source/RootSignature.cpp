@@ -41,7 +41,7 @@ namespace argent::graphics::dx12
 
 		D3D12_ROOT_PARAMETER param{};
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		param.DescriptorTable.NumDescriptorRanges = ranges.size();
+		param.DescriptorTable.NumDescriptorRanges = static_cast<UINT>(ranges.size());
 		param.DescriptorTable.pDescriptorRanges = nullptr;
 
 		root_parameters_.push_back(param);

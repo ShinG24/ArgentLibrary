@@ -374,7 +374,7 @@ namespace argent::graphics
 	void Raytracer::CreateOutputBuffer(const dx12::GraphicsDevice& graphics_device, UINT64 width, UINT height)
 	{
 		graphics_device.CreateTexture2D(dx12::kDefaultHeapProp, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			DXGI_FORMAT_R8G8B8A8_UNORM, width, height, D3D12_RESOURCE_STATE_COPY_SOURCE, 
+			DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(width), height, D3D12_RESOURCE_STATE_COPY_SOURCE, 
 			output_buffer_.ReleaseAndGetAddressOf());
 	}
 

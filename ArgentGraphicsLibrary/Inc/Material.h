@@ -1,26 +1,52 @@
 #pragma once
 #include "GameResource.h"
 
+#include <memory>
+#include <unordered_map>
+
 namespace argent::graphics
 {
-	class GraphicsContext;
+	struct GraphicsContext;
+	class Texture;
 }
 
 namespace argent::graphics
 {
 	class GameResource;
 
+	/**
+	 * \brief マテリアル基底クラス
+	 * 何をもたせればいいかわからないのでほぼ何も持たせていない
+	 */
 	class Material : public GameResource
 	{
 	public:
-		Material();
+
+		enum class TextureUsage
+		{
+			Albedo,		//Albedo (Base Color)	1番基本な色の出力を担う　デフォルトは真っ白なテクスチャ
+			Normal,		//Normal Map 接線空間の法線情報を格納したテクスチャ　法線の計算に使う
+			Metallic,	//Metallic	金属感を表すためのテクスチャ　デフォルトは多分黒のテクスチャ
+			Roughness,	//Roughness 表面の粗さを表現するためのテクスチャ デフォルトは多分黒のテクスチャ
+		};
+
+	public:
+
+		Material() = default;
 
 		/**
-		 * \brief コンストラクタ でーたはstd::move()で移行させるため所有権がなくなることに注意
+		 * \brief コンストラクタ
 		 * \param name Material name
 		 */
-		Material(std::string& name);
+		Material(const std::string& name);
 		~Material() override = default;
+
+		Material(const Material&) = delete;
+		Material(const Material&&) = delete;
+		Material& operator=(const Material&) = delete;
+		Material& operator=(const Material&&) = delete;
+
+	public:
 
 		/**
 		 * \brief テクスチャあるいはコンスタントバッファの初期化関数
@@ -28,7 +54,19 @@ namespace argent::graphics
 		 * \param graphics_context GraphicsContext
 		 */
 		virtual void Awake(const GraphicsContext* graphics_context) = 0;
-	private:
-		
+
+		/**
+		 * \brief マテリアルインスタンスでのテクスチャの使い道から該当のテクスチャを取得する
+		 * もし持っていなかった場合はNullptrが変える
+		 * \param type インスタンスでのテクスチャの使用用途
+		 * \return Textureへのポインタ
+		 */
+		std::shared_ptr<Texture> GetTexture(TextureUsage type);
+
+		//継承前提の組み方で継承先からアクセスする可能性が大いにあるため、処理速度を考えGetterではなくportectedにしてアクセスできるようにする
+	protected:
+		//TODO テクスチャを持たないマテリアルは存在するのか あったとしてもテクスチャマップを使わなければいいだけなので
+		//とりあえずおいておきます
+		std::unordered_map<TextureUsage, std::shared_ptr<Texture>> texture_map_;	//Texture map　2つ以上の使用用途が被ったテクスチャは保持できない 
 	};
 }

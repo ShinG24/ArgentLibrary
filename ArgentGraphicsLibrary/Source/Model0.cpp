@@ -21,7 +21,7 @@ namespace argent::game_resource
 	void Mesh::Awake(const graphics::dx12::GraphicsDevice* graphics_device, graphics::dx12::DescriptorHeap* srv_descriptor_heap)
 	{
 		vertex_buffer_ = std::make_unique<graphics::dx12::VertexBuffer>(graphics_device, vertices_.data(), sizeof(Vertex), vertices_.size());
-		index_buffer_ = std::make_unique<graphics::dx12::IndexBuffer>(graphics_device, indices_.data(), indices_.size());
+		index_buffer_ = std::make_unique<graphics::dx12::IndexBuffer>(graphics_device, indices_.data(), static_cast<UINT>(indices_.size()));
 
 		vertex_srv_descriptor_ = srv_descriptor_heap->PopDescriptor();
 		index_srv_descriptor_ = srv_descriptor_heap->PopDescriptor();

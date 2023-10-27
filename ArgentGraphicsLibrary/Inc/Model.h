@@ -33,24 +33,36 @@ namespace argent::graphics
 		 * \param mesh_vec Meshのデータ
 		 * \param material_vec Materialのデータ
 		 */
-		Model(std::string& filepath, std::vector<std::shared_ptr<Mesh>>& mesh_vec,
+		Model(std::string filepath, std::vector<std::shared_ptr<Mesh>>& mesh_vec,
 		      std::vector<std::shared_ptr<Material>>& material_vec);
 
-		void Awake(const GraphicsContext* graphics_context);
 
 		Model(const Model&) = delete;
 		Model(const Model&&) = delete;
 		Model& operator=(const Model&) = delete;
 		Model& operator=(const Model&&) = delete;
 
+		//TODO　この下2つの関数はユーザーには触れてほしくないのでprivateにする
+		/**
+		 * \brief 描画API依存のBufferオブジェクトを作成 Constにしてるけど不具合があった場合は消してもいい
+		 * \param graphics_context GraphcisContextのポインタ
+		 */
+		void Awake(const GraphicsContext* graphics_context) const;
+
 		/**
 		 * \brief Guiに描画する用の関数
 		 */
 		void OnGui() override;
 
+		const std::string& GetFilePath() const { return filepath_; }
+		const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return mesh_vec_; }
+		const std::vector<std::shared_ptr<Material>>& GetMaterial() const { return material_vec_; }
+
 	private:
 		std::string filepath_;	//ファイルパス
 		std::vector<std::shared_ptr<Mesh>> mesh_vec_;
 		std::vector<std::shared_ptr<Material>> material_vec_;
+
+		//TODO アニメーションに対応
 	};
 }

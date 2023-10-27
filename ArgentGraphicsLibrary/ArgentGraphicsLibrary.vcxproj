@@ -56,10 +56,12 @@
     <ClInclude Include="Inc\RootSignature.h" />
     <ClInclude Include="Inc\ShaderBindingTable.h" />
     <ClInclude Include="Inc\ShaderCompiler.h" />
+    <ClInclude Include="Inc\StandardMaterial.h" />
     <ClInclude Include="Inc\SwapChain.h" />
     <ClInclude Include="Inc\Texture.h" />
     <ClInclude Include="Inc\TopLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\VertexBuffer.h" />
+    <ClInclude Include="Source\StandardMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp" />
@@ -68,7 +70,6 @@
     <ClCompile Include="External\Imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="External\Imgui\imgui_tables.cpp" />
     <ClCompile Include="External\Imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Inc\Model.cpp" />
     <ClCompile Include="Source\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
@@ -84,6 +85,7 @@
     <ClCompile Include="Source\IndexBuffer.cpp" />
     <ClCompile Include="Source\Material.cpp" />
     <ClCompile Include="Source\Mesh.cpp" />
+    <ClCompile Include="Source\Model.cpp" />
     <ClCompile Include="Source\Model0.cpp" />
     <ClCompile Include="Source\Platform.cpp" />
     <ClCompile Include="Source\RasterRenderer.cpp" />

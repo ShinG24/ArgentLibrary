@@ -2,8 +2,12 @@
 
 namespace argent::graphics
 {
-	Material::Material(std::string& name) :
+	Material::Material(const std::string& name) :
 		GameResource(name)
 	{}
-	
+
+	std::shared_ptr<Texture> Material::GetTexture(TextureUsage type)
+	{
+		return texture_map_.contains(type) ? texture_map_.at(type) : nullptr;
+	}
 }

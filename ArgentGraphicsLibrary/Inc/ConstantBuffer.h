@@ -10,8 +10,8 @@
 
 namespace argent::graphics::dx12
 {
-	//Wrap Class of Constant Buffer
-	//This class has back_buffer_counts id3d12resource object.
+	//ConstantBufferƒNƒ‰ƒX
+	//
 	template<typename T>
 	class ConstantBuffer
 	{
