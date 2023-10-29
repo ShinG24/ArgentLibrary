@@ -19,7 +19,7 @@ StructuredBuffer<float2> sb_texcoord	: register(t6, space1);
 ByteAddressBuffer Indices				: register(t7, space1);
 
 ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
-//ConstantBuffer<StandardMaterial> material_constant : register(b1, space1);
+ConstantBuffer<StandardMaterial> material_constant : register(b1, space1);
 
 uint3 Load3x32BitIndices()
 {
@@ -168,13 +168,18 @@ void StaticMeshClosestHit(inout RayPayload payload, in HitAttribute attr)
 	ray.direction_ = CalcReflectedRayDirection(normal);
 	float4 reflection_color = TraceRadianceRay(ray, payload.recursion_depth_);
 
+
+    float reflection_coefficient = material_constant.metallic_;
+    float diffuse_coefficient = 1.0f;
+    float specular_coefficient = material_constant.roughness_;
+
     //Fresnel 
 	float3 fresnel_r = FresnelReflectanceSchlick(WorldRayDirection(), normal, albedo_color.xyz);
-	reflection_color = 0.2f * float4(fresnel_r, 1) * reflection_color;
+    reflection_color = reflection_coefficient * float4(fresnel_r, 1) * reflection_color;
 
     //Phong Shading
 	float4 phong_color = CalcPhongLighting(albedo_color, normal,
-						1.0f, 0.2f, 50.0f);
+						diffuse_coefficient, specular_coefficient, 50.0f);
 	float4 color = phong_color + reflection_color;
 
 	payload.color_ = float4(color.rgb, 1.0f);

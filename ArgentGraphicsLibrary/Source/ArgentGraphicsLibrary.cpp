@@ -103,7 +103,7 @@ namespace argent::graphics
 	{
 		//scene_constant_buffer_.Awake(graphics_device_, cbv_srv_uav_heap_);
 		//scene_constant_buffer_.Create(graphics_device_, kNumBackBuffers);
-		scene_constant_buffer_ = std::make_unique<dx12::ConstantBuffer<SceneConstant>>(&graphics_device_, kNumBackBuffers);
+		scene_constant_buffer_ = std::make_unique<dx12::ConstantBuffer>(&graphics_device_, sizeof(SceneConstant), kNumBackBuffers);
 
 		raster_renderer_.Awake(graphics_device_, resource_upload_queue_, cbv_srv_uav_heap_);
 
@@ -228,7 +228,7 @@ namespace argent::graphics
 			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
 			data.light_position_ = light_position;
 
-			scene_constant_buffer_->CopyToGpu(data, back_buffer_index_);
+			scene_constant_buffer_->CopyToGpu(&data, back_buffer_index_);
 		}
 
 		const auto& command_list = graphics_command_list_[back_buffer_index_];

@@ -8,7 +8,7 @@ namespace argent::graphics
 	 * \brief デフォルトの3DMeshマテリアル PBRマテリアル
 	 * FbxLoaderからモデルをインポートした場合、初期のマテリアルはこれ
 	 * メタリック、ラフネス強度をメンバ変数として持つ
-	 * 使用可能なテクスチャタイプはAlbedo, Normal, Metllic, Roughnessの4つ
+	 * 使用可能なテクスチャタイプはAlbedo, Normal, Metallic, Roughnessの4つ
 	 * //TODO Height, Maskにも対応する
 	 */
 	class StandardMaterial final : public Material
@@ -55,6 +55,8 @@ namespace argent::graphics
 		 * \brief Gui上に描画
 		 */
 		void OnGui() override;
+
+		void UpdateConstantBuffer(UINT frame_index) override;
 
 	private:
 

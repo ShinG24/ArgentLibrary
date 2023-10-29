@@ -156,7 +156,7 @@ namespace argent::game_resource
 
 		void CopyToGpu()
 		{
-			constant_buffer_->CopyToGpu(data_, 0);
+			constant_buffer_->CopyToGpu(&data_, 0);
 		}
 		D3D12_GPU_DESCRIPTOR_HANDLE GetAlbedoTextureGpuHandle() const
 		{
@@ -170,6 +170,7 @@ namespace argent::game_resource
 		{
 			return constant_buffer_->GetGpuVirtualAddress(0);
 		}
+
 	private:
 		std::string name_;
 		std::string albedo_texture_name_;
@@ -179,7 +180,7 @@ namespace argent::game_resource
 
 		std::unique_ptr<graphics::Texture> albedo_texture_{};
 		std::unique_ptr<graphics::Texture> normal_texture_{};
-		std::unique_ptr<graphics::dx12::ConstantBuffer<Constant>> constant_buffer_{};
+		std::unique_ptr<graphics::dx12::ConstantBuffer> constant_buffer_{};
 		Constant data_;
 	};
 

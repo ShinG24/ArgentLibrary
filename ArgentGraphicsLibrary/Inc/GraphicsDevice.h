@@ -63,6 +63,7 @@ namespace argent::graphics::dx12
 			ID3D12Resource** pp_resource) const;
 
 		void CreateCBV(ID3D12Resource* constant_buffer, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
+		void CreateCBV(D3D12_GPU_VIRTUAL_ADDRESS buffer_location, UINT buffer_width, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
 
 		UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const;
 

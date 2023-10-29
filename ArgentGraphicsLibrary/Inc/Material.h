@@ -4,11 +4,13 @@
 #include <memory>
 #include <unordered_map>
 
+#include "ConstantBuffer.h"
 #include "Texture.h"
 
 namespace argent::graphics::dx12
 {
 	struct Descriptor;
+	class ConstantBuffer;
 }
 namespace argent::graphics
 {
@@ -71,6 +73,12 @@ namespace argent::graphics
 		virtual void WaitForGpu();
 
 		/**
+		 * \brief　コンスタントバッファのUpdate
+		 * \param frame_index フレームインデックス
+		 */
+		virtual void UpdateConstantBuffer(UINT frame_index) = 0;
+
+		/**
 		 * \brief マテリアルインスタンスでのテクスチャの使い道から該当のテクスチャを取得する
 		 * もし持っていなかった場合はNullptrが変える
 		 * \param type インスタンスでのテクスチャの使用用途
@@ -86,10 +94,25 @@ namespace argent::graphics
 		 */
 		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGpuHandleBegin() const { return texture_map_.begin()->second->GetGpuHandle(); }
 
-		//継承前提の組み方で継承先からアクセスする可能性が大いにあるため、処理速度を考えGetterではなくportectedにしてアクセスできるようにする
+		/**
+		 * \brief コンスタントバッファのGpuアドレスを取得
+		 * \param frame_index フレームインデックス
+		 * \return gpu address
+		 */
+		D3D12_GPU_VIRTUAL_ADDRESS GetConstantGpuVirtualAddress(UINT frame_index) const { return constant_buffer_->GetGpuVirtualAddress(frame_index); }
+
+		/**
+		 * \brief コンスタントバッファのDescriptorHandleを取得
+		 * \param frame_index フレームインデックス
+		 * \return descriptor
+		 */
+		dx12::Descriptor GetConstantDescriptorHandle(UINT frame_index) const { return constant_buffer_->GetDescriptor(frame_index);  }
+
+		//継承前提の組み方で継承先からアクセスする可能性が大いにあるため、処理速度を考えGetterではなくprotectedにしてアクセスできるようにする
 	protected:
 		//TODO テクスチャを持たないマテリアルは存在するのか あったとしてもテクスチャマップを使わなければいいだけなので
 		//とりあえずおいておきます
 		std::unordered_map<TextureUsage, std::shared_ptr<Texture>> texture_map_;	//Texture map　2つ以上の使用用途が被ったテクスチャは保持できない 
+		std::unique_ptr<dx12::ConstantBuffer> constant_buffer_;
 	};
 }

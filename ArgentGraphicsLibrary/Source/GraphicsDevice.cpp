@@ -171,6 +171,15 @@ namespace argent::graphics::dx12
 		device_->CreateConstantBufferView(&desc, cpu_handle);
 	}
 
+	void GraphicsDevice::CreateCBV(D3D12_GPU_VIRTUAL_ADDRESS buffer_location, UINT buffer_width,
+		D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const
+	{
+		D3D12_CONSTANT_BUFFER_VIEW_DESC desc{};
+		desc.SizeInBytes = buffer_width;
+		desc.BufferLocation = buffer_location;
+		device_->CreateConstantBufferView(&desc, cpu_handle);
+	}
+
 	UINT GraphicsDevice::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const
 	{
 		return device_->GetDescriptorHandleIncrementSize(heap_type);

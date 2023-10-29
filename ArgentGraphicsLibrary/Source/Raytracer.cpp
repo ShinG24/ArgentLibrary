@@ -129,12 +129,17 @@ namespace argent::graphics
 			is_wait_ = true;
 		}
 
+
+
 #if _USE_MODEL0_
 		for(auto& m : model_)
 		{
 			m->UpdateMaterialData();
 		}
+#else
+		graphics_model_->GetMaterials().at(0)->UpdateConstantBuffer(0u);
 #endif
+
 
 		if(ImGui::TreeNode("Skymap Texture"))
 		{
@@ -493,6 +498,7 @@ namespace argent::graphics
 				table.input_data_.at(TextureStart) = reinterpret_cast<void*>(graphics_model_->GetMaterials().at(0)->GetTextureGpuHandleBegin().ptr);
 				table.input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(
 					graphics_model_->GetMeshes().at(0)->GetVertexPositionDescriptor().gpu_handle_.ptr);
+				table.input_data_.at(MaterialCbv) = reinterpret_cast<void*>(graphics_model_->GetMaterials().at(0)->GetConstantGpuVirtualAddress(0));
 				//auto model_data = model_[i]->GetShaderBindingData();
 				//for(size_t j = 0; j < model_data.size(); ++j)
 				//{

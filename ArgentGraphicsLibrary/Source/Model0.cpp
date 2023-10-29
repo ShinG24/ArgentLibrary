@@ -59,8 +59,8 @@ namespace argent::game_resource
 		std::filesystem::path normal = normal_texture_name_;
 		albedo_texture_ = std::make_unique<graphics::Texture>(graphics_device, command_queue, srv_heap, albedo.wstring().c_str());
 		normal_texture_ = std::make_unique<graphics::Texture>(graphics_device, command_queue, srv_heap, normal.wstring().c_str());
-		constant_buffer_ = std::make_unique<graphics::dx12::ConstantBuffer<Constant>>(graphics_device, 1u);
-		constant_buffer_->CopyToGpu(data_, 0u);
+		constant_buffer_ = std::make_unique<graphics::dx12::ConstantBuffer>(graphics_device, sizeof(Constant), 1u);
+		constant_buffer_->CopyToGpu(&data_, 0u);
 	}
 
 	void Material::WaitBeforeUse()

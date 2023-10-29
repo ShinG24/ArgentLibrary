@@ -73,6 +73,7 @@
     <ClCompile Include="Source\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\ArgentGraphicsLibrary.cpp" />
+    <ClCompile Include="Source\ConstantBuffer.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
     <ClCompile Include="Source\FbxLoader.cpp" />
     <ClCompile Include="Source\FrameResource.cpp" />

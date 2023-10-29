@@ -212,6 +212,9 @@
     <ClCompile Include="Source\StandardMaterial.cpp">
       <Filter>GameResource\Material</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ConstantBuffer.cpp">
+      <Filter>API\Direct3D12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shader">

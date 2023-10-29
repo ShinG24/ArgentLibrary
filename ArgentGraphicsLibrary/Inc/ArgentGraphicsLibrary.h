@@ -102,7 +102,7 @@ namespace argent::graphics
 			DirectX::XMFLOAT4 light_position_;
 		};
 
-		std::unique_ptr<dx12::ConstantBuffer<SceneConstant>> scene_constant_buffer_;
+		std::unique_ptr<dx12::ConstantBuffer> scene_constant_buffer_;
 
 		//Camera
 		DirectX::XMFLOAT4 camera_position_{ 0.0, 100.0f, -100.0f, 1.0f };
