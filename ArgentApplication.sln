@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentUtilityLibrary", "Arg
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentInputLibrary", "ArgentInputLibrary\ArgentInputLibrary.vcxproj", "{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgentComponent", "ArgentComponent\ArgentComponent.vcxproj", "{18DEEDF1-CCD5-4C78-8232-017F08BDD406}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -56,6 +58,14 @@ Global
 		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Release|x64.Build.0 = Release|x64
 		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Release|x86.ActiveCfg = Release|Win32
 		{0EDBA4CF-D2E5-4D0F-B022-3523DBBE8893}.Release|x86.Build.0 = Release|Win32
+		{18DEEDF1-CCD5-4C78-8232-017F08BDD406}.Debug|x64.ActiveCfg = Debug|x64
+		{18DEEDF1-CCD5-4C78-8232-017F08BDD406}.Debug|x64.Build.0 = Debug|x64
+		{18DEEDF1-CCD5-4C78-8232-017F08BDD406}.Debug|x86.ActiveCfg = Debug|Win32
+		{18DEEDF1-CCD5-4C78-8232-017F08BDD406}.Debug|x86.Build.0 = Debug|Win32
+		{18DEEDF1-CCD5-4C78-8232-017F08BDD406}.Release|x64.ActiveCfg = Release|x64
+		{18DEEDF1-CCD5-4C78-8232-017F08BDD406}.Release|x64.Build.0 = Release|x64
+		{18DEEDF1-CCD5-4C78-8232-017F08BDD406}.Release|x86.ActiveCfg = Release|Win32
+		{18DEEDF1-CCD5-4C78-8232-017F08BDD406}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
