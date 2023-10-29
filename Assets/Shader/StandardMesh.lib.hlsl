@@ -51,10 +51,18 @@ float3 CalcWorldBinormal(uint3 index, float2 barycentrics)
 	return binormal;
 }
 
+/**
+ * \brief Texcoordの計算
+ * \param index 頂点バッファに対するインデックス
+ * \param barycentrics 重心
+ * \return Texcoord
+ */
 float2 CalcTexcoord(uint3 index, float2 barycentrics)
 {
 	float2 vertex_texcoord[3] = { sb_texcoord[index[0]].xy, sb_texcoord[index[1]].xy, sb_texcoord[index[2]].xy };
 	float2 texcoord = vertex_texcoord[0] + barycentrics.x * (vertex_texcoord[1] - vertex_texcoord[0]) + barycentrics.y * (vertex_texcoord[2] - vertex_texcoord[0]);
+	//1を超えていた場合用に小数点以下だけを抽出する
+	texcoord = frac(texcoord);
 	return texcoord;
 }
 
@@ -136,7 +144,49 @@ float4 AlbedoSampling(uint3 index, float2 barycentrics)
 	return color0 * (1 - barycentrics.x - barycentrics.y) + color1 * barycentrics.x + color2 * barycentrics.y;
 }
 
-#define _USE_MATERIAL_CONSTANT_ 1
+float CalcDiffuseFromFresnel(float3 N, float3 L, float3 V)
+{
+    float3 H = normalize(L + V);
+    float energy_bias = lerp(0.0f, 0.5f, material_constant.roughness_);
+    float energy_factor = lerp(1.0f, 1.0f / 1.51, material_constant.roughness_);
+
+    float dotLH = saturate(dot(L, H));
+
+    float fd90 = energy_bias + 2.0f * dotLH * dotLH * material_constant.roughness_;
+
+    float dotNL = saturate(dot(N, L));
+    float FL = (1 + (fd90 - 1) * pow(1 - dotNL, 5));
+
+    float dotNV = saturate(dot(N, V));
+    float FV = (1 + (fd90 - 1) * pow(1 - dotNV, 5));
+
+    return FL * FV * energy_factor;
+}
+
+float CookTorranceSpecular(float3 L, float3 V, float3 N, float metallic)
+{
+    float microfacet = 0.76f;
+    float f0 = metallic;
+
+    float3 H = normalize(L + V);
+
+    float nDotH = saturate(dot(N, H));
+    float vDotH = saturate(dot(V, H));
+    float nDotL = saturate(dot(N, L));
+    float nDotV = saturate(dot(N, V));
+
+    float roughness = material_constant.roughness_;
+    float D = roughness * roughness  * step(0, nDotH)/
+		(3.1415 * pow(((nDotH * nDotH) * (roughness * roughness - 1) + 1), 2));
+
+    float G = min(1.0f, min(2 * nDotH * nDotV / vDotH, 2 * nDotH * nDotL / vDotH));
+
+    float F = f0 + (1 - f0) * pow(1 - nDotL, 5);
+
+    float m = 3.1415 * nDotV * nDotH;
+
+    return max(F * D * G / m, 0.0f);
+}
 
 _CLOSEST_HIT_SHADER_
 void StaticMeshClosestHit(inout RayPayload payload, in HitAttribute attr)
@@ -146,15 +196,11 @@ void StaticMeshClosestHit(inout RayPayload payload, in HitAttribute attr)
 	float3 world_tangent = CalcWorldTangent(index, attr.barycentrics);
 	float3 world_binormal = CalcWorldBinormal(index, attr.barycentrics);
 	float2 texcoord = CalcTexcoord(index, attr.barycentrics);
-	texcoord = frac(texcoord);
-	//texcoord = abs(material_constant.texcoord_offset_.xy - texcoord);
 
-	uint width, height;
-	albedo_texture.GetDimensions(width, height);
-	float2 albedo_texcoord = float2(texcoord.x * width, texcoord.y * height);
 
-	normal_texture.GetDimensions(width, height);
-	float2 normal_texcoord = float2(texcoord.x * width, texcoord.y * height);
+    uint2 dimension;
+	normal_texture.GetDimensions(dimension.x, dimension.y);
+	float2 normal_texcoord = float2(texcoord.x * dimension.x, texcoord.y * dimension.y);
 
 	float3 normal = CalcNormal(world_normal, world_tangent.xyz, world_binormal.xyz, normal_texcoord);
 
@@ -167,7 +213,6 @@ void StaticMeshClosestHit(inout RayPayload payload, in HitAttribute attr)
 	ray.origin_ = CalcHitWorldPosition();
 	ray.direction_ = CalcReflectedRayDirection(normal);
 	float4 reflection_color = TraceRadianceRay(ray, payload.recursion_depth_);
-
 
     float reflection_coefficient = material_constant.metallic_;
     float diffuse_coefficient = 1.0f;
