@@ -1,16 +1,15 @@
 #include "Common.hlsli"
 
 ConstantBuffer<ObjectConstant> object_constant : register(b0, space1);
-ConstantBuffer<Material> material_constant : register(b1, space1);
 
 _CLOSEST_HIT_SHADER_
 void PlaneClosestHit(inout RayPayload payload, in HitAttribute attr)
 {
-    float4 albedo_color = material_constant.albedo_color_;
-    float reflectance_coefficient = material_constant.reflectance_coefficient_;
-    float diffuse_coefficient = material_constant.diffuse_coefficient_;
-    float specular_coefficient = material_constant.specular_coefficient_;
-    float specular_power = material_constant.specular_power_;
+    float4 albedo_color = float4(1, 1, 1, 1);
+    float reflectance_coefficient = 1.0f;
+    float diffuse_coefficient = 1;
+    float specular_coefficient = 1;
+    float specular_power = 50;
 
     //float4 albedo_color = float4(0.8f, 0.8f, 0.8f, RayTCurrent());
     float3 surface_normal = float3(0, 1, 0);

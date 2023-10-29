@@ -30,7 +30,6 @@
 #include "Model0.h"
 
 
-#define _USE_MODEL0_	0
 
 using namespace DirectX;
 
@@ -200,39 +199,6 @@ namespace argent::graphics
 			DirectX::XMFLOAT4X4 inv_world_;
 		};
 
-		struct Material
-		{
-			float4 albedo_color_ = float4(1, 1, 1, 1);
-			float diffuse_coefficient_ = 0.8f;
-			float specular_coefficient_ = 0.2f;
-			float reflectance_coefficient_ = 0.2f;
-			float specular_power_ = 50.0f;
-			DirectX::XMFLOAT4 texcoord_offset_;
-
-			void OnGui()
-			{
-				if (ImGui::TreeNode("Material"))
-				{
-					ImGuiColorEditFlags flags =
-						ImGuiColorEditFlags_PickerHueWheel |
-						ImGuiColorEditFlags_NoInputs |
-						ImGuiColorEditFlags_NoAlpha |
-						ImGuiColorEditFlags_NoOptions |
-						ImGuiColorEditFlags_NoTooltip |
-						ImGuiColorEditFlags_NoSidePreview |
-						ImGuiColorEditFlags_NoDragDrop |
-						ImGuiColorEditFlags_NoBorder
-						;
-					ImGui::ColorEdit3("Color Edit", &albedo_color_.x, flags);
-					ImGui::DragFloat("Diffuse Coef", &diffuse_coefficient_, 0.001f, 0.0f, 1.0f);
-					ImGui::DragFloat("Specular Coef", &specular_coefficient_, 0.001f, 0.0f, 1.0f);
-					ImGui::DragFloat("Reflectance Coef", &reflectance_coefficient_, 0.001f, 0.0f, 1.0f);
-					ImGui::DragFloat("Specular Power", &specular_power_, 0.1f, 0.0f, 100.0f);
-					ImGui::TreePop();
-				}
-			}
-		};
-
 		enum RootSignatureBinder
 		{
 			ObjectCbv,		//CBV
@@ -248,21 +214,11 @@ namespace argent::graphics
 
 		dx12::Descriptor object_descriptor_;
 
-		uint8_t* material_map_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> material_buffer_;
-		Material materials_[kNoModelGeometryCounts];
-
-		UINT hit_shader_table_size_;
-		UINT hit_shader_table_stride_;
-
 		dx12::AccelerationStructureManager as_manager_;
 		UINT tlas_unique_id_[GeometryTypeCount];
 
 
 		std::unique_ptr<Texture> skymaps_;
-		int skymap_index_ = 0;
-		Microsoft::WRL::ComPtr<ID3D12Resource> skymap_index_buffer_;
-		int* map_skymap_index_;
 
 		bool is_wait_ = false;
 
@@ -277,11 +233,7 @@ namespace argent::graphics
 
 		dx12::RaytracingPipelineState pipeline_state_;
 
-#if _USE_MODEL0_
-		std::shared_ptr<game_resource::Model> model_[GeometryTypeCount - kNoModelGeometryCounts];
-#else
 		std::shared_ptr<Model> graphics_model_;
-#endif
 
 		dx12::RootSignature global_root_signature_;
 		dx12::RootSignature raygen_miss_root_signature_;

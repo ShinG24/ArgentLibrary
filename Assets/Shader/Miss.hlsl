@@ -23,13 +23,5 @@ void Miss(inout RayPayload payload : SV_RayPayload)
     skymap_texture[0].GetDimensions(dimension.x, dimension.y);
     float4 sky_color = skymap_texture[0][uv * dimension];
 
-
-    float y = position.y - scene_constant.camera_position_.y;
-    y = min(1000.0f, y);
-    y /= 1000.0f;
-    y = y * 0.5 + 0.5f;
-
-    payload.color_ = float4(y * y, y * y, y, RayTCurrent());
-
     payload.color_ = sky_color;
 }

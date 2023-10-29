@@ -53,35 +53,6 @@ namespace argent::graphics
 			transforms_[CoralRock].scaling_ = { 0.1f, 0.1f, 0.1f };
 			transforms_[CoralRock].rotation_ = { -1.57f, 0.0f, 0.0f };
 		}
-		//Initialize Sphere
-		{
-			materials_[Plane].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
-			materials_[Plane].diffuse_coefficient_ = 0.2f;
-			materials_[Plane].specular_coefficient_ = 0.6f;
-			materials_[Plane].specular_power_ = 50.f;
-			materials_[Plane].reflectance_coefficient_ = 0.8f;
-			materials_[Sphere].albedo_color_ = float4(1.0f, 1.0f, 1.0f, 1.0f);
-			materials_[Sphere].diffuse_coefficient_ = 0.2f;
-			materials_[Sphere].specular_coefficient_ = 0.9f;
-			materials_[Sphere].specular_power_ = 50.f;
-			materials_[Sphere].reflectance_coefficient_ = 1.0f;
-		}
-
-
-		//Fbx Loader
-		//FbxLoader("./Assets/Model/Coral.fbx");
-
-		//for(int i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
-		//{
-		//	model_[i] = game_resource::LoadFbx(filepaths[i].c_str());
-		//	vertex_counts_ += model_[i]->GetMesh()->GetVertexCounts(); 
-		//	index_counts_ += model_[i]->GetMesh()->GetIndexCounts(); 
-		//}
-
-		//for(auto& m : model_)
-		//{
-		//	m->Awake(&graphics_device, &command_queue, &cbv_srv_uav_descriptor_heap);
-		//}
 
 		//TODO 新しいバージョンのLoader調整
 		graphics_model_ = LoadFbxFromFile("./Assets/Model/Plantune.FBX");
@@ -147,23 +118,11 @@ namespace argent::graphics
 			ImGui::TreePop();
 		}
 
-		memcpy(map_skymap_index_, &skymap_index_, sizeof(int));
-
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
 			if(ImGui::TreeNode(name[i].c_str()))
 			{
 				transforms_[i].OnGui();
-				if(i < kNoModelGeometryCounts)
-				{
-					materials_[i].OnGui();
-				}
-				else
-				{
-#if _USE_MODEL0_
-					model_[i - kNoModelGeometryCounts]->OnGui();
-#endif
-				}
 				ImGui::TreePop();
 			}
 		}
@@ -180,8 +139,6 @@ namespace argent::graphics
 			DirectX::XMStoreFloat4x4(&obj_constant.world_, m);
 			DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
 			memcpy(world_mat_map_ + i * sizeof(ObjectConstant), &obj_constant, sizeof(ObjectConstant));
-			if(i < kNoModelGeometryCounts)
-				memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
 
 			as_manager_.SetWorld(obj_constant.world_, tlas_unique_id_[i]);
 		}
@@ -410,18 +367,10 @@ namespace argent::graphics
 		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srv_desc.RaytracingAccelerationStructure.Location = as_manager_.GetResultResourceObject()->GetGPUVirtualAddress();
 
-		graphics_device.CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE, 
-			sizeof(Material) * as_manager_.GetInstanceCounts(), 
-			D3D12_RESOURCE_STATE_GENERIC_READ, material_buffer_.ReleaseAndGetAddressOf());
 
 		graphics_device.GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
 			tlas_result_descriptor_.cpu_handle_);
 
-		material_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&material_map_));
-		for(int i = 0; i < GeometryTypeCount; ++i)
-		{
-			memcpy(material_map_ + i * sizeof(Material), &materials_[i], sizeof(Material));
-		}
 
 		//All Instance World Matrix Buffer
 		uint stride = sizeof(ObjectConstant);
@@ -444,12 +393,6 @@ namespace argent::graphics
 		}
 
 		world_matrix_buffer_->Unmap(0u, nullptr);
-
-		//Skymap buffer
-		graphics_device.CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
-			sizeof(int), D3D12_RESOURCE_STATE_GENERIC_READ, skymap_index_buffer_.ReleaseAndGetAddressOf());
-
-		skymap_index_buffer_->Map(0u, nullptr, reinterpret_cast<void**>(&map_skymap_index_));
 	}
 
 	void Raytracer::CreateShaderBindingTable(const dx12::GraphicsDevice& graphics_device)
@@ -463,7 +406,6 @@ namespace argent::graphics
 		//Miss Shader
 		{
 			std::vector<void*> data(1 + 1);
-			data.at(0u) = reinterpret_cast<void*>(skymap_index_buffer_->GetGPUVirtualAddress());
 			data.at(1) = reinterpret_cast<void*>(skymaps_->GetGpuHandle().ptr);
 			
 			miss_shader_table_.AddShaderIdentifierAndInputData(L"Miss", data);
@@ -479,13 +421,11 @@ namespace argent::graphics
 			tables.at(Plane).shader_identifier_ = kHitGroupName[Plane];
 			tables.at(Plane).input_data_.resize(RootSignatureBinderCount);
 			tables.at(Plane).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Plane);
-			tables.at(Plane).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Plane);
 			tables.at(Plane).input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(0);
 
 			//For Sphere
 			tables.at(Sphere).shader_identifier_ = kHitGroupName.at(Sphere);
 			tables.at(Sphere).input_data_.resize(RootSignatureBinderCount);
-			tables.at(Sphere).input_data_.at(MaterialCbv) = reinterpret_cast<void*>(material_buffer_->GetGPUVirtualAddress() + sizeof(Material) * Sphere);
 			tables.at(Sphere).input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * Sphere);
 
 
