@@ -45,3 +45,8 @@ ArgentComponent/Bin/Debug/ArgentComponent.idb
 ArgentComponent/Obj/Debug/ArgentComponent.tlog/CL.read.1.tlog
 ArgentComponent/Obj/
 ArgentComponent/Bin/
+ArgentLibrary/External/FBXSDK/
+ArgentLibrary/Obj/
+ArgentLibrary/External/DirectXTK12/
+ArgentLibrary/External/DXC/
+ArgentLibrary/Bin/
