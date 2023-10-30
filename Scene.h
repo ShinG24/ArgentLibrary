@@ -4,7 +4,7 @@
 class Scene
 {
 public:
-	Scene();
+	Scene() = default;
 
 	void Awake();
 	void Shutdown();

@@ -10,11 +10,15 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Source\Component.cpp" />
+    <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\Light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\Transform.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Component.h" />
+    <ClInclude Include="Inc\Camera.h" />
+    <ClInclude Include="Inc\Light.h" />
   </ItemGroup>
 </Project>

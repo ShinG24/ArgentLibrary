@@ -19,11 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Inc\Camera.h" />
     <ClInclude Include="Inc\Component.h" />
+    <ClInclude Include="Inc\Light.h" />
     <ClInclude Include="Inc\Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\Component.cpp" />
+    <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\Transform.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -42,8 +42,8 @@ int WINAPI wWinMain(
 	argent::input::InputManager input_manager;
 	input_manager.Awake(platform.GetHwnd());
 
-	Scene demo_scene;
-	demo_scene.Awake();
+	std::unique_ptr<Scene> demo_scene = std::make_unique<Scene>();
+	demo_scene->Awake();
 
 	//Main Loop
 	while (!platform.GetRequestShutdown())
@@ -55,16 +55,17 @@ int WINAPI wWinMain(
 
 			timer.ShowFrameTime(platform.GetHwnd());
 
-			demo_scene.Update();
+			demo_scene->Update();
 
 			//•`‰æ
 			graphics_library.FrameBegin();
-			demo_scene.Render();
+			demo_scene->Render();
 			graphics_library.FrameEnd();
 		}
 	}
 
-	demo_scene.Shutdown();
+	demo_scene->Shutdown();
+
 	graphics_library.Shutdown();
 
 	return 0;

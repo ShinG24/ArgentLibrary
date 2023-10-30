@@ -8,6 +8,7 @@ namespace argent::component
 	/**
 	 * \brief 移動値、拡縮値、回転値を持ったコンポーネント
 	 * コンポーネント指向の場合、全てのGameObjectはこのComponentを持っている
+	 * Rotationをfloat4 quaternionにしたい
 	 */
 	class Transform final : public Component
 	{
@@ -29,7 +30,7 @@ namespace argent::component
 		 * 同時に回転行列からforward, right, upの値を更新
 		 * \return World Matrix
 		 */
-		DirectX::XMFLOAT4X4 CalcWorldMatrix() const;
+		DirectX::XMFLOAT4X4 CalcWorldMatrix();
 
 		/**
 		 * \brief ローカル空間での座標値を取得
@@ -71,7 +72,7 @@ namespace argent::component
 		void SetRotation(const DirectX::XMFLOAT3& rotation) { rotation_ = rotation; }
 
 		/**
-		 * \brief 前方ベクトルを取得
+		 * \brief 単位前方ベクトルを取得
 		 * このベクトルは途中でCalcForward()を呼び出している場合を除き,
 		 * 1フレーム前の描画で使用されたもの
 		 * \return Forward Vector
@@ -79,7 +80,7 @@ namespace argent::component
 		DirectX::XMFLOAT3 GetForward() const { return forward_; }
 
 		/**
-		 * \brief 上方ベクトルを取得
+		 * \brief 単位上方ベクトルを取得
 		 * このベクトルは途中でCalcUp()を呼び出している場合を除き、
 		 * 1フレーム前の描画で使用されたもの
 		 * \return Up Vector
@@ -87,7 +88,7 @@ namespace argent::component
 		DirectX::XMFLOAT3 GetUp() const { return up_; }
 
 		/**
-		 * \brief 右方ベクトルを取得
+		 * \brief 単位右方ベクトルを取得
 		 * このベクトルは途中でCalcRight()を呼び出している場合を除き、
 		 * 1フレーム前の描画で使用されたもの
 		 * \return Right Vector
@@ -96,12 +97,12 @@ namespace argent::component
 
 		/**
 		 * \brief 方向ベクトルを計算
-		 * 前方、右方、上方、すべての方向ベクトルを計算、更新する
+		 * 前方、右方、上方、すべての単位方向ベクトルを計算、更新する
 		 */
 		void CalcDirectionalVector();
 
 		/**
-		 * \brief 前方ベクトルを計算してから取得
+		 * \brief 単位前方ベクトルを計算してから取得
 		 * 計算コストから考えて、この関数やCalcUp(), CalcRight()を複数回呼ぶ可能性がある場合、
 		 * その都度正確な値が必要な場合を除き、CalcDirectionalVector()で全ての方向ベクトルを更新し、
 		 * Get~()で取得するのが望ましい
@@ -110,7 +111,7 @@ namespace argent::component
 		DirectX::XMFLOAT3 CalcForward();
 
 		/**
-		 * \brief 上方ベクトルを計算してから取得
+		 * \brief 単位上方ベクトルを計算してから取得
 		 * 計算コストから考えて、この関数やCalcForward(), CalcRight()を複数回呼ぶ可能性がある場合、
 		 * その都度正確な値が必要な場合を除き、CalcDirectionalVector()で全ての方向ベクトルを更新し、
 		 * Get~()で取得するのが望ましい
@@ -119,7 +120,7 @@ namespace argent::component
 		DirectX::XMFLOAT3 CalcUp();
 
 		/**
-		 * \brief 右方ベクトルを計算してから取得
+		 * \brief 単位右方ベクトルを計算してから取得
 		 * 計算コストから考えて、この関数やCalcForward(), CalcRight()を複数回呼ぶ可能性がある場合、
 		 * その都度正確な値が必要な場合を除き、CalcDirectionalVector()で全ての方向ベクトルを更新し、
 		 * Get~()で取得するのが望ましい
