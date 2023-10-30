@@ -1,279 +1,330 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Graphics">
-      <UniqueIdentifier>{24a1469c-37ff-4a98-a934-a99ae9a25272}</UniqueIdentifier>
+    <Filter Include="External">
+      <UniqueIdentifier>{81f2de6b-63ff-41d4-93ce-6eb49683b8b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Platform">
-      <UniqueIdentifier>{56f14e99-c592-4d65-b43b-9d3af3839d60}</UniqueIdentifier>
+    <Filter Include="Library">
+      <UniqueIdentifier>{a763b9bf-b6c8-4dbf-8377-acbae67374c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Input">
-      <UniqueIdentifier>{c27bd7b8-8b0a-48fa-9a40-b473d26ce571}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Component">
+    <Filter Include="Library\Component">
       <UniqueIdentifier>{c58d17a1-d343-4893-9d63-6f106a9d32ea}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\API">
-      <UniqueIdentifier>{e93f14f7-b9a2-4409-a7c4-7e5f9857b3e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Graphics\API\D3D12">
-      <UniqueIdentifier>{decf059a-a8ad-4011-800e-fe73689e2927}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Graphics\API\DXGI">
-      <UniqueIdentifier>{d09a2b5c-75d4-4cb0-9ee7-5d1d3e9b46b8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Component\Common">
+    <Filter Include="Library\Component\Common">
       <UniqueIdentifier>{32a4f8c3-605a-401a-b6a8-4d259c17b5f5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Component\Renderer">
+    <Filter Include="Library\Component\Renderer">
       <UniqueIdentifier>{66621864-65e8-4234-b7cf-71c21b4427a5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Component\Collision">
+    <Filter Include="Library\Component\Collision">
       <UniqueIdentifier>{ee443f48-8729-4d1d-9d30-711483b15b6f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\Common">
+    <Filter Include="Library\Graphics">
+      <UniqueIdentifier>{24a1469c-37ff-4a98-a934-a99ae9a25272}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Graphics\API">
+      <UniqueIdentifier>{e93f14f7-b9a2-4409-a7c4-7e5f9857b3e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Graphics\API\D3D12">
+      <UniqueIdentifier>{decf059a-a8ad-4011-800e-fe73689e2927}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Graphics\API\DXGI">
+      <UniqueIdentifier>{d09a2b5c-75d4-4cb0-9ee7-5d1d3e9b46b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Graphics\Common">
       <UniqueIdentifier>{bba13288-d856-43db-b766-12d8c0382400}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\GameResource">
+    <Filter Include="Library\Graphics\GameResource">
       <UniqueIdentifier>{ea79f6ef-5618-4152-b84e-00ae6c135bc7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\Renderer">
+    <Filter Include="Library\Graphics\Renderer">
       <UniqueIdentifier>{3defc1b7-404b-4efb-98ed-2d77029113a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\Loader">
+    <Filter Include="Library\Graphics\Loader">
       <UniqueIdentifier>{c58d5fd7-357b-4319-92fa-3c0fcb957cbe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\Wrapper">
+    <Filter Include="Library\Graphics\Wrapper">
       <UniqueIdentifier>{10484dd8-9340-4e98-b126-fbbc1a1cee49}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Timer">
+    <Filter Include="Library\Input">
+      <UniqueIdentifier>{c27bd7b8-8b0a-48fa-9a40-b473d26ce571}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Timer">
       <UniqueIdentifier>{b2761571-e23b-4b4d-a3af-0ac07d7fb0a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Platform">
+      <UniqueIdentifier>{56f14e99-c592-4d65-b43b-9d3af3839d60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\ImGui">
+      <UniqueIdentifier>{93825e4b-7620-461e-bf9a-327911882488}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\Graphics\API\D3D12\AccelerationStructureManager.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\BottomLevelAccelerationStructure.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\CommandQueue.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\ConstantBuffer.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\D3D12Common.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\DescriptorHeap.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\GraphicsCommandList.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\GraphicsDevice.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\IndexBuffer.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\RaytracingPipelineState.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\RootSignature.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\ShaderBindingTable.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\TopLevelAccelerationStructure.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\D3D12\VertexBuffer.h">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\DXGI\DxgiFactory.h">
-      <Filter>Graphics\API\DXGI</Filter>
+      <Filter>Library\Graphics\API\DXGI</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\API\DXGI\SwapChain.h">
-      <Filter>Graphics\API\DXGI</Filter>
+      <Filter>Library\Graphics\API\DXGI</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Common\GraphicsCommon.h">
-      <Filter>Graphics\Common</Filter>
+      <Filter>Library\Graphics\Common</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Common\GraphicsContext.h">
-      <Filter>Graphics\Common</Filter>
+      <Filter>Library\Graphics\Common</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Common\RenderContext.h">
-      <Filter>Graphics\Common</Filter>
+      <Filter>Library\Graphics\Common</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\GameResource\GameResource.h">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\GameResource\Material.h">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\GameResource\Mesh.h">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\GameResource\Model.h">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\GameResource\StandardMaterial.h">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\GameResource\Texture.h">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Loader\FbxLoader.h">
-      <Filter>Graphics\Loader</Filter>
+      <Filter>Library\Graphics\Loader</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Renderer\StaticMeshRenderer.h">
-      <Filter>Graphics\Renderer</Filter>
+      <Filter>Library\Graphics\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Wrapper\FrameResource.h">
-      <Filter>Graphics\Wrapper</Filter>
+      <Filter>Library\Graphics\Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Wrapper\ImGuiWrapper.h">
-      <Filter>Graphics\Wrapper</Filter>
+      <Filter>Library\Graphics\Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Wrapper\ShaderCompiler.h">
-      <Filter>Graphics\Wrapper</Filter>
+      <Filter>Library\Graphics\Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\ArgentGraphicsLibrary.h">
-      <Filter>Graphics</Filter>
+      <Filter>Library\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\RasterRenderer.h">
-      <Filter>Graphics</Filter>
+      <Filter>Library\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\Raytracer.h">
-      <Filter>Graphics</Filter>
+      <Filter>Library\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Input\GamePad.h">
-      <Filter>Input</Filter>
+      <Filter>Library\Input</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Input\InputManager.h">
-      <Filter>Input</Filter>
+      <Filter>Library\Input</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Input\Keyboard.h">
-      <Filter>Input</Filter>
+      <Filter>Library\Input</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Input\Mouse.h">
-      <Filter>Input</Filter>
+      <Filter>Library\Input</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Platform\Platform.h">
-      <Filter>Platform</Filter>
+      <Filter>Library\Platform</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Timer\Timer.h">
-      <Filter>Timer</Filter>
+      <Filter>Library\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imconfig.h">
+      <Filter>External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imgui.h">
+      <Filter>External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imgui_impl_dx12.h">
+      <Filter>External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imgui_impl_win32.h">
+      <Filter>External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imgui_internal.h">
+      <Filter>External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imstb_rectpack.h">
+      <Filter>External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imstb_textedit.h">
+      <Filter>External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Imgui\imstb_truetype.h">
+      <Filter>External\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Graphics\API\D3D12\AccelerationStructureManager.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\BottomLevelAccelerationStructure.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\CommandQueue.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\ConstantBuffer.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\DescriptorHeap.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\GraphicsCommandList.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\GraphicsDevice.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\IndexBuffer.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\RaytracingPipelineState.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\RootSignature.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\ShaderBindingTable.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\TopLevelAccelerationStructure.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\D3D12\VertexBuffer.cpp">
-      <Filter>Graphics\API\D3D12</Filter>
+      <Filter>Library\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\DXGI\DxgiFactory.cpp">
-      <Filter>Graphics\API\DXGI</Filter>
+      <Filter>Library\Graphics\API\DXGI</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\API\DXGI\SwapChain.cpp">
-      <Filter>Graphics\API\DXGI</Filter>
+      <Filter>Library\Graphics\API\DXGI</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\GameResource\GameResource.cpp">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\GameResource\Material.cpp">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\GameResource\Mesh.cpp">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\GameResource\Model.cpp">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\GameResource\StandardMaterial.cpp">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\GameResource\Texture.cpp">
-      <Filter>Graphics\GameResource</Filter>
+      <Filter>Library\Graphics\GameResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\Loader\FbxLoader.cpp">
-      <Filter>Graphics\Loader</Filter>
+      <Filter>Library\Graphics\Loader</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\Renderer\StaticMeshRenderer.cpp">
-      <Filter>Graphics\Renderer</Filter>
+      <Filter>Library\Graphics\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\Wrapper\FrameResource.cpp">
-      <Filter>Graphics\Wrapper</Filter>
+      <Filter>Library\Graphics\Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\Wrapper\ImGuiWrapper.cpp">
-      <Filter>Graphics\Wrapper</Filter>
+      <Filter>Library\Graphics\Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\Wrapper\ShaderCompiler.cpp">
-      <Filter>Graphics\Wrapper</Filter>
+      <Filter>Library\Graphics\Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\ArgentGraphicsLibrary.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>Library\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\RasterRenderer.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>Library\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\Raytracer.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>Library\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Source\Input\GamePad.cpp">
-      <Filter>Input</Filter>
+      <Filter>Library\Input</Filter>
     </ClCompile>
     <ClCompile Include="Source\Input\InputManager.cpp">
-      <Filter>Input</Filter>
+      <Filter>Library\Input</Filter>
     </ClCompile>
     <ClCompile Include="Source\Input\Keyboard.cpp">
-      <Filter>Input</Filter>
+      <Filter>Library\Input</Filter>
     </ClCompile>
     <ClCompile Include="Source\Input\Mouse.cpp">
-      <Filter>Input</Filter>
+      <Filter>Library\Input</Filter>
     </ClCompile>
     <ClCompile Include="Source\Platform\Platform.cpp">
-      <Filter>Platform</Filter>
+      <Filter>Library\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Source\Timer\Timer.cpp">
-      <Filter>Timer</Filter>
+      <Filter>Library\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui.cpp">
+      <Filter>External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_draw.cpp">
+      <Filter>External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_impl_dx12.cpp">
+      <Filter>External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_impl_win32.cpp">
+      <Filter>External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_tables.cpp">
+      <Filter>External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Imgui\imgui_widgets.cpp">
+      <Filter>External\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

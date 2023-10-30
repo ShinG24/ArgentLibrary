@@ -118,8 +118,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\ArgentGraphicsLibrary\Bin\$(Configuration)\;$(SolutionDir)\ArgentUtilityLibrary\Bin\$(Configuration)\;$(SolutionDir)\ArgentInputLibrary\Bin\$(Configuration)\;$(SolutionDir)\ArgentLibrary\Bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ArgentGraphicsLibrary.lib;ArgentUtilityLibrary.lib;ArgentInputLibrary.lib;ArgentLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\ArgentLibrary\Bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ArgentLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -139,8 +139,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ArgentGraphicsLibrary.lib;ArgentUtilityLibrary.lib;ArgentInputLibrary.lib;ArgentLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\ArgentGraphicsLibrary\Bin\$(Configuration)\;$(SolutionDir)\ArgentUtilityLibrary\Bin\$(Configuration)\;$(SolutionDir)\ArgentInputLibrary\Bin\$(Configuration)\;$(SolutionDir)\ArgentLibrary\Bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ArgentLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\ArgentLibrary\Bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

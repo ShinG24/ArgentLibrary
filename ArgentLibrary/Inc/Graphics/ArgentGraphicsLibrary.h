@@ -1,6 +1,8 @@
 #pragma once
 #include <windows.h>
 
+#include <memory>
+
 //TODO インクルードするべき？？？
 
 #include "API/D3D12/GraphicsDevice.h"
@@ -27,6 +29,9 @@
 
 namespace argent::graphics
 {
+	/**
+	 * \brief 描画統括のクラス
+	 */
 	class GraphicsLibrary
 	{
 	public:
@@ -45,11 +50,12 @@ namespace argent::graphics
 		void Awake(HWND hwnd);
 		void Shutdown();
 
-		[[nodiscard]] const dx12::GraphicsDevice& GetGraphicsDevice() const { return graphics_device_; }
-		[[nodiscard]] const dx12::CommandQueue& GetMainRenderingQueue() const { return main_rendering_queue_; }
+		//[[nodiscard]] const dx12::GraphicsDevice& GetGraphicsDevice() const { return graphics_device_; }
+		//[[nodiscard]] const dx12::CommandQueue& GetMainRenderingQueue() const { return main_rendering_queue_; }
 
 		void FrameBegin();
 		void FrameEnd();
+
 	private:
 
 		void InitializeScene();
@@ -114,7 +120,6 @@ namespace argent::graphics
 		float move_speed_ = 0.5f;
 
 		DirectX::XMFLOAT4 light_position{ 1000.0, 1000.0f, -1000.0f, 1.0f };
-		
 
 		bool on_raster_mode_ = false;
 

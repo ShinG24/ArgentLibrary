@@ -120,6 +120,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)External\DirectXTK12\Lib\$(Configuration);$(ProjectDir)External\DXC\Lib\$(Configuration);$(ProjectDir)External\FBXSDK\Lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DirectXTK12.lib;dxcompiler.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -139,8 +143,20 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)External\DirectXTK12\Lib\$(Configuration);$(ProjectDir)External\DXC\Lib\$(Configuration);$(ProjectDir)External\FBXSDK\Lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DirectXTK12.lib;dxcompiler.lib;libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="External\Imgui\imconfig.h" />
+    <ClInclude Include="External\Imgui\imgui.h" />
+    <ClInclude Include="External\Imgui\imgui_impl_dx12.h" />
+    <ClInclude Include="External\Imgui\imgui_impl_win32.h" />
+    <ClInclude Include="External\Imgui\imgui_internal.h" />
+    <ClInclude Include="External\Imgui\imstb_rectpack.h" />
+    <ClInclude Include="External\Imgui\imstb_textedit.h" />
+    <ClInclude Include="External\Imgui\imstb_truetype.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\AccelerationStructureManager.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\CommandQueue.h" />
@@ -182,6 +198,12 @@
     <ClInclude Include="Inc\Timer\Timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="External\Imgui\imgui.cpp" />
+    <ClCompile Include="External\Imgui\imgui_draw.cpp" />
+    <ClCompile Include="External\Imgui\imgui_impl_dx12.cpp" />
+    <ClCompile Include="External\Imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="External\Imgui\imgui_tables.cpp" />
+    <ClCompile Include="External\Imgui\imgui_widgets.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\CommandQueue.cpp" />

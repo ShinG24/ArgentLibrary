@@ -448,3 +448,16 @@ namespace argent::graphics
 		}
 	}
 }
+
+void Transform::OnGui()
+{
+	if (ImGui::TreeNode("Transform"))
+	{
+		ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat3("Scaling", &scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
+		ImGui::SliderInt("CoordinateSystem", &coordinate_system_index_, 0, 3);
+		ImGui::Text(kCoordinateSystemStr[coordinate_system_index_].c_str());
+		ImGui::TreePop();
+	}
+}
