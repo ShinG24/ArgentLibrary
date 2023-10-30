@@ -1,7 +1,7 @@
 
 #include <crtdbg.h>
 
-#include "ArgentLibrary/Inc/Graphics/ArgentGraphicsLibrary.h"
+#include "ArgentLibrary/Inc/Graphics/GraphicsLibrary.h"
 #include "ArgentLibrary/Inc/Platform/Platform.h"
 #include "ArgentLibrary/Inc/Timer/Timer.h"
 #include "ArgentLibrary/Inc/Input/InputManager.h"

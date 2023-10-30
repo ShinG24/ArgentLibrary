@@ -1,4 +1,4 @@
-#include "Graphics/ArgentGraphicsLibrary.h"
+#include "Graphics/GraphicsLibrary.h"
 
 #include <windows.h>
 

@@ -150,7 +150,7 @@
     <ClInclude Include="Inc\Graphics\Wrapper\ShaderCompiler.h">
       <Filter>Library\Graphics\Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="Inc\Graphics\ArgentGraphicsLibrary.h">
+    <ClInclude Include="Inc\Graphics\GraphicsLibrary.h">
       <Filter>Library\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Graphics\RasterRenderer.h">
@@ -201,6 +201,7 @@
     <ClInclude Include="External\Imgui\imstb_truetype.h">
       <Filter>External\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\ArgentLibrary.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Graphics\API\D3D12\AccelerationStructureManager.cpp">
@@ -281,7 +282,7 @@
     <ClCompile Include="Source\Graphics\Wrapper\ShaderCompiler.cpp">
       <Filter>Library\Graphics\Wrapper</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Graphics\ArgentGraphicsLibrary.cpp">
+    <ClCompile Include="Source\Graphics\GraphicsLibrary.cpp">
       <Filter>Library\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\RasterRenderer.cpp">
@@ -326,5 +327,6 @@
     <ClCompile Include="External\Imgui\imgui_widgets.cpp">
       <Filter>External\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ArgentLibrary.cpp" />
   </ItemGroup>
 </Project>

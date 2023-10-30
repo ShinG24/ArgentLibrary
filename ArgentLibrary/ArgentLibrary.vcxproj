@@ -157,6 +157,7 @@
     <ClInclude Include="External\Imgui\imstb_rectpack.h" />
     <ClInclude Include="External\Imgui\imstb_textedit.h" />
     <ClInclude Include="External\Imgui\imstb_truetype.h" />
+    <ClInclude Include="Inc\ArgentLibrary.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\AccelerationStructureManager.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\CommandQueue.h" />
@@ -173,7 +174,7 @@
     <ClInclude Include="Inc\Graphics\API\D3D12\VertexBuffer.h" />
     <ClInclude Include="Inc\Graphics\API\DXGI\DxgiFactory.h" />
     <ClInclude Include="Inc\Graphics\API\DXGI\SwapChain.h" />
-    <ClInclude Include="Inc\Graphics\ArgentGraphicsLibrary.h" />
+    <ClInclude Include="Inc\Graphics\GraphicsLibrary.h" />
     <ClInclude Include="Inc\Graphics\Common\GraphicsCommon.h" />
     <ClInclude Include="Inc\Graphics\Common\GraphicsContext.h" />
     <ClInclude Include="Inc\Graphics\Common\RenderContext.h" />
@@ -204,6 +205,7 @@
     <ClCompile Include="External\Imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="External\Imgui\imgui_tables.cpp" />
     <ClCompile Include="External\Imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Source\ArgentLibrary.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\CommandQueue.cpp" />
@@ -219,7 +221,7 @@
     <ClCompile Include="Source\Graphics\API\D3D12\VertexBuffer.cpp" />
     <ClCompile Include="Source\Graphics\API\DXGI\DxgiFactory.cpp" />
     <ClCompile Include="Source\Graphics\API\DXGI\SwapChain.cpp" />
-    <ClCompile Include="Source\Graphics\ArgentGraphicsLibrary.cpp" />
+    <ClCompile Include="Source\Graphics\GraphicsLibrary.cpp" />
     <ClCompile Include="Source\Graphics\GameResource\GameResource.cpp" />
     <ClCompile Include="Source\Graphics\GameResource\Material.cpp" />
     <ClCompile Include="Source\Graphics\GameResource\Mesh.cpp" />
