@@ -8,16 +8,16 @@
 
 namespace argent::graphics
 {
-	void FrameResource::Awake(const dx12::GraphicsDevice& graphics_device, const SwapChain& swap_chain,
+	void FrameResource::Awake(const dx12::GraphicsDevice* graphics_device, const SwapChain* swap_chain,
 		UINT back_buffer_index, const dx12::Descriptor& rtv_descriptor, const dx12::Descriptor& dsv_descriptor)
 	{
 		back_buffer_index_ = back_buffer_index;
 		rtv_descriptor_ = rtv_descriptor;
 		dsv_descriptor_ = dsv_descriptor;
 
-		swap_chain.GetBuffer(back_buffer_index_, resource_object_.ReleaseAndGetAddressOf());
+		swap_chain->GetBuffer(back_buffer_index_, resource_object_.ReleaseAndGetAddressOf());
 
-		graphics_device.CreateRTV(resource_object_.Get(), rtv_descriptor_.cpu_handle_);
+		graphics_device->CreateRTV(resource_object_.Get(), rtv_descriptor_.cpu_handle_);
 
 		HRESULT hr{ S_OK };
 		D3D12_RESOURCE_DESC res_desc{};
@@ -39,7 +39,7 @@ namespace argent::graphics
 		depth_clear_value.DepthStencil.Depth = 1.0f;
 		depth_clear_value.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-		hr = graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE,
+		hr = graphics_device->GetDevice()->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE,
 			&res_desc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &depth_clear_value,
 			IID_PPV_ARGS(depth_buffer_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Depth Buffer");
@@ -48,24 +48,24 @@ namespace argent::graphics
 		depth_stencil_view_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		depth_stencil_view_desc.Flags = D3D12_DSV_FLAG_NONE;
 		depth_stencil_view_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		graphics_device.GetDevice()->CreateDepthStencilView(depth_buffer_.Get(), &depth_stencil_view_desc,
+		graphics_device->GetDevice()->CreateDepthStencilView(depth_buffer_.Get(), &depth_stencil_view_desc,
 			dsv_descriptor.cpu_handle_);
 
 		resource_object_->SetName(L"Frame Resource");
 	}
 
-	void FrameResource::Activate(const dx12::GraphicsCommandList& command_list) const
+	void FrameResource::Activate(const dx12::GraphicsCommandList* command_list) const
 	{
 		float clear_color[4]{0, 0, 0, 1};
 
-		command_list.SetTransitionBarrier(resource_object_.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		command_list.ClearRtv(rtv_descriptor_.cpu_handle_, clear_color);
-		command_list.ClearDsv(dsv_descriptor_.cpu_handle_);
-		command_list.SetRenderTarget(&rtv_descriptor_.cpu_handle_, &dsv_descriptor_.cpu_handle_);
+		command_list->SetTransitionBarrier(resource_object_.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		command_list->ClearRtv(rtv_descriptor_.cpu_handle_, clear_color);
+		command_list->ClearDsv(dsv_descriptor_.cpu_handle_);
+		command_list->SetRenderTarget(&rtv_descriptor_.cpu_handle_, &dsv_descriptor_.cpu_handle_);
 	}
 
-	void FrameResource::Deactivate(const dx12::GraphicsCommandList& command_list) const
+	void FrameResource::Deactivate(const dx12::GraphicsCommandList* command_list) const
 	{
-		command_list.SetTransitionBarrier(resource_object_.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		command_list->SetTransitionBarrier(resource_object_.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 	}
 }

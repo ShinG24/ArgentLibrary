@@ -126,30 +126,30 @@ namespace argent::graphics
 		Raytracer& operator=(Raytracer&) = delete;
 		Raytracer& operator=(Raytracer&&) = delete;
 
-		void Awake(const dx12::GraphicsDevice& graphics_device, 
-			dx12::GraphicsCommandList& command_list, dx12::CommandQueue& command_queue,
+		void Awake(const dx12::GraphicsDevice* graphics_device, 
+			dx12::GraphicsCommandList* command_list, dx12::CommandQueue* command_queue,
 			UINT64 width, UINT height, 
-			dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap, const GraphicsContext* graphics_context);
+			dx12::DescriptorHeap* cbv_srv_uav_descriptor_heap, const GraphicsContext* graphics_context);
 		void Shutdown();
 
 		void Update(dx12::GraphicsCommandList* graphics_command_list, dx12::CommandQueue* upload_command_queue);
-		void OnRender(const dx12::GraphicsCommandList& command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle);
+		void OnRender(const dx12::GraphicsCommandList* command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle);
 
 
 		ID3D12Resource* GetOutputBuffer() const { return output_buffer_.Get(); }
 	private:
 
-		void BuildGeometry(const dx12::GraphicsDevice& graphics_device);
-		void CreateAS(const dx12::GraphicsDevice& graphics_device, 
-			dx12::GraphicsCommandList& command_list, dx12::CommandQueue& command_queue);
+		void BuildGeometry(const dx12::GraphicsDevice* graphics_device);
+		void CreateAS(const dx12::GraphicsDevice* graphics_device, 
+			dx12::GraphicsCommandList* command_list, dx12::CommandQueue* command_queue);
 
-		void CreatePipeline(const dx12::GraphicsDevice& graphics_device);
+		void CreatePipeline(const dx12::GraphicsDevice* graphics_device);
 
-		void CreateOutputBuffer(const dx12::GraphicsDevice& graphics_device, UINT64 width, UINT height);
-		void CreateShaderResourceHeap(const dx12::GraphicsDevice& graphics_device, 
-			dx12::DescriptorHeap& cbv_srv_uav_descriptor_heap);
+		void CreateOutputBuffer(const dx12::GraphicsDevice* graphics_device, UINT64 width, UINT height);
+		void CreateShaderResourceHeap(const dx12::GraphicsDevice* graphics_device, 
+			dx12::DescriptorHeap* cbv_srv_uav_descriptor_heap);
 
-		void CreateShaderBindingTable(const dx12::GraphicsDevice& graphics_device);
+		void CreateShaderBindingTable(const dx12::GraphicsDevice* graphics_device);
 
 	private:
 		//Shader

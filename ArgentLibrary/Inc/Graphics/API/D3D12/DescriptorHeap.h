@@ -39,7 +39,7 @@ namespace argent::graphics::dx12
 		DescriptorHeap& operator=(DescriptorHeap&) = delete;
 		DescriptorHeap& operator=(DescriptorHeap&&) = delete;
 
-		void Awake(const GraphicsDevice& graphics_device, HeapType heap_type, UINT max_descriptor_num);
+		void Awake(const GraphicsDevice* graphics_device, HeapType heap_type, UINT max_descriptor_num);
 
 		HeapType GetHeapType() const { return heap_type_; }
 		UINT GetMaxDescriptorNum() const { return max_descriptor_num_; }

@@ -15,8 +15,8 @@
 
 namespace argent::graphics
 {
-	void RasterRenderer::Awake(const dx12::GraphicsDevice& graphics_device, const dx12::CommandQueue& command_queue, 
-		dx12::DescriptorHeap& descriptor_heap)
+	void RasterRenderer::Awake(const dx12::GraphicsDevice* graphics_device, const dx12::CommandQueue* command_queue,
+		dx12::DescriptorHeap* descriptor_heap)
 	{
 		const ShaderCompiler compiler;
 		compiler.Compile(L"./Assets/Shader/FullscreenQuad.VS.hlsl", L"vs_6_6", fullscreen_quad_vs_.ReleaseAndGetAddressOf());
@@ -25,7 +25,7 @@ namespace argent::graphics
 		compiler.Compile(L"./Assets/Shader/VertexShader.hlsl", L"vs_6_6", vertex_shader_.ReleaseAndGetAddressOf());
 		compiler.Compile(L"./Assets/Shader/PixelShader.hlsl", L"ps_6_6", pixel_shader_.ReleaseAndGetAddressOf());
 
-		texture_ = std::make_unique<Texture>(&graphics_device, &command_queue, &descriptor_heap,
+		texture_ = std::make_unique<Texture>(graphics_device, command_queue, descriptor_heap,
 			L"./Assets/Images/Title.dds");
 		CreateVertexBuffer(graphics_device);
 		CreateRootSignatureAndPipeline(graphics_device);
@@ -81,7 +81,7 @@ namespace argent::graphics
 		}
 	}
 
-	void RasterRenderer::CreateVertexBuffer(const dx12::GraphicsDevice& graphics_device)
+	void RasterRenderer::CreateVertexBuffer(const dx12::GraphicsDevice* graphics_device)
 	{
 		Vertex vertices[4]
 		{
@@ -109,7 +109,7 @@ namespace argent::graphics
 		res_desc.SampleDesc.Count = 1u;
 		res_desc.SampleDesc.Quality = 0u;
 		res_desc.Width = sizeof(vertices);
-		HRESULT hr = graphics_device.GetDevice()->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, 
+		HRESULT hr = graphics_device->GetDevice()->CreateCommittedResource(&heap_prop, D3D12_HEAP_FLAG_NONE, 
 			&res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(vertex_buffer_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create a Buffer");
 
@@ -125,7 +125,7 @@ namespace argent::graphics
 		v[3] = vertices[3];
 	}
 
-	void RasterRenderer::CreateRootSignatureAndPipeline(const dx12::GraphicsDevice& graphics_device)
+	void RasterRenderer::CreateRootSignatureAndPipeline(const dx12::GraphicsDevice* graphics_device)
 	{
 		HRESULT hr{};
 
@@ -176,7 +176,7 @@ namespace argent::graphics
 			root_sig_blob.ReleaseAndGetAddressOf(), error_blob.ReleaseAndGetAddressOf());
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Serialize RootSignature");
 
-		hr = graphics_device.GetDevice()->CreateRootSignature(0u, root_sig_blob->GetBufferPointer(),
+		hr = graphics_device->GetDevice()->CreateRootSignature(0u, root_sig_blob->GetBufferPointer(),
 			root_sig_blob->GetBufferSize(), IID_PPV_ARGS(root_signature_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create RootSignature");
 
@@ -241,7 +241,7 @@ namespace argent::graphics
 		pipeline_desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 		pipeline_desc.pRootSignature = root_signature_.Get();
 
-		hr = graphics_device.GetDevice()->CreateGraphicsPipelineState(&pipeline_desc, IID_PPV_ARGS(pipeline_state_.ReleaseAndGetAddressOf()));
+		hr = graphics_device->GetDevice()->CreateGraphicsPipelineState(&pipeline_desc, IID_PPV_ARGS(pipeline_state_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create Graphics Pipeline");
 
 	}

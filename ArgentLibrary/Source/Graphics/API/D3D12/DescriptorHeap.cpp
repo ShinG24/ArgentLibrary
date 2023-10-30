@@ -14,7 +14,7 @@ namespace argent::graphics::dx12
 	,	gpu_handle_start_(0u)
 	{}
 
-	void DescriptorHeap::Awake(const GraphicsDevice& graphics_device, HeapType heap_type, UINT max_descriptor_num)
+	void DescriptorHeap::Awake(const GraphicsDevice* graphics_device, HeapType heap_type, UINT max_descriptor_num)
 	{
 		heap_type_ = heap_type;
 		max_descriptor_num_ = max_descriptor_num;
@@ -50,10 +50,10 @@ namespace argent::graphics::dx12
 			_ASSERT_EXPR(FALSE, L"Specified Invalied Descriptor Heap Type");
 		}
 
-		graphics_device.CreateDescriptorHeap(descriptor_heap_object_.ReleaseAndGetAddressOf(), heap_flags, 
+		graphics_device->CreateDescriptorHeap(descriptor_heap_object_.ReleaseAndGetAddressOf(), heap_flags, 
 			descriptor_heap_type, max_descriptor_num_);
 
-		heap_handle_increment_size_ =  graphics_device.GetDescriptorHandleIncrementSize(descriptor_heap_type);
+		heap_handle_increment_size_ =  graphics_device->GetDescriptorHandleIncrementSize(descriptor_heap_type);
 		cpu_handle_start_ = descriptor_heap_object_->GetCPUDescriptorHandleForHeapStart();
 		if(heap_type_ == HeapType::CbvSrvUav || heap_type_ == HeapType::Smp)
 		{

@@ -31,8 +31,8 @@ int WINAPI wWinMain(
 	platform.Awake(1280, 720);
 
 	//描画ライブラリの起動
-	argent::graphics::GraphicsLibrary graphics_library{};
-	graphics_library.Awake(platform.GetHwnd());
+	std::unique_ptr<argent::graphics::GraphicsLibrary> graphics_library = std::make_unique<argent::graphics::GraphicsLibrary>(platform.GetHwnd());
+	graphics_library->Awake(platform.GetHwnd());
 
 	//タイマー
 	argent::Timer timer;
@@ -58,15 +58,15 @@ int WINAPI wWinMain(
 			demo_scene->Update();
 
 			//描画
-			graphics_library.FrameBegin();
+			graphics_library->FrameBegin();
 			demo_scene->Render();
-			graphics_library.FrameEnd();
+			graphics_library->FrameEnd();
 		}
 	}
 
 	demo_scene->Shutdown();
 
-	graphics_library.Shutdown();
+	graphics_library->Shutdown();
 
 	return 0;
 }

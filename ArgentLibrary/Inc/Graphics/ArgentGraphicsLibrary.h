@@ -38,7 +38,7 @@ namespace argent::graphics
 		static int GetNumBackBuffers() { return kNumBackBuffers;  }
 
 	public:
-		GraphicsLibrary() = default;
+		GraphicsLibrary(HWND hwnd);
 
 		~GraphicsLibrary() = default;
 
@@ -49,9 +49,6 @@ namespace argent::graphics
 
 		void Awake(HWND hwnd);
 		void Shutdown();
-
-		//[[nodiscard]] const dx12::GraphicsDevice& GetGraphicsDevice() const { return graphics_device_; }
-		//[[nodiscard]] const dx12::CommandQueue& GetMainRenderingQueue() const { return main_rendering_queue_; }
 
 		void FrameBegin();
 		void FrameEnd();
@@ -71,17 +68,18 @@ namespace argent::graphics
 	private:
 		HWND hwnd_;	//Window handle
 
-		dx12::GraphicsDevice graphics_device_;	//Wraped device object
-		DxgiFactory dxgi_factory_;			//Wraped factory
-		SwapChain swap_chain_;				//Wraped SwapChain object
-		dx12::CommandQueue main_rendering_queue_;	//Wraped Command Queue for the screen 
-		dx12::CommandQueue resource_upload_queue_;	//Wraped Command Queue for resource upload for gpu 
-		dx12::GraphicsCommandList graphics_command_list_[kNumBackBuffers];	//Wraped Command List for rendering
-		dx12::GraphicsCommandList resource_upload_command_list_;	//Wraped Command List for upload resource
-		dx12::DescriptorHeap cbv_srv_uav_heap_;	//Wraped DescriptorHeap for CBV, SRV and UAV.
-		dx12::DescriptorHeap rtv_heap_;
-		dx12::DescriptorHeap dsv_heap_;
-		dx12::DescriptorHeap smp_heap_;
+		std::unique_ptr<DxgiFactory> dxgi_factory_;			//Wraped factory
+		std::unique_ptr<SwapChain> swap_chain_;				//Wraped SwapChain object
+		std::unique_ptr<dx12::GraphicsDevice> graphics_device_;	//Wraped device object
+		std::unique_ptr<dx12::CommandQueue> main_rendering_queue_;	//Wraped Command Queue for the screen 
+		std::unique_ptr<dx12::CommandQueue> resource_upload_queue_;	//Wraped Command Queue for resource upload for gpu 
+		std::unique_ptr<dx12::GraphicsCommandList> graphics_command_list_[kNumBackBuffers];	//Wraped Command List for rendering
+		std::unique_ptr<dx12::GraphicsCommandList> resource_upload_command_list_;	//Wraped Command List for upload resource
+		std::unique_ptr<dx12::DescriptorHeap> cbv_srv_uav_heap_;	//Wraped DescriptorHeap for CBV, SRV and UAV.
+		std::unique_ptr<dx12::DescriptorHeap> rtv_heap_;
+		std::unique_ptr<dx12::DescriptorHeap> dsv_heap_;
+		std::unique_ptr<dx12::DescriptorHeap> smp_heap_;
+												  
 
 
 		FrameResource frame_resources_[kNumBackBuffers];

@@ -29,10 +29,11 @@ namespace argent::graphics
 		FrameResource& operator=(FrameResource&) = delete;
 		FrameResource& operator=(FrameResource&&) = delete;
 
-		void Awake(const dx12::GraphicsDevice& graphics_device, const SwapChain& swap_chain, UINT back_buffer_index,
-			const dx12::Descriptor& rtv_descriptor, const dx12::Descriptor& dsv_descriptor);
-		void Activate(const dx12::GraphicsCommandList& command_list) const;
-		void Deactivate(const dx12::GraphicsCommandList& command_list) const;
+		void Awake(const dx12::GraphicsDevice* graphics_device, const SwapChain* swap_chain, 
+			UINT back_buffer_index, const dx12::Descriptor& rtv_descriptor, 
+			const dx12::Descriptor& dsv_descriptor);
+		void Activate(const dx12::GraphicsCommandList* command_list) const;
+		void Deactivate(const dx12::GraphicsCommandList* command_list) const;
 
 		ID3D12Resource* GetBackBuffer() const { return resource_object_.Get(); }
 	private:
