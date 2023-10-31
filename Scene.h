@@ -1,16 +1,22 @@
 #pragma once
+#include "Subsystem/Scene/BaseScene.h"
 
+#include <iostream>
 
-class Scene
+class Scene : public argent::scene::BaseScene
 {
 public:
-	Scene() = default;
+	Scene()
+	{
+		std::cout << "Create Scene";
+	}
+	//Scene();
 
-	void Awake();
-	void Shutdown();
+	void Awake() override { std::cout << "awake";};
+	void Shutdown() override;
 
-	void Update();
-	void Render();
+	void Update() override;
+	void Render() override;
 
 private:
 

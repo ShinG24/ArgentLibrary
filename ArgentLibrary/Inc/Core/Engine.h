@@ -27,7 +27,7 @@ namespace argent
 		 * \brief 初期化処理　
 		 * 各サブシステムのインスタンス化、及び初期化
 		 */
-		void Initialize(long window_width, long window_height) const;
+		void Initialize(long window_width, long window_height);
 
 		/**
 		 * \brief 終了処理

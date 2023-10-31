@@ -10,6 +10,9 @@
 #include "Subsystem/Input/InputManager.h"
 #include "Subsystem/Timer/Timer.h"
 
+#include "Subsystem/Scene/BaseScene.h"
+#include "Subsystem/Scene/SceneManager.h"
+
 namespace argent
 {
 	/**
@@ -18,7 +21,7 @@ namespace argent
 	class ArgentLibrary
 	{
 	public:
-		ArgentLibrary() = default;
+		ArgentLibrary();
 		~ArgentLibrary() = default;
 
 		ArgentLibrary(ArgentLibrary&) = delete;
@@ -26,28 +29,33 @@ namespace argent
 		ArgentLibrary& operator=(ArgentLibrary&) = delete;
 		ArgentLibrary& operator=(ArgentLibrary&&) = delete;
 
-		void Awake(long window_width, long window_height);
-		void Shutdown();
+		void Awake(long window_width, long window_height) const;
+		void Shutdown() const;
 
-		void Run();
+		void Run() const;
 
+		Engine* GetEngine() const { return engine_.get(); }
 	private:
 
-		std::unique_ptr<Engine> engine_;
+		std::unique_ptr<Engine> engine_{};
+
 	};
 
-	void ArgentLibrary::Awake(long window_width, long window_height)
+	ArgentLibrary::ArgentLibrary() :
+		engine_(std::make_unique<Engine>())
+	{}
+
+	void ArgentLibrary::Awake(long window_width, long window_height) const
 	{
-		engine_ = std::make_unique<Engine>();
 		engine_->Initialize(window_width, window_height);
 	}
 
-	void ArgentLibrary::Shutdown()
+	void ArgentLibrary::Shutdown() const
 	{
 		engine_->Finalize();
 	}
 
-	void ArgentLibrary::Run()
+	void ArgentLibrary::Run() const
 	{
 		engine_->Run();
 	}
@@ -70,4 +78,21 @@ namespace argent
 	{
 		library_instance.Run();
 	}
+
+
+	
 }
+
+namespace argent::scene_management
+{
+	void RegisterScene(std::string scene_name, scene::BaseScene* scene)
+	{
+		library_instance.GetEngine()->GetSubsystemLocator()->GetSubsystem<scene::SceneManager>()->Register(scene_name, scene);
+	}
+
+	void SetNextScene(std::string scene_name)
+	{
+		library_instance.GetEngine()->GetSubsystemLocator()->GetSubsystem<scene::SceneManager>()->SetNextScene(scene_name);
+	}
+}
+

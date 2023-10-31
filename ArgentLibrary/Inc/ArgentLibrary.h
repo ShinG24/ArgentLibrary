@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace argent
 {
@@ -30,4 +31,14 @@ namespace argent::input
 	bool GetKey();
 	bool GetKeyDown();
 	bool GetKeyUp();
+}
+
+namespace argent::scene
+{
+	class BaseScene;
+}
+namespace argent::scene_management
+{
+	void RegisterScene(std::string scene_name, scene::BaseScene* scene);
+	void SetNextScene(std::string scene_name);
 }

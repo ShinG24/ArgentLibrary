@@ -67,6 +67,9 @@
     <Filter Include="Library\Subsystem\Graphics\Resource">
       <UniqueIdentifier>{839cc265-454d-4c89-856e-3a94630c2b11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Library\Subsystem\Scene">
+      <UniqueIdentifier>{f5c9cc1f-6834-4b94-9d3b-d580ec4ef0a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\Imgui\imconfig.h">
@@ -220,6 +223,12 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Raytracer.h">
       <Filter>Library\Subsystem\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Scene\SceneManager.h">
+      <Filter>Library\Subsystem\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Scene\BaseScene.h">
+      <Filter>Library\Subsystem\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -351,6 +360,12 @@
     </ClCompile>
     <ClCompile Include="Source\Subsystem\Graphics\Raytracer.cpp">
       <Filter>Library\Subsystem\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Scene\SceneManager.cpp">
+      <Filter>Library\Subsystem\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Scene\BaseScene.cpp">
+      <Filter>Library\Subsystem\Scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

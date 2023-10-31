@@ -118,15 +118,18 @@ namespace argent::graphics
 
 		Scene scene_view;
 
+		scene_view.nodes_.reserve(fbx_scene->GetNodeCount());
+
 		std::function<void(FbxNode*)> Traverse{[&](FbxNode* fbx_node)
 		{
-			Scene::Node& node{ scene_view.nodes_.emplace_back() };
+			Scene::Node node;
 			node.attribute_ = fbx_node->GetNodeAttribute() ?
 				fbx_node->GetNodeAttribute()->GetAttributeType() : FbxNodeAttribute::EType::eUnknown;
 			node.name_ = fbx_node->GetName();
 			node.unique_id_ = fbx_node->GetUniqueID();
 			node.parent_index_ = scene_view.IndexOf(fbx_node->GetParent() ? 
 				fbx_node->GetParent()->GetUniqueID() : 0);
+			scene_view.nodes_.push_back(node);
 			for(int child_index = 0; child_index < fbx_node->GetChildCount(); ++child_index)
 			{
 				Traverse(fbx_node->GetChild(child_index));

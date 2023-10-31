@@ -5,6 +5,9 @@
 #include "Subsystem/Input/InputManager.h"
 #include "Subsystem/Timer/Timer.h"
 
+#include "Subsystem/Scene/BaseScene.h"
+#include "Subsystem/Scene/SceneManager.h"
+
 
 namespace argent
 {
@@ -14,10 +17,12 @@ namespace argent
 		AddSubsystem<graphics::GraphicsLibrary>();
 		AddSubsystem<input::InputManager>();
 		AddSubsystem<Timer>();
+		AddSubsystem<scene::SceneManager>();
 	}
 
 	void SubsystemLocator::Shutdown()
 	{
+		GetSubsystem<scene::SceneManager>()->Shutdown();
 		GetSubsystem<Timer>()->Shutdown();
 		GetSubsystem<input::InputManager>()->Shutdown();
 		GetSubsystem<graphics::GraphicsLibrary>()->Shutdown();

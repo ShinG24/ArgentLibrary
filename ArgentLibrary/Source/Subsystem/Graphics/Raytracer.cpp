@@ -65,17 +65,7 @@ namespace argent::graphics
 
 	void Raytracer::Shutdown()
 	{
-#if _USE_MODEL0_
-		for(auto& m : model_)
-		{
-			std::filesystem::path path = m->GetFilePath().c_str();
-			path.replace_extension("cereal");
 
-			std::ofstream ofs(path.c_str(), std::ios::binary);
-			cereal::BinaryOutputArchive serialization(ofs);
-			serialization(m);
-		}
-#endif
 	}
 
 	void Raytracer::Update(dx12::GraphicsCommandList* graphics_command_list, dx12::CommandQueue* upload_command_queue)
@@ -84,28 +74,12 @@ namespace argent::graphics
 		{
 			skymaps_->WaitBeforeUse();
 
-#if _USE_MODEL0_
-			for(int i = 0; i < GeometryTypeCount - kNoModelGeometryCounts; ++i)
-			{
-				model_[i]->WaitBeforeUse();
-			}
-#else
 			graphics_model_->WaitForUploadGpuResource();
 
-#endif
 			is_wait_ = true;
 		}
 
-
-
-#if _USE_MODEL0_
-		for(auto& m : model_)
-		{
-			m->UpdateMaterialData();
-		}
-#else
 		graphics_model_->GetMaterials().at(0)->UpdateConstantBuffer(0u);
-#endif
 
 
 		if(ImGui::TreeNode("Skymap Texture"))
@@ -233,14 +207,8 @@ namespace argent::graphics
 			}
 			else
 			{
-#if _USE_MODEL0_
-				build_desc.vertex_buffer_vec_.emplace_back(model_[i - kNoModelGeometryCounts]->GetMesh()->GetVertexBuffer());				
-				build_desc.index_buffer_vec_.emplace_back(model_[i - kNoModelGeometryCounts]->GetMesh()->GetIndexBuffer());
-#else
 				build_desc.vertex_buffer_vec_.emplace_back(graphics_model_->GetMeshes().at(0)->GetPositionBuffer());				
 				build_desc.index_buffer_vec_.emplace_back(graphics_model_->GetMeshes().at(0)->GetIndexBuffer());				
-
-#endif
 			}
 			unique_id[i] = as_manager_.AddBottomLevelAS(graphics_device, command_list, &build_desc, triangle);
 		}
@@ -288,11 +256,8 @@ namespace argent::graphics
 		hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
 		hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1u, 1u, 1u);	//For Material Constant
 		hit_group_root_signature_.AddHeapRangeParameter(0u, 2u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Abledo
-#if _USE_MODEL0_
-		hit_group_root_signature_.AddHeapRangeParameter(2u, 2u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
-#else
+
 		hit_group_root_signature_.AddHeapRangeParameter(2u, 6u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
-#endif
 		hit_group_root_signature_.Create(graphics_device, true);
 
 		//Compile the shader library.
@@ -300,11 +265,7 @@ namespace argent::graphics
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Miss.hlsl", miss_library_.ReleaseAndGetAddressOf());
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Plane.lib.hlsl", plane_library_.ReleaseAndGetAddressOf());
-#if _USE_MODEL0_
-		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/StaticMesh.lib.hlsl", static_mesh_library_.ReleaseAndGetAddressOf());
-#else
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/StandardMesh.lib.hlsl", static_mesh_library_.ReleaseAndGetAddressOf());
-#endif
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/Sphere.lib.hlsl", sphere_library_.ReleaseAndGetAddressOf());
 
 		//Add Shader Library

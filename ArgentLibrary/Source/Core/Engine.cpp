@@ -6,6 +6,8 @@
 #include "Subsystem/Graphics/GraphicsLibrary.h"
 #include "Subsystem/Input/InputManager.h"
 #include "Subsystem/Timer/Timer.h"
+#include "Subsystem/Scene/SceneManager.h"
+
 
 namespace argent
 {
@@ -24,8 +26,10 @@ namespace argent
 		subsystem_locator_ = std::make_unique<SubsystemLocator>();
 	}
 
-	void Engine::Initialize(long window_width, long window_height) const
+	void Engine::Initialize(long window_width, long window_height)
 	{
+		window_width_ = window_width;
+		window_height_ = window_height;
 		subsystem_locator_->Awake();
 	}
 
@@ -40,6 +44,7 @@ namespace argent
 		auto graphics = subsystem_locator_->GetSubsystem<graphics::GraphicsLibrary>();
 		auto timer = subsystem_locator_->GetSubsystem<Timer>();
 		auto input_manager = subsystem_locator_->GetSubsystem<input::InputManager>();
+		auto scene = subsystem_locator_->GetSubsystem<scene::SceneManager>();
 
 		//Main Loop
 		while (!platform->GetRequestShutdown())
@@ -51,9 +56,11 @@ namespace argent
 
 				timer->ShowFrameTime(platform->GetHwnd());
 
+				scene->Update();
 
 				//•`‰æ
 				graphics->FrameBegin();
+				scene->Render();
 				graphics->FrameEnd();
 			}
 		}

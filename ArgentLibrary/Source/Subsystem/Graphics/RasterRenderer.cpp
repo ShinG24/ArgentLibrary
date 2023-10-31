@@ -50,7 +50,6 @@ namespace argent::graphics
 		if(input_manager->GetKeyboard()->GetKey(input::Enter))
 		{
 			input_enter_ = true;
-			
 		}
 
 		if(input_enter_)

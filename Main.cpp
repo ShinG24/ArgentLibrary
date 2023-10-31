@@ -29,7 +29,11 @@ int WINAPI wWinMain(
 #endif
 
 	argent::Initialize(1280, 720);
+
+	argent::scene_management::RegisterScene("Demo", new Scene);
+	argent::scene_management::SetNextScene("Demo");
 	argent::AppRun();
+
 	argent::Finalize();
 
 	return 0;

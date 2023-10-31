@@ -198,6 +198,8 @@
     <ClInclude Include="Inc\Subsystem\Input\Keyboard.h" />
     <ClInclude Include="Inc\Subsystem\Input\Mouse.h" />
     <ClInclude Include="Inc\Subsystem\Platform\Platform.h" />
+    <ClInclude Include="Inc\Subsystem\Scene\BaseScene.h" />
+    <ClInclude Include="Inc\Subsystem\Scene\SceneManager.h" />
     <ClInclude Include="Inc\Subsystem\Subsystem.h" />
     <ClInclude Include="Inc\Subsystem\Timer\Timer.h" />
   </ItemGroup>
@@ -245,6 +247,8 @@
     <ClCompile Include="Source\Subsystem\Input\Keyboard.cpp" />
     <ClCompile Include="Source\Subsystem\Input\Mouse.cpp" />
     <ClCompile Include="Source\Subsystem\Platform\Platform.cpp" />
+    <ClCompile Include="Source\Subsystem\Scene\BaseScene.cpp" />
+    <ClCompile Include="Source\Subsystem\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Subsystem\Timer\Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
