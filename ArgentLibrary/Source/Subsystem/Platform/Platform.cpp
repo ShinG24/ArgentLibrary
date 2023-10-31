@@ -1,5 +1,8 @@
 #include "Subsystem/Platform/Platform.h"
 
+#include "Core/SubsystemLocator.h"
+#include "Core/Engine.h"
+
 #include <crtdbg.h>
 #include <Windows.h>
 
@@ -9,8 +12,11 @@ namespace argent::platform
 
 	LRESULT HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	void Platform::Awake(long window_width, long window_height)
+	void Platform::Awake()
 	{
+		long window_width = GetEngine()->GetWindowWidth();
+		long window_height = GetEngine()->GetWindowHeight();
+
 		request_shutdown_ = false;
 
 		//Creating and registering window
@@ -51,6 +57,7 @@ namespace argent::platform
 
 		if(WM_QUIT == msg.message) request_shutdown_ = true;
 		return peek_message;
+
 	}
 
 	LRESULT HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

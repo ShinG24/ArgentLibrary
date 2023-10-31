@@ -1,6 +1,8 @@
 
 #include <crtdbg.h>
 
+#include "ArgentLibrary.h"
+
 #include "ArgentLibrary/Inc/Subsystem/Graphics/GraphicsLibrary.h"
 #include "ArgentLibrary/Inc/Subsystem/Platform/Platform.h"
 #include "ArgentLibrary/Inc/Subsystem/Timer/Timer.h"
@@ -26,47 +28,9 @@ int WINAPI wWinMain(
 	_CrtSetBreakAlloc(0x00);
 #endif
 
-	//ウィンドウの作成
-	argent::platform::Platform platform{};
-	platform.Awake(1280, 720);
-
-	//描画ライブラリの起動
-	std::unique_ptr<argent::graphics::GraphicsLibrary> graphics_library = std::make_unique<argent::graphics::GraphicsLibrary>();
-	graphics_library->Awake(platform.GetHwnd());
-
-	//タイマー
-	argent::Timer timer;
-	timer.Awake();
-
-	//インプット
-	argent::input::InputManager input_manager;
-	input_manager.Awake(platform.GetHwnd());
-
-	std::unique_ptr<Scene> demo_scene = std::make_unique<Scene>();
-	demo_scene->Awake();
-
-	//Main Loop
-	while (!platform.GetRequestShutdown())
-	{
-		if(!platform.ProcessSystemEventQueue())
-		{
-			input_manager.Update();
-			timer.Tick();
-
-			timer.ShowFrameTime(platform.GetHwnd());
-
-			demo_scene->Update();
-
-			//描画
-			graphics_library->FrameBegin();
-			demo_scene->Render();
-			graphics_library->FrameEnd();
-		}
-	}
-
-	demo_scene->Shutdown();
-
-	graphics_library->Shutdown();
+	argent::Initialize(1280, 720);
+	argent::AppRun();
+	argent::Finalize();
 
 	return 0;
 }

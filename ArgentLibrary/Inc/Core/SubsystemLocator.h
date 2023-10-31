@@ -7,8 +7,9 @@
 
 namespace argent
 {
-	
-
+	/**
+	 * \brief サブシステムを保持、管理するクラス
+	 */
 	class SubsystemLocator
 	{
 	public:
@@ -25,17 +26,40 @@ namespace argent
 		SubsystemLocator& operator=(const SubsystemLocator&) = delete;
 		SubsystemLocator& operator=(const SubsystemLocator&&) = delete;
 
+		/**
+		 * \brief サブシステムの取得
+		 * \tparam T Subsystem Type
+		 * \return Shared Pointer of Subsystem
+		 */
 		template<class T>
 		std::shared_ptr<T> GetSubsystem();
 
 	private:
 
+		/**
+		 * \brief 初期化処理
+		 * 必要なサブシステムのインスタンスの作成、及び初期化関数のコール
+		 */
 		void Awake();
+
+		/**
+		 * \brief 終了処理
+		 * 適切な順番でサブシステムの終了処理をコールする
+		 */
 		void Shutdown();
 
+		/**
+		 * \brief サブシステムの追加
+		 * テンプレート引数の型はSubsystem Classを継承している必要がある
+		 * \tparam T Subsystem Type
+		 */
 		template<class T>
 		void AddSubsystem();
 
+		/**
+		 * \brief テンプレート引数がSubsystem Classを継承しているか確認する
+		 * \tparam T Subsystem Type
+		 */
 		template<class T>
 		void CertificateSubsystemType();
 

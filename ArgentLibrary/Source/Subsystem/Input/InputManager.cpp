@@ -1,15 +1,18 @@
 #include "Subsystem/Input/InputManager.h"
 
+#include "Core/SubsystemLocator.h"
+#include "Core/Engine.h"
+
+#include "Subsystem/Platform/Platform.h"
 
 namespace argent::input
 {
-	InputManager* InputManager::instance_ = nullptr;
-	void InputManager::Awake(HWND hwnd)
+	void InputManager::Awake()
 	{
-		instance_ = this;
-		hwnd_ = hwnd;
+		hwnd_ = hwnd_ = GetEngine()->GetSubsystemLocator()->GetSubsystem<platform::Platform>()->GetHwnd();
 		keyboard_.Awake();
 		mouse_.Awake();
+		Subsystem::Awake();
 	}
 
 	void InputManager::Shutdown()

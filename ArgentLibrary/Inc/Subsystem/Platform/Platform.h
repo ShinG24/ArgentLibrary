@@ -2,15 +2,17 @@
 
 #include <Windows.h>
 
+#include "Subsystem/Subsystem.h"
+
 namespace argent::platform
 {
-	class Platform
+	class Platform final : public Subsystem
 	{
 	public:
 		Platform() = default;
-		~Platform() = default;
+		~Platform() override = default;
 
-		void Awake(long window_width, long window_height);
+		void Awake() override;
 
 		bool ProcessSystemEventQueue();
 

@@ -1,32 +1,34 @@
 #pragma once
 
+#include "Subsystem/Subsystem.h"
+
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "GamePad.h"
 
 namespace argent::input
 {
-	class InputManager
+	class InputManager final : public Subsystem
 	{
 	public:
+
 		InputManager() = default;
-		~InputManager() = default;
+		~InputManager() override = default;
 
 		InputManager(const InputManager&) = delete;
 		InputManager(const InputManager&&) = delete;
 		InputManager& operator=(const InputManager&) = delete;
 		InputManager& operator=(const InputManager&&) = delete;
 
-		static InputManager* Get(){ return instance_; }
-
-		void Awake(HWND hwnd);
-		void Shutdown();
+		void Awake() override;
+		void Shutdown() override;
 		void Update();
 
 		const Keyboard* GetKeyboard() const { return &keyboard_; }
 		const Mouse* GetMouse() const { return &mouse_; }
+
 	private:
-		static InputManager* instance_;
+
 		HWND hwnd_;
 		Keyboard keyboard_;
 		Mouse mouse_;

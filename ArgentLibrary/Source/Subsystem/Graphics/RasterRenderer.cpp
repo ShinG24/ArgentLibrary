@@ -2,6 +2,11 @@
 
 #include <imgui.h>
 
+
+#include "Core/SubsystemLocator.h"
+#include "Core/Engine.h"
+#include "Subsystem/Input/InputManager.h"
+
 #include "Subsystem/Graphics/API/D3D12/GraphicsDevice.h"
 #include "Subsystem/Graphics/API/D3D12/CommandQueue.h"
 #include "Subsystem/Graphics/API/D3D12/DescriptorHeap.h"
@@ -41,7 +46,7 @@ namespace argent::graphics
 		}
 
 
-		auto* input_manager = input::InputManager::Get();
+		auto input_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<input::InputManager>();
 		if(input_manager->GetKeyboard()->GetKey(input::Enter))
 		{
 			input_enter_ = true;

@@ -1,22 +1,26 @@
 #pragma once
 
 #include <Windows.h>
+
+#include "Subsystem/Subsystem.h"
+
 namespace argent
 {
-	class Timer
+	class Timer final : public Subsystem
 	{
 	public:
 		Timer();
-		~Timer() = default;
+		~Timer() override = default;
 
 		static Timer* Get() { return instance_; }
-		void Awake();
+		void Awake() override;
 		void Tick();
 
 		void ShowFrameTime(HWND hwnd_);
 
 		float GetDeltaTime() const { return static_cast<float>(delta_time_); }
 		int GetFps() const { return frame_per_seconds_; }
+
 	private:
 
 		//TODO è¡ÇµÇ»Ç≥Ç¢

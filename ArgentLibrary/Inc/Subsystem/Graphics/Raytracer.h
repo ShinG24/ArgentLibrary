@@ -34,7 +34,7 @@ struct Transform
 	DirectX::XMFLOAT3 position_{ 0.0f, 0.0f, 0.0f };
 	DirectX::XMFLOAT3 scaling_{ 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT3 rotation_{};
-	INT coordinate_system_index_;
+	INT coordinate_system_index_ = 0;
 	static constexpr DirectX::XMFLOAT4X4 kCoordinateSystem[4]
 	{
 		{ -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 }, // 0:RHS Y-UP

@@ -7,6 +7,12 @@
 //Imgui
 #include <imgui.h>
 
+#include "Core/SubsystemLocator.h"
+#include "Core/Engine.h"
+
+#include "Subsystem/Platform/Platform.h"
+#include "Subsystem/Input/InputManager.h"
+
 #include "Subsystem/Timer/Timer.h"
 #include "Subsystem/Input/InputManager.h"
 
@@ -39,9 +45,10 @@ namespace argent::graphics
 
 	}
 
-	void GraphicsLibrary::Awake(HWND hwnd)
+	void GraphicsLibrary::Awake()
 	{
-		hwnd_ = hwnd;
+		hwnd_ = GetEngine()->GetSubsystemLocator()->GetSubsystem<platform::Platform>()->GetHwnd();
+		
 
 #ifdef _DEBUG
 		OnDebugLayer();
@@ -66,9 +73,9 @@ namespace argent::graphics
 	void GraphicsLibrary::Shutdown()
 	{
 		raytracer_.Shutdown();
-		imgui_wrapper_.Shutdown();
 		main_rendering_queue_->WaitForGpu();
 		resource_upload_queue_->WaitForGpu();
+		imgui_wrapper_.Shutdown();
 	}
 
 	void GraphicsLibrary::FrameBegin()
@@ -142,7 +149,7 @@ namespace argent::graphics
 			{
 				//Camera Controller
 				{
-					auto input_manager = argent::input::InputManager::Get();
+					auto input_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<input::InputManager>();
 					auto keyboard = input_manager->GetKeyboard();
 					auto mouse = input_manager->GetMouse();
 					using namespace argent::input;

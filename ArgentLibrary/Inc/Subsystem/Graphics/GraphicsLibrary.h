@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "Subsystem/Subsystem.h"
+
 //TODO インクルードするべき？？？
 
 #include "API/D3D12/GraphicsDevice.h"
@@ -32,7 +34,7 @@ namespace argent::graphics
 	/**
 	 * \brief 描画統括のクラス
 	 */
-	class GraphicsLibrary
+	class GraphicsLibrary final : public Subsystem
 	{
 	public:
 		static int GetNumBackBuffers() { return kNumBackBuffers;  }
@@ -40,15 +42,15 @@ namespace argent::graphics
 	public:
 		GraphicsLibrary();
 
-		~GraphicsLibrary() = default;
+		~GraphicsLibrary() override = default;
 
 		GraphicsLibrary(GraphicsLibrary&) = delete;
 		GraphicsLibrary(GraphicsLibrary&&) = delete;
 		GraphicsLibrary& operator=(GraphicsLibrary&) = delete;
 		GraphicsLibrary& operator=(GraphicsLibrary&&) = delete;
 
-		void Awake(HWND hwnd);
-		void Shutdown();
+		void Awake() override;
+		void Shutdown() override;
 
 		void FrameBegin();
 		void FrameEnd();

@@ -27,22 +27,29 @@ namespace argent
 		 * \brief 初期化処理　
 		 * 各サブシステムのインスタンス化、及び初期化
 		 */
-		void Initialize();
+		void Initialize(long window_width, long window_height) const;
 
 		/**
 		 * \brief 終了処理
 		 * 各サブシステムの終了処理をCall
 		 */
-		void Finalize();
+		void Finalize() const;
 
 		/**
 		 * \brief アプリケーションの実行
 		 */
 		void Run();
 
+		SubsystemLocator* GetSubsystemLocator() const { return subsystem_locator_.get(); }
+
+		long GetWindowWidth() const { return window_width_; }
+		long GetWindowHeight() const { return window_height_; }
+
 	private:
 
 		std::unique_ptr<SubsystemLocator> subsystem_locator_;
+		long window_width_;
+		long window_height_;
 
 	};
 
@@ -53,5 +60,6 @@ namespace argent
 	 * \return Engine Pointer
 	 */
 	Engine* GetEngine();
+
 }
 
