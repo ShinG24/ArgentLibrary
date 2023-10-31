@@ -20,7 +20,7 @@ extern "C" { __declspec ( dllexport ) extern const char8_t* D3D12SDKPath = u8"./
 
 namespace argent::graphics
 {
-	GraphicsLibrary::GraphicsLibrary(HWND hwnd)
+	GraphicsLibrary::GraphicsLibrary()
 	{
 		dxgi_factory_ = std::make_unique<DxgiFactory>();
 		swap_chain_ = std::make_unique<SwapChain>();

@@ -31,7 +31,7 @@ int WINAPI wWinMain(
 	platform.Awake(1280, 720);
 
 	//描画ライブラリの起動
-	std::unique_ptr<argent::graphics::GraphicsLibrary> graphics_library = std::make_unique<argent::graphics::GraphicsLibrary>(platform.GetHwnd());
+	std::unique_ptr<argent::graphics::GraphicsLibrary> graphics_library = std::make_unique<argent::graphics::GraphicsLibrary>();
 	graphics_library->Awake(platform.GetHwnd());
 
 	//タイマー

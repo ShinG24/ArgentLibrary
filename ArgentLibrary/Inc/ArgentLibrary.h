@@ -6,8 +6,10 @@ namespace argent
 	 * \brief Argent Library初期化
 	 * この関数をCallするのは1回だけで良い
 	 * 描画、入出力、タイマー等のライブラリサブシステムの初期化をする
+	 * \param window_width  : ウィンドウの幅
+	 * \param window_height : ウィンドウの高さ
 	 */
-	void Initialize();
+	void Initialize(long window_width, long window_height);
 
 	/**
 	 * \brief Argent Library終了処理
@@ -21,6 +23,11 @@ namespace argent
 	 * ゲームループ処理はここで行われる
 	 */
 	void AppRun();
+}
 
-
+namespace argent::input
+{
+	bool GetKey();
+	bool GetKeyDown();
+	bool GetKeyUp();
 }

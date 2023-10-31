@@ -158,6 +158,8 @@
     <ClInclude Include="External\Imgui\imstb_textedit.h" />
     <ClInclude Include="External\Imgui\imstb_truetype.h" />
     <ClInclude Include="Inc\ArgentLibrary.h" />
+    <ClInclude Include="Inc\Core\Engine.h" />
+    <ClInclude Include="Inc\Core\SubsystemLocator.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\AccelerationStructureManager.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\Graphics\API\D3D12\CommandQueue.h" />
@@ -196,6 +198,7 @@
     <ClInclude Include="Inc\Input\Keyboard.h" />
     <ClInclude Include="Inc\Input\Mouse.h" />
     <ClInclude Include="Inc\Platform\Platform.h" />
+    <ClInclude Include="Inc\Subsystem\Subsystem.h" />
     <ClInclude Include="Inc\Timer\Timer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +209,8 @@
     <ClCompile Include="External\Imgui\imgui_tables.cpp" />
     <ClCompile Include="External\Imgui\imgui_widgets.cpp" />
     <ClCompile Include="Source\ArgentLibrary.cpp" />
+    <ClCompile Include="Source\Core\Engine.cpp" />
+    <ClCompile Include="Source\Core\SubsystemLocator.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\Graphics\API\D3D12\CommandQueue.cpp" />

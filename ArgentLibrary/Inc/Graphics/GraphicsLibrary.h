@@ -38,7 +38,7 @@ namespace argent::graphics
 		static int GetNumBackBuffers() { return kNumBackBuffers;  }
 
 	public:
-		GraphicsLibrary(HWND hwnd);
+		GraphicsLibrary();
 
 		~GraphicsLibrary() = default;
 

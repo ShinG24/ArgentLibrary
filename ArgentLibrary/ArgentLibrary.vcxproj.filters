@@ -58,6 +58,15 @@
     <Filter Include="External\ImGui">
       <UniqueIdentifier>{93825e4b-7620-461e-bf9a-327911882488}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Library\GameObject">
+      <UniqueIdentifier>{56e0be96-6b82-42b5-b9b2-11f9d7b43ad7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Core">
+      <UniqueIdentifier>{c9f5e74c-1578-4794-8f84-f7883d953eb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Subsystem">
+      <UniqueIdentifier>{f4a25727-5fc8-4c48-b089-d453a8905c5d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\Graphics\API\D3D12\AccelerationStructureManager.h">
@@ -202,6 +211,15 @@
       <Filter>External\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="Inc\ArgentLibrary.h" />
+    <ClInclude Include="Inc\Core\Engine.h">
+      <Filter>Library\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Core\SubsystemLocator.h">
+      <Filter>Library\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Subsystem.h">
+      <Filter>Subsystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Graphics\API\D3D12\AccelerationStructureManager.cpp">
@@ -328,5 +346,11 @@
       <Filter>External\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Source\ArgentLibrary.cpp" />
+    <ClCompile Include="Source\Core\Engine.cpp">
+      <Filter>Library\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\SubsystemLocator.cpp">
+      <Filter>Library\Core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
