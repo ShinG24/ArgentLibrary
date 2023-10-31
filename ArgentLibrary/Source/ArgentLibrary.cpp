@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "Platform/Platform.h"
-#include "Graphics/GraphicsLibrary.h"
-#include "Input/InputManager.h"
-#include "Timer/Timer.h"
+#include "Subsystem/Platform/Platform.h"
+#include "Subsystem/Graphics/GraphicsLibrary.h"
+#include "Subsystem/Input/InputManager.h"
+#include "Subsystem/Timer/Timer.h"
 
 namespace argent
 {

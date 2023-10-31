@@ -1,10 +1,10 @@
 
 #include <crtdbg.h>
 
-#include "ArgentLibrary/Inc/Graphics/GraphicsLibrary.h"
-#include "ArgentLibrary/Inc/Platform/Platform.h"
-#include "ArgentLibrary/Inc/Timer/Timer.h"
-#include "ArgentLibrary/Inc/Input/InputManager.h"
+#include "ArgentLibrary/Inc/Subsystem/Graphics/GraphicsLibrary.h"
+#include "ArgentLibrary/Inc/Subsystem/Platform/Platform.h"
+#include "ArgentLibrary/Inc/Subsystem/Timer/Timer.h"
+#include "ArgentLibrary/Inc/Subsystem/Input/InputManager.h"
 
 #include "Scene.h"
 
