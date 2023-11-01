@@ -247,6 +247,10 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.h">
       <Filter>Library\Subsystem\Graphics\Wrapper\DXR</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\ShaderLibrary.h">
+      <Filter>Library\Subsystem\Graphics\Wrapper\DXR</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\RenderingManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -400,5 +404,9 @@
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.cpp">
       <Filter>Library\Subsystem\Graphics\Wrapper\DXR</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\ShaderLibrary.cpp">
+      <Filter>Library\Subsystem\Graphics\Wrapper\DXR</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\RenderingManager.cpp" />
   </ItemGroup>
 </Project>

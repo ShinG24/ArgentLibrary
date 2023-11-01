@@ -78,4 +78,9 @@ namespace argent::graphics
 	{
 		Compile(filename, L"lib_6_3", pp_blob);
 	}
+
+	void ShaderCompiler::CompileShaderLibraryWithReflectionData(LPCWSTR filename)
+	{
+		//TODO リフレクションありのシェーダーコンパイル
+	}
 }

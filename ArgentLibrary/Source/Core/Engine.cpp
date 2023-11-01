@@ -38,6 +38,9 @@ namespace argent
 		subsystem_locator_->Shutdown();
 	}
 
+	/**
+	 * \brief メインループ実行
+	 */
 	void Engine::Run()
 	{
 		auto platform = subsystem_locator_->GetSubsystem<platform::Platform>();

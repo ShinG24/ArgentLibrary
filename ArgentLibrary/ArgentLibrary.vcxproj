@@ -187,6 +187,7 @@
     <ClInclude Include="Inc\Subsystem\Graphics\RasterRenderer.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Raytracer.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Renderer\StaticMeshRenderer.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\RenderingManager.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\GameResource.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Material.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Mesh.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\StandardMaterial.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Texture.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\ShaderLibrary.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\ShaderLibraryManager.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\FrameResource.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\ImGuiWrapper.h" />
@@ -241,6 +243,7 @@
     <ClCompile Include="Source\Subsystem\Graphics\RasterRenderer.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Raytracer.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Renderer\StaticMeshRenderer.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\RenderingManager.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\GameResource.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Material.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Mesh.cpp" />
@@ -248,6 +251,7 @@
     <ClCompile Include="Source\Subsystem\Graphics\Resource\StandardMaterial.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Texture.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\ShaderLibrary.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\ShaderLibraryManager.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\FrameResource.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\ImGuiWrapper.cpp" />
