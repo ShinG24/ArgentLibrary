@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
 
+#include "Subsystem/Scene/BaseScene.h"
+
+/**
+ * \brief ライブラリのCore機能まとめ
+ */
 namespace argent
 {
 	/**
@@ -26,6 +31,9 @@ namespace argent
 	void AppRun();
 }
 
+/**
+ * \brief キーボード、マウス、コントローラ等の入力について
+ */
 namespace argent::input
 {
 	bool GetKey();
@@ -33,12 +41,21 @@ namespace argent::input
 	bool GetKeyUp();
 }
 
-namespace argent::scene
-{
-	class BaseScene;
-}
+/**
+ * \brief シーン管理について
+ */
 namespace argent::scene_management
 {
+	/**
+	 * \brief シーンの登録
+	 * \param scene_name シーンネーム
+	 * \param scene シーンへのポインタ
+	 */
 	void RegisterScene(std::string scene_name, scene::BaseScene* scene);
+
+	/**
+	 * \brief シーンをセット
+	 * \param scene_name シーンネーム
+	 */
 	void SetNextScene(std::string scene_name);
 }

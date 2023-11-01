@@ -1,8 +1,6 @@
 #pragma once
 #include "Subsystem/Scene/BaseScene.h"
 
-#include <iostream>
-
 class DemoScene : public argent::scene::BaseScene
 {
 public:
