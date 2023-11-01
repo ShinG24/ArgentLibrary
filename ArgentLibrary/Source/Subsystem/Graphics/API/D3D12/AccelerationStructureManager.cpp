@@ -11,7 +11,7 @@ namespace argent::graphics::dx12
 	UINT AccelerationStructureManager::AddBottomLevelAS(const GraphicsDevice* graphics_device, 
 		const GraphicsCommandList* graphics_command_list, BLASBuildDesc* build_desc, bool is_triangle)
 	{
-		UINT unique_id = GenerateUniqueID();
+		UINT unique_id = GenerateBlasUniqueId();
 		blas_vec_.emplace_back(std::make_unique<BottomLevelAccelerationStructure>(graphics_device, graphics_command_list, 
 			build_desc, unique_id, is_triangle));
 		return unique_id;
@@ -20,7 +20,7 @@ namespace argent::graphics::dx12
 	UINT AccelerationStructureManager::RegisterTopLevelAS(UINT blas_unique_id, 
 		UINT hit_group_index, const DirectX::XMFLOAT4X4& world, bool front_counter_clockwise)
 	{
-		UINT unique_id = GenerateUniqueID();
+		UINT unique_id = GenerateTlasUniqueId();
 
 		tlas_un_map_.emplace(unique_id, std::make_unique<TopLevelAccelerationStructure>(unique_id, 
 			blas_unique_id, GetBottomLevelAS(blas_unique_id)->GetResultBuffer()->GetGPUVirtualAddress(),
@@ -136,7 +136,26 @@ namespace argent::graphics::dx12
 		tlas_un_map_[tlas_unique_id]->SetWorld(world);
 	}
 
-	UINT AccelerationStructureManager::GenerateUniqueID()
+	void AccelerationStructureManager::CreateResultSRV(const GraphicsDevice* graphics_device, DescriptorHeap* srv_heap)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
+		srv_desc.Format = DXGI_FORMAT_UNKNOWN;
+		srv_desc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srv_desc.RaytracingAccelerationStructure.Location = result_buffer_object_->GetGPUVirtualAddress();
+
+		result_descriptor_ = srv_heap->PopDescriptor();
+		graphics_device->GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
+			result_descriptor_.cpu_handle_);
+	}
+
+	UINT AccelerationStructureManager::GenerateBlasUniqueId()
+	{
+		static UINT unique_id = 0;
+		return unique_id++;
+	}
+
+	UINT AccelerationStructureManager::GenerateTlasUniqueId()
 	{
 		static UINT unique_id = 0;
 		return unique_id++;

@@ -44,8 +44,6 @@ namespace argent::graphics::dx12
 	private:
 		std::vector<ShaderTable> shader_tables_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource_object_;
-/*		std::vector<std::vector<void*>> input_data_;
-		std::vector<std::wstring> shader_identifier_*/;
 		UINT entry_size_;
 	};
 }

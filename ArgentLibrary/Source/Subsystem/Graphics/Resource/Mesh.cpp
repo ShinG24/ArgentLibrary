@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include "Subsystem/Graphics/API/D3D12/AccelerationStructureManager.h"
 #include "Subsystem/Graphics/API/D3D12/GraphicsDevice.h"
 #include "Subsystem/Graphics/API/D3D12/DescriptorHeap.h"
 #include "Subsystem/Graphics/API/D3D12/CommandQueue.h"
@@ -43,6 +44,25 @@ namespace argent::graphics
 		//すべてのデータを使う前提のため一つでも.empty()なデータが有る場合はアサートを出す
 		if (data_.HasNullData()) _ASSERT_EXPR(FALSE, L"The Mesh has one or more null data");
 
+		//頂点バッファ、インデックスバッファ、サポートしてる場合はBLAS
+		CreateComObject(graphics_context);
+	}
+
+	void Mesh::OnGui()
+	{
+		if(GetName().empty()) _ASSERT_EXPR(FALSE, L"The Mesh name is null");
+		if(ImGui::TreeNode(GetName().c_str()))
+		{
+			int num_vertex = static_cast<int>(data_.position_vec_.size());
+			int num_index = static_cast<int>(data_.index_vec_.size());
+			ImGui::InputInt("Rendering Vertex", &num_vertex, 0, 0, ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputInt("Rendering Index", &num_index, 0, 0, ImGuiInputTextFlags_ReadOnly);
+			ImGui::TreePop();
+		}
+	}
+
+	void Mesh::CreateComObject(const GraphicsContext* graphics_context)
+	{
 		//Vertex & Index Buffer作成
 		position_buffer_ = std::make_unique<dx12::VertexBuffer>(graphics_context->graphics_device_,
 			data_.position_vec_.data(), sizeof(Position), data_.position_vec_.size());
@@ -57,6 +77,15 @@ namespace argent::graphics
 
 		index_buffer_ = std::make_unique<dx12::IndexBuffer>(graphics_context->graphics_device_, 
 			data_.index_vec_.data(), static_cast<UINT>(data_.index_vec_.size()));
+
+		//For Raytracing
+		CreateRaytracingObject(graphics_context);
+	}
+
+	void Mesh::CreateRaytracingObject(const GraphicsContext* graphics_context)
+	{
+		//レイトレサポート外の場合は何もしない
+		if(!graphics_context->graphics_device_->IsDxrSupported()) return;
 
 		//レイトレーシング用　Shaderにバインドするために頂点バッファのSRVを作る
 		position_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
@@ -79,21 +108,14 @@ namespace argent::graphics
 		graphics_context->graphics_device_->CreateBufferSRV(index_buffer_->GetBufferObject(),
 			index_buffer_->GetIndexCounts(), sizeof(uint32_t), index_srv_descriptor_.cpu_handle_);
 
-		//TODO BLASのクラスを作り直す必要あり
-		//Raytracingをサポートしている場合のみ
-		//blas_ = std::make_unique<dx12::BottomLevelAccelerationStructure>()
-	}
+		//Bottom Level Acceleration Structure
+		dx12::BLASBuildDesc build_desc{};
+		build_desc.vertex_buffer_vec_.emplace_back(position_buffer_.get());
+		build_desc.index_buffer_vec_.emplace_back(index_buffer_.get());
+		//TODO Transformについて
 
-	void Mesh::OnGui()
-	{
-		if(GetName().empty()) _ASSERT_EXPR(FALSE, L"The Mesh name is null");
-		if(ImGui::TreeNode(GetName().c_str()))
-		{
-			int num_vertex = static_cast<int>(data_.position_vec_.size());
-			int num_index = static_cast<int>(data_.index_vec_.size());
-			ImGui::InputInt("Rendering Vertex", &num_vertex, 0, 0, ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputInt("Rendering Index", &num_index, 0, 0, ImGuiInputTextFlags_ReadOnly);
-			ImGui::TreePop();
-		}
+		blas_unique_id_ = graphics_context->as_manager_->AddBottomLevelAS(graphics_context->graphics_device_, 
+			graphics_context->resource_upload_command_list_, &build_desc, true);
+
 	}
 }

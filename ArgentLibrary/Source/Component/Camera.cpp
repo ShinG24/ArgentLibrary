@@ -1,4 +1,4 @@
-#include "../Inc/Camera.h"
+#include "Component/Camera.h"
 
 namespace argent::component
 {

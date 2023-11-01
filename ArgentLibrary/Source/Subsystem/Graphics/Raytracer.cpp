@@ -40,15 +40,15 @@ namespace argent::graphics
 
 		object_descriptor_ = cbv_srv_uav_descriptor_heap->PopDescriptor();
 
-		transforms_[Plane].position_ = {0.0f, 0.0f, 0.0f };
-		transforms_[Plane].scaling_ = DirectX::XMFLOAT3(1000.0f, 1.0f, 1000.0f);
-		transforms_[Sphere].position_ = {0.0f, 50.0f, 0.0f };
-		//For Coral Group
-		{
-			transforms_[CoralRock].position_ = { -100.0f, 0.0f, 0.0f };
-			transforms_[CoralRock].scaling_ = { 0.1f, 0.1f, 0.1f };
-			transforms_[CoralRock].rotation_ = { -1.57f, 0.0f, 0.0f };
-		}
+		//transforms_[Plane].position_ = {0.0f, 0.0f, 0.0f };
+		//transforms_[Plane].scaling_ = DirectX::XMFLOAT3(1000.0f, 1.0f, 1000.0f);
+		//transforms_[Sphere].position_ = {0.0f, 50.0f, 0.0f };
+		////For Coral Group
+		//{
+		//	transforms_[CoralRock].position_ = { -100.0f, 0.0f, 0.0f };
+		//	transforms_[CoralRock].scaling_ = { 0.1f, 0.1f, 0.1f };
+		//	transforms_[CoralRock].rotation_ = { -1.57f, 0.0f, 0.0f };
+		//}
 
 		//TODO 新しいバージョンのLoader調整
 		graphics_model_ = LoadFbxFromFile("./Assets/Model/Plantune.FBX");
@@ -60,7 +60,6 @@ namespace argent::graphics
 		CreateOutputBuffer(graphics_device, width, height);
 		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
 		CreateShaderBindingTable(graphics_device);
-
 	}
 
 	void Raytracer::Shutdown()
@@ -103,11 +102,14 @@ namespace argent::graphics
 
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
-			DirectX::XMMATRIX m = transforms_[i].CalcWorldMatrix();
+			DirectX::XMFLOAT4X4 m = transforms_[i].CalcWorldMatrix();
 
 			ObjectConstant obj_constant{};
-			DirectX::XMStoreFloat4x4(&obj_constant.world_, m);
-			DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
+			obj_constant.world_= m;
+			DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&m)));
+			
+			//DirectX::XMStoreFloat4x4(&obj_constant.world_, m);
+			//DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
 			memcpy(world_mat_map_ + i * sizeof(ObjectConstant), &obj_constant, sizeof(ObjectConstant));
 
 			as_manager_.SetWorld(obj_constant.world_, tlas_unique_id_[i]);
@@ -215,8 +217,8 @@ namespace argent::graphics
 
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
-			DirectX::XMFLOAT4X4 m;
-			DirectX::XMStoreFloat4x4(&m, transforms_[i].CalcWorldMatrix());
+			DirectX::XMFLOAT4X4 m = transforms_[i].CalcWorldMatrix();
+			//DirectX::XMStoreFloat4x4(&m, transforms_[i].CalcWorldMatrix());
 			bool front_counter_clockwise = false;
 			tlas_unique_id_[i] = as_manager_.RegisterTopLevelAS(unique_id[i], i, m, front_counter_clockwise);
 		}
@@ -311,23 +313,13 @@ namespace argent::graphics
 	                                         dx12::DescriptorHeap* cbv_srv_uav_descriptor_heap)
 	{
 		output_descriptor_ = cbv_srv_uav_descriptor_heap->PopDescriptor();
-		tlas_result_descriptor_ = cbv_srv_uav_descriptor_heap->PopDescriptor();
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
 		uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		graphics_device->GetDevice()->CreateUnorderedAccessView(output_buffer_.Get(), 
 			nullptr, &uav_desc, output_descriptor_.cpu_handle_);
 
-		D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
-		srv_desc.Format = DXGI_FORMAT_UNKNOWN;
-		srv_desc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
-		srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srv_desc.RaytracingAccelerationStructure.Location = as_manager_.GetResultResourceObject()->GetGPUVirtualAddress();
-
-
-		graphics_device->GetDevice()->CreateShaderResourceView(nullptr, &srv_desc,
-			tlas_result_descriptor_.cpu_handle_);
-
+		as_manager_.CreateResultSRV(graphics_device, cbv_srv_uav_descriptor_heap);
 
 		//All Instance World Matrix Buffer
 		uint stride = sizeof(ObjectConstant);
@@ -343,8 +335,10 @@ namespace argent::graphics
 		{
 			auto m = transforms_[i].CalcWorldMatrix();
 			ObjectConstant data;
-			DirectX::XMStoreFloat4x4(&data.world_, m);
-			DirectX::XMStoreFloat4x4(&data.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
+			data.world_ =  m;
+			DirectX::XMStoreFloat4x4(&data.inv_world_, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&m)));
+			//DirectX::XMStoreFloat4x4(&data.world_, m);
+			//DirectX::XMStoreFloat4x4(&data.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
 			//memcpy_s(map, stride * num, &f4x4, stride);
 			memcpy(world_mat_map_, &data, stride);
 		}
@@ -396,11 +390,6 @@ namespace argent::graphics
 				table.input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(
 					graphics_model_->GetMeshes().at(0)->GetVertexPositionDescriptor().gpu_handle_.ptr);
 				table.input_data_.at(MaterialCbv) = reinterpret_cast<void*>(graphics_model_->GetMaterials().at(0)->GetConstantGpuVirtualAddress(0));
-				//auto model_data = model_[i]->GetShaderBindingData();
-				//for(size_t j = 0; j < model_data.size(); ++j)
-				//{
-				//	table.input_data_.at(j + 1) = model_data.at(j);
-				//}
 			}
 
 			hit_group_shader_table_.AddShaderTables(tables);
@@ -410,15 +399,15 @@ namespace argent::graphics
 	}
 }
 
-void Transform::OnGui()
-{
-	if (ImGui::TreeNode("Transform"))
-	{
-		ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat3("Scaling", &scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
-		ImGui::SliderInt("CoordinateSystem", &coordinate_system_index_, 0, 3);
-		ImGui::Text(kCoordinateSystemStr[coordinate_system_index_].c_str());
-		ImGui::TreePop();
-	}
-}
+//void Transform::OnGui()
+//{
+//	if (ImGui::TreeNode("Transform"))
+//	{
+//		ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+//		ImGui::DragFloat3("Scaling", &scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
+//		ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
+//		ImGui::SliderInt("CoordinateSystem", &coordinate_system_index_, 0, 3);
+//		ImGui::Text(kCoordinateSystemStr[coordinate_system_index_].c_str());
+//		ImGui::TreePop();
+//	}
+//}

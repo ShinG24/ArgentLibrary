@@ -158,6 +158,10 @@
     <ClInclude Include="External\Imgui\imstb_textedit.h" />
     <ClInclude Include="External\Imgui\imstb_truetype.h" />
     <ClInclude Include="Inc\ArgentLibrary.h" />
+    <ClInclude Include="Inc\Component\Camera.h" />
+    <ClInclude Include="Inc\Component\Component.h" />
+    <ClInclude Include="Inc\Component\Light.h" />
+    <ClInclude Include="Inc\Component\Transform.h" />
     <ClInclude Include="Inc\Core\Engine.h" />
     <ClInclude Include="Inc\Core\SubsystemLocator.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\AccelerationStructureManager.h" />
@@ -211,6 +215,10 @@
     <ClCompile Include="External\Imgui\imgui_tables.cpp" />
     <ClCompile Include="External\Imgui\imgui_widgets.cpp" />
     <ClCompile Include="Source\ArgentLibrary.cpp" />
+    <ClCompile Include="Source\Component\Camera.cpp" />
+    <ClCompile Include="Source\Component\Component.cpp" />
+    <ClCompile Include="Source\Component\Light.cpp" />
+    <ClCompile Include="Source\Component\Transform.cpp" />
     <ClCompile Include="Source\Core\Engine.cpp" />
     <ClCompile Include="Source\Core\SubsystemLocator.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\AccelerationStructureManager.cpp" />

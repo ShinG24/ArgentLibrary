@@ -229,6 +229,18 @@
     <ClInclude Include="Inc\Subsystem\Scene\BaseScene.h">
       <Filter>Library\Subsystem\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Component\Camera.h">
+      <Filter>Library\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Component\Component.h">
+      <Filter>Library\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Component\Light.h">
+      <Filter>Library\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Component\Transform.h">
+      <Filter>Library\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -366,6 +378,18 @@
     </ClCompile>
     <ClCompile Include="Source\Subsystem\Scene\BaseScene.cpp">
       <Filter>Library\Subsystem\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Component\Camera.cpp">
+      <Filter>Library\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Component\Component.cpp">
+      <Filter>Library\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Component\Light.cpp">
+      <Filter>Library\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Component\Transform.cpp">
+      <Filter>Library\Component</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

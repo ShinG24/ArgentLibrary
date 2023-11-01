@@ -247,6 +247,18 @@ namespace argent::graphics
 		 */
 		void OnGui() override;
 
+		/**
+		 * \brief ID3D12から始まるオブジェクトの作成（頂点バッファとインデックスバッファ)
+		 * \param graphics_context  Graphics Context
+		 */
+		void CreateComObject(const GraphicsContext* graphics_context);
+
+		/**
+		 * \brief レイトレーシングに必要なオブジェクトの作成
+		 * \param graphics_context GraphicsConetxt
+		 */
+		void CreateRaytracingObject(const GraphicsContext* graphics_context);
+
 	private:
 
 		//TODO メモリ使用量から考えると描画用の生頂点データを保持するのは良くないかもしれない

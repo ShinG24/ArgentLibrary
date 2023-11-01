@@ -24,6 +24,11 @@ extern "C" { __declspec ( dllexport ) extern const UINT D3D12SDKVersion = 610 ;}
 extern "C" { __declspec ( dllexport ) extern const char8_t* D3D12SDKPath = u8"./D3D12/"; }
 
 
+//Dxrをサポートしていなかった場合の挙動について
+//0 何もしない
+//1 警告を出して落とす
+#define _ASSERT_IF_DXR_NOT_SUPPORTED_	0
+
 namespace argent::graphics
 {
 	GraphicsLibrary::GraphicsLibrary()
@@ -43,6 +48,8 @@ namespace argent::graphics
 		dsv_heap_ = std::make_unique<dx12::DescriptorHeap>();
 		smp_heap_ = std::make_unique<dx12::DescriptorHeap>();
 
+		as_manager_ = std::make_unique<dx12::AccelerationStructureManager>();
+
 	}
 
 	void GraphicsLibrary::Awake()
@@ -57,15 +64,20 @@ namespace argent::graphics
 		graphics_device_->Awake(dxgi_factory_->GetIDxgiFactory());
 
 		//Check Raytracing tier supported
-		const bool raytracing_supported = graphics_device_->IsDirectXRaytracingSupported();
-		_ASSERT_EXPR(raytracing_supported, L"DXR not Supported");
+		const bool raytracing_supported = graphics_device_->CheckDxrSupported();
+
+#if _ASSERT_IF_DXR_NOT_SUPPORTED_
+		_ASSERT_EXPR(raytracing_supported, L"DXR does not Supported");
+#endif
 
 		CreateDeviceDependencyObjects();
 		CreateWindowDependencyObjects();
 
 		graphics_context_.graphics_device_ = graphics_device_.get();
-		graphics_context_.command_queue_ = resource_upload_queue_.get();
+		graphics_context_.resource_upload_command_queue_ = resource_upload_queue_.get();
+		graphics_context_.resource_upload_command_list_ = resource_upload_command_list_.get();
 		graphics_context_.cbv_srv_uav_descriptor_ = cbv_srv_uav_heap_.get();
+		graphics_context_.as_manager_ = as_manager_.get();
 
 		InitializeScene();
 	}
@@ -207,12 +219,8 @@ namespace argent::graphics
 					{
 						float delta_time = Timer::Get()->GetDeltaTime();
 						int fps = Timer::Get()->GetFps();
-						int vertex_counts = raytracer_.GetVertexCounts();
-						int triangle_counts = raytracer_.GetIndexCounts() / 3;
 						ImGui::InputFloat("Delta Time", &delta_time);
 						ImGui::InputInt("FPS", &fps);
-						ImGui::InputInt("Vertex", &vertex_counts);
-						ImGui::InputInt("Triangle", &triangle_counts);
 						
 
 						ImGui::TreePop();

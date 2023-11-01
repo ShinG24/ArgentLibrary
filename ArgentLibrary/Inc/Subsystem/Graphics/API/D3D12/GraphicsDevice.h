@@ -75,13 +75,18 @@ namespace argent::graphics::dx12
 			UINT structure_byte_stride, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
 		void CreateTexture2DSRV(ID3D12Resource* p_resource, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle) const;
 
+
+		bool IsDxrSupported() const { return is_raytracing_supported_; }
+
 		/**
 		 * \brief Check is This computer or Gpu supported DXR.
 		 * \return bool 
 		 */
-		bool IsDirectXRaytracingSupported() const;
+		bool CheckDxrSupported();
 	private:
+
 		Microsoft::WRL::ComPtr<ID3D12Device8> latest_device_;
 		Microsoft::WRL::ComPtr<ID3D12Device> device_;
+		bool is_raytracing_supported_;
 	};
 }

@@ -1,1 +1,1 @@
-#include "../Inc/Light.h"
+#include "Component/Light.h"

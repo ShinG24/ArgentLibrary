@@ -11,6 +11,11 @@
 #include "API/D3D12/CommandQueue.h"
 #include "API/D3D12/GraphicsCommandList.h"
 #include "API/D3D12/DescriptorHeap.h"
+
+#include "API/D3D12/BottomLevelAccelerationStructure.h"
+#include "API/D3D12/TopLevelAccelerationStructure.h"
+#include "API/D3D12/AccelerationStructureManager.h"
+
 #include "API/D3D12/ConstantBuffer.h"
 
 #include "API/DXGI/SwapChain.h"
@@ -81,8 +86,8 @@ namespace argent::graphics
 		std::unique_ptr<dx12::DescriptorHeap> rtv_heap_;
 		std::unique_ptr<dx12::DescriptorHeap> dsv_heap_;
 		std::unique_ptr<dx12::DescriptorHeap> smp_heap_;
-												  
 
+		std::unique_ptr<dx12::AccelerationStructureManager> as_manager_;
 
 		FrameResource frame_resources_[kNumBackBuffers];
 

@@ -1,5 +1,6 @@
-#include "../Inc//Transform.h"
+#include "Component/Transform.h"
 
+#include <imgui.h>
 
 namespace argent::component
 {
@@ -14,7 +15,13 @@ namespace argent::component
 
 	void Transform::OnGui()
 	{
-		//TODO ImGuiにどうやってアクセスするんや
+		if(ImGui::TreeNode("Transform"))
+		{
+			ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+			ImGui::DragFloat3("Scaling", &scale_.x, 0.01f, -FLT_MAX, FLT_MAX);
+			ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
+			ImGui::TreePop();
+		}
 	}
 
 	DirectX::XMFLOAT4X4 Transform::CalcWorldMatrix()

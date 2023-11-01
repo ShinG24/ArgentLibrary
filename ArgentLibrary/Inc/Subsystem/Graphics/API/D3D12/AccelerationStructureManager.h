@@ -6,6 +6,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include "DescriptorHeap.h"
 #include "BottomLevelAccelerationStructure.h"
 #include "TopLevelAccelerationStructure.h"
 
@@ -13,6 +14,9 @@ namespace argent::graphics::dx12
 {
 	class AccelerationStructureManager
 	{
+	public:
+		friend class BottomLevelAccelerationStructure;
+		friend class TopLevelAccelerationStructure;
 	public:
 		AccelerationStructureManager() = default;
 
@@ -33,8 +37,12 @@ namespace argent::graphics::dx12
 		ID3D12Resource* GetResultResourceObject() const { return result_buffer_object_.Get(); }
 
 		void SetWorld(const DirectX::XMFLOAT4X4& world, UINT tlas_unique_id);
+
+		void CreateResultSRV(const GraphicsDevice* graphics_device, DescriptorHeap* srv_heap);
+
 	private:
-		static UINT GenerateUniqueID();
+		static UINT GenerateBlasUniqueId();
+		static UINT GenerateTlasUniqueId();
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> tlas_transform_;
 		Microsoft::WRL::ComPtr<ID3D12Resource> blas_transform_;
@@ -48,5 +56,7 @@ namespace argent::graphics::dx12
 		UINT scratch_buffer_size_;
 		UINT result_buffer_size_;
 		UINT instance_desc_buffer_size_;
+
+		Descriptor result_descriptor_;
 	};
 }
