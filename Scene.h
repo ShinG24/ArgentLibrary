@@ -3,16 +3,13 @@
 
 #include <iostream>
 
-class Scene : public argent::scene::BaseScene
+class DemoScene : public argent::scene::BaseScene
 {
 public:
-	Scene()
-	{
-		std::cout << "Create Scene";
-	}
-	//Scene();
+	DemoScene() = default;
 
-	void Awake() override { std::cout << "awake";};
+
+	void Awake() override;
 	void Shutdown() override;
 
 	void Update() override;

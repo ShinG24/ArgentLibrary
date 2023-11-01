@@ -16,17 +16,22 @@
 //	std::cout << "Scene‚ªì‚ç‚ê‚½" << std::endl;
 //}
 
-void Scene::Shutdown()
+void DemoScene::Awake()
+{
+	std::cout << "awake";
+}
+
+void DemoScene::Shutdown()
 {
 
 }
 
-void Scene::Update()
+void DemoScene::Update()
 {
 
 }
 
-void Scene::Render()
+void DemoScene::Render()
 {
 
 }

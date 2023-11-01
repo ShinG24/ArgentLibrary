@@ -5,11 +5,27 @@
 
 namespace argent::scene
 {
+
+	class DerivedScene : public BaseScene
+	{
+	public:
+		DerivedScene() = default;
+		~DerivedScene() override = default;
+
+		void Awake() override
+		{
+			int i = 0;
+			BaseScene::Awake();
+		}
+	};
+
 	SceneManager::SceneManager():
 		current_scene_(nullptr)
 	{
 		next_scene_name_.clear();
 		scene_array_.clear();
+		//Register("Derived Scene", new DerivedScene);
+		//SetNextScene("Derived Scene");
 	}
 
 	void SceneManager::Awake()
