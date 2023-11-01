@@ -14,7 +14,7 @@
 
 #include "API/D3D12/BottomLevelAccelerationStructure.h"
 #include "API/D3D12/TopLevelAccelerationStructure.h"
-#include "API/D3D12/AccelerationStructureManager.h"
+#include "Wrapper/DXR/AccelerationStructureManager.h"
 
 #include "API/D3D12/ConstantBuffer.h"
 

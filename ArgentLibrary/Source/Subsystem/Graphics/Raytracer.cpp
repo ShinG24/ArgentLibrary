@@ -40,16 +40,6 @@ namespace argent::graphics
 
 		object_descriptor_ = cbv_srv_uav_descriptor_heap->PopDescriptor();
 
-		//transforms_[Plane].position_ = {0.0f, 0.0f, 0.0f };
-		//transforms_[Plane].scaling_ = DirectX::XMFLOAT3(1000.0f, 1.0f, 1000.0f);
-		//transforms_[Sphere].position_ = {0.0f, 50.0f, 0.0f };
-		////For Coral Group
-		//{
-		//	transforms_[CoralRock].position_ = { -100.0f, 0.0f, 0.0f };
-		//	transforms_[CoralRock].scaling_ = { 0.1f, 0.1f, 0.1f };
-		//	transforms_[CoralRock].rotation_ = { -1.57f, 0.0f, 0.0f };
-		//}
-
 		//TODO 新しいバージョンのLoader調整
 		graphics_model_ = LoadFbxFromFile("./Assets/Model/Plantune.FBX");
 	
@@ -337,9 +327,6 @@ namespace argent::graphics
 			ObjectConstant data;
 			data.world_ =  m;
 			DirectX::XMStoreFloat4x4(&data.inv_world_, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&m)));
-			//DirectX::XMStoreFloat4x4(&data.world_, m);
-			//DirectX::XMStoreFloat4x4(&data.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
-			//memcpy_s(map, stride * num, &f4x4, stride);
 			memcpy(world_mat_map_, &data, stride);
 		}
 
@@ -398,16 +385,3 @@ namespace argent::graphics
 		}
 	}
 }
-
-//void Transform::OnGui()
-//{
-//	if (ImGui::TreeNode("Transform"))
-//	{
-//		ImGui::DragFloat3("Position", &position_.x, 0.01f, -FLT_MAX, FLT_MAX);
-//		ImGui::DragFloat3("Scaling", &scaling_.x, 0.01f, -FLT_MAX, FLT_MAX);
-//		ImGui::DragFloat3("Rotation", &rotation_.x, 3.14f / 180.0f * 0.1f, -FLT_MAX, FLT_MAX);
-//		ImGui::SliderInt("CoordinateSystem", &coordinate_system_index_, 0, 3);
-//		ImGui::Text(kCoordinateSystemStr[coordinate_system_index_].c_str());
-//		ImGui::TreePop();
-//	}
-//}

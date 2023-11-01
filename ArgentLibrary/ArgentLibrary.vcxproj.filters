@@ -70,6 +70,9 @@
     <Filter Include="Library\Subsystem\Scene">
       <UniqueIdentifier>{f5c9cc1f-6834-4b94-9d3b-d580ec4ef0a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Library\Subsystem\Graphics\Wrapper\DXR">
+      <UniqueIdentifier>{3689e013-f57c-4528-9623-6c2e705444cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\Imgui\imconfig.h">
@@ -105,9 +108,6 @@
     </ClInclude>
     <ClInclude Include="Inc\Subsystem\Subsystem.h">
       <Filter>Library\Subsystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\AccelerationStructureManager.h">
-      <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\BottomLevelAccelerationStructure.h">
       <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
@@ -241,6 +241,12 @@
     <ClInclude Include="Inc\Component\Transform.h">
       <Filter>Library\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\ShaderLibraryManager.h">
+      <Filter>Library\Subsystem\Graphics\Wrapper\DXR</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.h">
+      <Filter>Library\Subsystem\Graphics\Wrapper\DXR</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -267,9 +273,6 @@
     </ClCompile>
     <ClCompile Include="Source\Core\SubsystemLocator.cpp">
       <Filter>Library\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\AccelerationStructureManager.cpp">
-      <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\BottomLevelAccelerationStructure.cpp">
       <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
@@ -390,6 +393,12 @@
     </ClCompile>
     <ClCompile Include="Source\Component\Transform.cpp">
       <Filter>Library\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\ShaderLibraryManager.cpp">
+      <Filter>Library\Subsystem\Graphics\Wrapper\DXR</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.cpp">
+      <Filter>Library\Subsystem\Graphics\Wrapper\DXR</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

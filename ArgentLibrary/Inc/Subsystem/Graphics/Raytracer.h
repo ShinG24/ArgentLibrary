@@ -14,7 +14,7 @@
 
 #include "API/D3D12/VertexBuffer.h"
 #include "API/D3D12/IndexBuffer.h"
-#include "API/D3D12/AccelerationStructureManager.h"
+#include "Wrapper/DXR/AccelerationStructureManager.h"
 #include "API/D3D12/ShaderBindingTable.h"
 #include "API/D3D12/RootSignature.h"
 #include "API/D3D12/RaytracingPipelineState.h"

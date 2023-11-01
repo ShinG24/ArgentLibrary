@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-#include "Subsystem/Graphics/API/D3D12/AccelerationStructureManager.h"
+#include "Subsystem/Graphics/Wrapper/DXR/AccelerationStructureManager.h"
 #include "Subsystem/Graphics/API/D3D12/GraphicsDevice.h"
 #include "Subsystem/Graphics/API/D3D12/DescriptorHeap.h"
 #include "Subsystem/Graphics/API/D3D12/CommandQueue.h"

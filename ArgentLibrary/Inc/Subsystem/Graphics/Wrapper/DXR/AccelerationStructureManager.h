@@ -6,9 +6,9 @@
 #include <memory>
 #include <unordered_map>
 
-#include "DescriptorHeap.h"
-#include "BottomLevelAccelerationStructure.h"
-#include "TopLevelAccelerationStructure.h"
+#include "Subsystem/Graphics/API/D3D12/DescriptorHeap.h"
+#include "Subsystem/Graphics/API/D3D12/BottomLevelAccelerationStructure.h"
+#include "Subsystem/Graphics/API/D3D12/TopLevelAccelerationStructure.h"
 
 namespace argent::graphics::dx12
 {

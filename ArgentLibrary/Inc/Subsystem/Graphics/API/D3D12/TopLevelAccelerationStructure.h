@@ -25,11 +25,6 @@ namespace argent::graphics::dx12
 	{
 	public:
 
-		TopLevelAccelerationStructure(UINT blas_unique_id, 
-			D3D12_GPU_VIRTUAL_ADDRESS blas_gpu_address, UINT hit_group_index, 
-			const DirectX::XMFLOAT4X4 world_matrix, 
-			bool front_counter_clockwise);
-
 		TopLevelAccelerationStructure(UINT unique_id, UINT blas_unique_id, 
 			D3D12_GPU_VIRTUAL_ADDRESS blas_gpu_address,
 		UINT hit_group_index, const DirectX::XMFLOAT4X4& world_matrix, bool front_counter_clockwise);

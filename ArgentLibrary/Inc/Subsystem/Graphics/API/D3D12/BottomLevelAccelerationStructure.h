@@ -37,16 +37,6 @@ namespace argent::graphics::dx12
 	class BottomLevelAccelerationStructure
 	{
 	public:
-		/**
-		 * \brief コンストラクタ
-		 * \param graphics_device Graphics Device サイズ取得に使う 
-		 * \param graphics_command_list Command List バッファのビルドに使う
-		 * \param build_desc ビルドの設定に使う
-		 * \param is_triangle 判定をAABBで行うかどうか
-		 */
-		BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device,
-		                                 const GraphicsCommandList* graphics_command_list,
-		                                 const BLASBuildDesc* build_desc, bool is_triangle = true);
 		BottomLevelAccelerationStructure(const GraphicsDevice* graphics_device, const GraphicsCommandList* graphics_command_list, 
 			const BLASBuildDesc* build_desc, UINT unique_id, bool is_triangle = true);
 

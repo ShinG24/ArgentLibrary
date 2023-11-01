@@ -164,7 +164,6 @@
     <ClInclude Include="Inc\Component\Transform.h" />
     <ClInclude Include="Inc\Core\Engine.h" />
     <ClInclude Include="Inc\Core\SubsystemLocator.h" />
-    <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\AccelerationStructureManager.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\CommandQueue.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\ConstantBuffer.h" />
@@ -194,6 +193,8 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Model.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\StandardMaterial.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Texture.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\ShaderLibraryManager.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\FrameResource.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\ImGuiWrapper.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\ShaderCompiler.h" />
@@ -221,7 +222,6 @@
     <ClCompile Include="Source\Component\Transform.cpp" />
     <ClCompile Include="Source\Core\Engine.cpp" />
     <ClCompile Include="Source\Core\SubsystemLocator.cpp" />
-    <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\AccelerationStructureManager.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\CommandQueue.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\ConstantBuffer.cpp" />
@@ -247,6 +247,8 @@
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Model.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\StandardMaterial.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Texture.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\ShaderLibraryManager.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\FrameResource.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\ImGuiWrapper.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\ShaderCompiler.cpp" />

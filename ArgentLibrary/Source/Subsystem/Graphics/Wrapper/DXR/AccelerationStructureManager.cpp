@@ -1,4 +1,4 @@
-#include "Subsystem/Graphics/API/D3D12/AccelerationStructureManager.h"
+#include "Subsystem/Graphics/Wrapper/DXR/AccelerationStructureManager.h"
 
 #include "Subsystem/Graphics/API/D3D12/D3D12Common.h"
 #include "Subsystem/Graphics/API/D3D12/GraphicsDevice.h"
