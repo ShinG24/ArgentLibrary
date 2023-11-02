@@ -62,6 +62,7 @@ namespace argent::graphics
 
 		Data data_;	//TODO ‚±‚¢‚Â‚Í•Û‚µ‚Ä‚¨‚­•K—v‚ª‚ ‚é‚Ì‚©H
 		ConstantData constant_data_;
+
 	};
 
 }

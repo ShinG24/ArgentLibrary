@@ -6,6 +6,7 @@
 
 namespace argent::graphics::dx12
 {
+	//TODO このクラスにコメントを追加すること
 	//Wrap Class of ID3D12Device.
 	//Only be used like a DirectX12 API Device.
 	//Wrap Major Function

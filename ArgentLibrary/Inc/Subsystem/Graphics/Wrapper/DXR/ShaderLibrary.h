@@ -13,29 +13,14 @@ namespace argent::graphics
 	{
 	public:
 
-		enum class IdentifierType
-		{
-			ClosestHit,
-			Intersection,
-			AnyHit,
-		};
+		ShaderLibrary(const char* filepath, const std::vector<std::wstring>& library_data);
 
-		struct LibraryData
-		{
-			IdentifierType type_;
-			std::wstring identifier_;
-		};
-
-	public:
-
-		ShaderLibrary(const char* filepath, std::vector<LibraryData>& library_data);
-
-		const std::vector<LibraryData>& GetLibraryData() const { return library_data_;  }
+		const std::vector<std::wstring>& GetExportName() const { return export_name_;  }
 
 	private:
 
 		Microsoft::WRL::ComPtr<IDxcBlob> library_object_;
-		std::vector<LibraryData> library_data_;
+		std::vector<std::wstring> export_name_;
 
 		std::string filepath_;
 	};

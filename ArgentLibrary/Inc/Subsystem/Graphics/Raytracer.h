@@ -19,25 +19,15 @@
 #include "API/D3D12/RootSignature.h"
 #include "API/D3D12/RaytracingPipelineState.h"
 
+
+
 #include "Resource/Texture.h"
 #include "Resource/Model.h"
 
 #include "Component/Transform.h"
 
-using namespace DirectX;
 
-using float2 = DirectX::XMFLOAT2;
-using float3 = DirectX::XMFLOAT3;
-using float4 = DirectX::XMFLOAT4;
-
-struct Vertex
-{
-	float3 position_;
-	float3 normal_;
-	float3 tangent_;
-	float3 binormal_;
-	float2 texcoord_;
-};
+using Position = DirectX::XMFLOAT3;
 
 namespace argent::graphics::dx12
 {
@@ -48,6 +38,7 @@ namespace argent::graphics::dx12
 
 namespace argent::graphics
 {
+	class ShaderLibraryManager;
 	struct GraphicsContext;
 
 	class Raytracer
@@ -123,10 +114,7 @@ namespace argent::graphics
 		Raytracer& operator=(Raytracer&) = delete;
 		Raytracer& operator=(Raytracer&&) = delete;
 
-		void Awake(const dx12::GraphicsDevice* graphics_device, 
-			dx12::GraphicsCommandList* command_list, dx12::CommandQueue* command_queue,
-			UINT64 width, UINT height, 
-			dx12::DescriptorHeap* cbv_srv_uav_descriptor_heap, const GraphicsContext* graphics_context);
+		void Awake(const GraphicsContext* graphics_context, UINT64 width, UINT height);
 		void Shutdown();
 
 		void Update(dx12::GraphicsCommandList* graphics_command_list, dx12::CommandQueue* upload_command_queue);
@@ -185,5 +173,7 @@ namespace argent::graphics
 		dx12::RootSignature raygen_miss_root_signature_;
 		dx12::RootSignature hit_group_root_signature_;
 
+		//Shader Library
+	//	std::unique_ptr<ShaderLibraryManager> library_manager_;
 	};
 }

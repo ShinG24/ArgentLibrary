@@ -11,6 +11,7 @@ namespace argent::graphics::dx12
 	struct Descriptor;
 	class ConstantBuffer;
 }
+
 namespace argent::graphics
 {
 	struct GraphicsContext;

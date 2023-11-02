@@ -32,7 +32,7 @@ namespace argent::graphics
 		else
 		{
 			need_to_wait_ = true;
-			descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+			descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
 			DirectX::ResourceUploadBatch resource_upload_batch(graphics_context->graphics_device_->GetDevice());
 
 			resource_upload_batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -72,60 +72,10 @@ namespace argent::graphics
 			loaded_texture[path] = descriptor_;
 			
 		}
-	}
 
-	Texture::Texture(const dx12::GraphicsDevice* graphics_device, const dx12::CommandQueue* command_queue,
-	                 dx12::DescriptorHeap* cbv_srv_uav_heap, const wchar_t* filename)
-	{
-		if(loaded_texture.contains(filename))
-		{
-			descriptor_ = loaded_texture[filename];
-			need_to_wait_ = false;
-		}
-		else
-		{
-			need_to_wait_ = true;
-			descriptor_ = cbv_srv_uav_heap->PopDescriptor();
-			DirectX::ResourceUploadBatch resource_upload_batch(graphics_device->GetDevice());
-
-			resource_upload_batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-			HRESULT hr{ S_OK };
-
-			std::filesystem::path path = filename;
-			path.replace_extension(".DDS");
-
-			if(std::filesystem::exists(path))
-			{
-				hr = DirectX::CreateDDSTextureFromFile(graphics_device->GetDevice(), resource_upload_batch, path.wstring().c_str(),
-					resource_object_.ReleaseAndGetAddressOf());}
-			else
-			{
-				hr = DirectX::CreateWICTextureFromFile(graphics_device->GetDevice(), 
-					resource_upload_batch, filename,
-					resource_object_.ReleaseAndGetAddressOf());
-			}
-
-			if(FAILED(hr))
-			{
-				CreateDummyTexture(graphics_device, resource_object_.ReleaseAndGetAddressOf());	
-			}
-
-			wait_for_finish_upload_ = resource_upload_batch.End(command_queue->GetCommandQueue());
-
-			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
-			desc.Format = resource_object_->GetDesc().Format;
-			desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			desc.Texture2D.MipLevels = resource_object_->GetDesc().MipLevels;
-
-			graphics_device->GetDevice()->CreateShaderResourceView(resource_object_.Get(), &desc,
-				descriptor_.cpu_handle_);
-
-			loaded_texture[filename] = descriptor_;
-			
-		}
-
+		auto desc = resource_object_->GetDesc();
+		width_ = desc.Width;
+		height_ = desc.Height;
 	}
 
 	void Texture::WaitBeforeUse() const

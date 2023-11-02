@@ -24,6 +24,7 @@ namespace argent::graphics
 	class Model final : GameResource
 	{
 	public:
+
 		Model() = default;
 
 		/**
@@ -80,6 +81,7 @@ namespace argent::graphics
 		const std::vector<std::shared_ptr<Material>>& GetMaterials() const { return material_vec_; }
 
 	private:
+
 		std::string filepath_;	//ファイルパス
 		std::vector<std::shared_ptr<Mesh>> mesh_vec_;
 		std::vector<std::shared_ptr<Material>> material_vec_;

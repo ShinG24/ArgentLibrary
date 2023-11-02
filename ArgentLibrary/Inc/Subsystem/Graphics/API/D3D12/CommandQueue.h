@@ -15,6 +15,7 @@ namespace argent::graphics::dx12
 	class CommandQueue
 	{
 	public:
+
 		CommandQueue();
 		~CommandQueue() = default;
 
@@ -60,12 +61,15 @@ namespace argent::graphics::dx12
 		void WaitForGpu() const;
 
 		ID3D12CommandQueue* GetCommandQueue() const { return command_queue_object_.Get(); }
+
 	private:
+
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> command_queue_object_;
 
 		Microsoft::WRL::ComPtr<ID3D12Fence> fence_object_;
 		UINT fence_values_[kNumBackBuffers];
 		UINT last_fence_value_;
 		Microsoft::WRL::Wrappers::Event event_;
+
 	};
 }

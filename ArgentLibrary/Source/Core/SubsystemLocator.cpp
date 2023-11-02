@@ -5,6 +5,9 @@
 #include "Subsystem/Input/InputManager.h"
 #include "Subsystem/Timer/Timer.h"
 
+#include "Subsystem/Graphics/Wrapper/DXR/ShaderLibrary.h"
+#include "Subsystem/Graphics/Wrapper/DXR/ShaderLibraryManager.h"
+
 #include "Subsystem/Scene/BaseScene.h"
 #include "Subsystem/Scene/SceneManager.h"
 

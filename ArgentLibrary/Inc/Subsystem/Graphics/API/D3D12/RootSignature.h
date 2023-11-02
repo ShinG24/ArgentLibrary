@@ -9,9 +9,14 @@ namespace argent::graphics::dx12
 {
 	class GraphicsDevice;
 
+	/**
+	 * \brief ID3D12RootSignature のラップクラス
+	 * Add~()関数を使ってパラメータ、レンジを追加し、Create()で実際のオブジェクトを作成
+	 */
 	class RootSignature
 	{
 	public:
+
 		RootSignature() = default;
 		~RootSignature() = default;
 
@@ -21,6 +26,7 @@ namespace argent::graphics::dx12
 		RootSignature& operator=(RootSignature&&) = delete;
 
 	private:
+
 		enum
 		{
 			BaseShaderRegister = 0,
@@ -28,6 +34,7 @@ namespace argent::graphics::dx12
 			RegisterSpace = 2,
 			RangeType = 3,
 		};
+
 	public:
 
 		/**
@@ -69,12 +76,20 @@ namespace argent::graphics::dx12
 		 */
 		void Create(const GraphicsDevice* graphics_device, bool is_local);
 
-
+		/**
+		 * \brief RootSignatureオブジェクトを取得
+		 * \return ID3D12RootSignature
+		 */
 		ID3D12RootSignature* GetRootSignatureObject() const { return root_signature_object_.Get(); }
+
 	private:
+
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> root_signature_object_;
+
+		//データ保持用
 		std::vector<D3D12_ROOT_PARAMETER> root_parameters_;
 		std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> descriptor_ranges_;
 		std::vector<UINT> range_locations_;
+
 	};
 }

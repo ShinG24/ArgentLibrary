@@ -88,12 +88,12 @@ namespace argent::graphics
 		if(!graphics_context->graphics_device_->IsDxrSupported()) return;
 
 		//レイトレーシング用　Shaderにバインドするために頂点バッファのSRVを作る
-		position_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
-		normal_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
-		tangent_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
-		binormal_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
-		texcoord_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
-		index_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_->PopDescriptor();
+		position_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
+		normal_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
+		tangent_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
+		binormal_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
+		texcoord_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
+		index_srv_descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
 
 		graphics_context->graphics_device_->CreateBufferSRV(position_buffer_->GetBufferObject(),
 			position_buffer_->GetVertexCounts(), sizeof(Position), position_srv_descriptor_.cpu_handle_);

@@ -1,5 +1,7 @@
 #pragma once
 
+//グラフィックス内で共通で使う奴らを置く場所
+
 namespace argent::graphics
 {
 	//バックバッファ数

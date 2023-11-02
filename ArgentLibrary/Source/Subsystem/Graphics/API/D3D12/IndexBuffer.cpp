@@ -4,7 +4,8 @@
 
 namespace argent::graphics::dx12
 {
-	IndexBuffer::IndexBuffer(const GraphicsDevice* graphics_device, const UINT32* p_data, UINT index_counts)
+	IndexBuffer::IndexBuffer(const GraphicsDevice* graphics_device, const UINT32* p_data, UINT index_counts) :
+		index_counts_(index_counts)
 	{
 		graphics_device->CreateIndexBufferAndView(sizeof(UINT32), index_counts, 
 			DXGI_FORMAT_R32_UINT, buffer_object_.ReleaseAndGetAddressOf(), buffer_view_);

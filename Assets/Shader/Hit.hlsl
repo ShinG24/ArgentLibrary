@@ -31,6 +31,4 @@ void ClosestHit(inout RayPayload payload, in HitAttribute attr)
     payload.color_ = float4(color.rgb, 1.0f);
 
 #endif
-
-
 }

@@ -14,6 +14,7 @@ namespace argent::graphics::dx12
 			IID_PPV_ARGS(tmp_command_list.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Create ID3D12CommandList");
 
+		//TODO ワンちゃんレイトレサポートしてないやつだと落ちるかもしれん
 		hr = tmp_command_list->QueryInterface(IID_PPV_ARGS(command_list_.ReleaseAndGetAddressOf()));
 		_ASSERT_EXPR(SUCCEEDED(hr), L"Failed to Query Interface ID3D12CommandList to ID3D12CommandList6");
 

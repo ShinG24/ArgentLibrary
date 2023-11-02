@@ -101,7 +101,7 @@ namespace argent::graphics::dx12
 		//For Shader Export Association
 		std::vector<std::wstring> exported_symbols{};
 		std::vector<LPCWSTR> exported_symbol_pointers{};
-		//Build Exported Symbols
+		//保持しているShader Export Symbolを集める
 		{
 			std::unordered_set<std::wstring> exports;
 			//Accumulate Library export Symbols
@@ -114,6 +114,8 @@ namespace argent::graphics::dx12
 			}
 
 			//Accumulate HitGroup name
+			//上でやってるやつと被りがあるので（ClosestHit, AnyHit, Intersection)
+			//そいつらを除き、かわりにHitGroupNameを追加する
 			for(const auto& hit : hit_groups_)
 			{
 				//We dont need closets, any and intersection shader symbol
@@ -124,11 +126,13 @@ namespace argent::graphics::dx12
 				exports.insert(hit.hit_group_name_);
 			}
 
+			//集めたやつをコピーしてく
 			for(const auto& name : exports)
 			{
 				exported_symbols.emplace_back(name);
 			}
 		}
+
 		exported_symbol_pointers.reserve(exported_symbols.size());
 		for(const auto& name : exported_symbols)
 		{
@@ -138,6 +142,7 @@ namespace argent::graphics::dx12
 		D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION shader_payload_association{};
 		shader_payload_association.NumExports = static_cast<UINT>(exported_symbols.size());
 		shader_payload_association.pExports = shader_exports;
+		//Shader Payloadとかの設定とShaderのExport Symbolを紐付ける
 		shader_payload_association.pSubobjectToAssociate = &subobjects[current_index - 1];
 		D3D12_STATE_SUBOBJECT export_ass_sub{};
 		export_ass_sub.Type = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
@@ -148,12 +153,15 @@ namespace argent::graphics::dx12
 		//For Rootsignature Association
 		for(auto& ass : root_signature_associations_)
 		{
+			//ルートシグネチャを追加
 			D3D12_STATE_SUBOBJECT root_sig_sub{};
 			root_sig_sub.Type = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
 			root_sig_sub.pDesc = &ass.root_signature_;
 			subobjects[current_index] = root_sig_sub;
 			current_index++;
 
+			//ルートシグネチャと紐付けられたExport Symbolを
+			//まとめてSubobjectに追加（Pipelineに関係を伝える)
 			ass.association_.NumExports = static_cast<UINT>(ass.symbol_pointers_.size());
 			ass.association_.pExports = ass.symbol_pointers_.data();
 			ass.association_.pSubobjectToAssociate = &subobjects[current_index - 1];

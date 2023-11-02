@@ -275,18 +275,18 @@ namespace argent::graphics
 		std::unique_ptr<dx12::IndexBuffer>	index_buffer_{};
 
 		//In Progress レイトレーシング用の構造体
-		uint64_t blas_unique_id_;
-		dx12::Descriptor position_srv_descriptor_;
-		dx12::Descriptor normal_srv_descriptor_;
-		dx12::Descriptor tangent_srv_descriptor_;
-		dx12::Descriptor binormal_srv_descriptor_;
-		dx12::Descriptor texcoord_srv_descriptor_;
-		dx12::Descriptor index_srv_descriptor_;
+		uint64_t blas_unique_id_{};
+		dx12::Descriptor position_srv_descriptor_{};
+		dx12::Descriptor normal_srv_descriptor_{};
+		dx12::Descriptor tangent_srv_descriptor_{};
+		dx12::Descriptor binormal_srv_descriptor_{};
+		dx12::Descriptor texcoord_srv_descriptor_{};
+		dx12::Descriptor index_srv_descriptor_{};
 
 
 		//TODO 複数マテリアルへの対応 レイトレの場合はどうすればいいでしょうね
 		//マテリアルへのポインタ or Unique ID
-		std::shared_ptr<Material> material_;
+		std::shared_ptr<Material> material_{};
 
 	};
 }

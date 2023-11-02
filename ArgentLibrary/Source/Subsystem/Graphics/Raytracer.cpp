@@ -16,6 +16,8 @@
 #include "Subsystem/Graphics/Common/GraphicsContext.h"
 
 #include "Subsystem/Graphics/Wrapper/ShaderCompiler.h"
+#include "Subsystem/Graphics/Wrapper/DXR/ShaderLibrary.h"
+#include "Subsystem/Graphics/Wrapper/DXR/ShaderLibraryManager.h"
 
 #include "Subsystem/Graphics/Resource/Mesh.h"
 #include "Subsystem/Graphics/Resource/Material.h"
@@ -27,29 +29,37 @@
 
 namespace argent::graphics
 {
-	void Raytracer::Awake(const dx12::GraphicsDevice* graphics_device, dx12::GraphicsCommandList* command_list,
-		dx12::CommandQueue* command_queue, UINT64 width, UINT height, dx12::DescriptorHeap* cbv_srv_uav_descriptor_heap,
-		const GraphicsContext* graphics_context)
+	void Raytracer::Awake(const GraphicsContext* graphics_context, UINT64 width, UINT height)
 	{
-		skymaps_ = std::make_unique<Texture>(graphics_device, command_queue, cbv_srv_uav_descriptor_heap,
-			L"./Assets/Images/Skymap00.dds");
+		skymaps_ = std::make_unique<Texture>(graphics_context, "./Assets/Images/Skymap00.dds");
 
 
 		width_ = width;
 		height_ = height;
 
-		object_descriptor_ = cbv_srv_uav_descriptor_heap->PopDescriptor();
+		object_descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
 
 		//TODO 新しいバージョンのLoader調整
 		graphics_model_ = LoadFbxFromFile("./Assets/Model/Plantune.FBX");
 	
 		graphics_model_->Awake(graphics_context);
 
-		CreateAS(graphics_device, command_list, command_queue);
-		CreatePipeline(graphics_device);
-		CreateOutputBuffer(graphics_device, width, height);
-		CreateShaderResourceHeap(graphics_device, cbv_srv_uav_descriptor_heap);
-		CreateShaderBindingTable(graphics_device);
+		//Accleraton Structureの構築
+		CreateAS(graphics_context->graphics_device_, graphics_context->resource_upload_command_list_,
+			graphics_context->resource_upload_command_queue_);
+
+		//パイプラインの作成& Shader Compile
+		CreatePipeline(graphics_context->graphics_device_);
+
+		//これは簡単　
+		CreateOutputBuffer(graphics_context->graphics_device_, width, height);
+
+		//これも簡単
+		CreateShaderResourceHeap(graphics_context->graphics_device_, 
+			graphics_context->cbv_srv_uav_descriptor_heap_);
+
+		//Shader Tableの作成　これがめちゃくちゃむずい
+		CreateShaderBindingTable(graphics_context->graphics_device_);
 	}
 
 	void Raytracer::Shutdown()
@@ -61,6 +71,7 @@ namespace argent::graphics
 	{
 		if(!is_wait_)
 		{
+			//TextureのUploadまち
 			skymaps_->WaitBeforeUse();
 
 			graphics_model_->WaitForUploadGpuResource();
@@ -68,21 +79,24 @@ namespace argent::graphics
 			is_wait_ = true;
 		}
 
+		//モデルのアップデート
 		graphics_model_->GetMaterials().at(0)->UpdateConstantBuffer(0u);
 
-
-		if(ImGui::TreeNode("Skymap Texture"))
+		//guiの描画
 		{
-			ImGui::Image(reinterpret_cast<ImTextureID>(skymaps_->GetGpuHandle().ptr), ImVec2(256, 256));
-			ImGui::TreePop();
-		}
-
-		for(int i = 0; i < GeometryTypeCount; ++i)
-		{
-			if(ImGui::TreeNode(name[i].c_str()))
+			if(ImGui::TreeNode("Skymap Texture"))
 			{
-				transforms_[i].OnGui();
+				ImGui::Image(reinterpret_cast<ImTextureID>(skymaps_->GetGpuHandle().ptr), ImVec2(256, 256));
 				ImGui::TreePop();
+			}
+
+			for(int i = 0; i < GeometryTypeCount; ++i)
+			{
+				if(ImGui::TreeNode(name[i].c_str()))
+				{
+					transforms_[i].OnGui();
+					ImGui::TreePop();
+				}
 			}
 		}
 
@@ -90,6 +104,7 @@ namespace argent::graphics
 
 		graphics_command_list->Activate();
 
+		//World座標の更新
 		for(int i = 0; i < GeometryTypeCount; ++i)
 		{
 			DirectX::XMFLOAT4X4 m = transforms_[i].CalcWorldMatrix();
@@ -98,8 +113,6 @@ namespace argent::graphics
 			obj_constant.world_= m;
 			DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&m)));
 			
-			//DirectX::XMStoreFloat4x4(&obj_constant.world_, m);
-			//DirectX::XMStoreFloat4x4(&obj_constant.inv_world_, DirectX::XMMatrixInverse(nullptr, m));
 			memcpy(world_mat_map_ + i * sizeof(ObjectConstant), &obj_constant, sizeof(ObjectConstant));
 
 			as_manager_.SetWorld(obj_constant.world_, tlas_unique_id_[i]);
@@ -115,7 +128,7 @@ namespace argent::graphics
 
 	void Raytracer::OnRender(const dx12::GraphicsCommandList* graphics_command_list, D3D12_GPU_VIRTUAL_ADDRESS scene_constant_gpu_handle)
 	{
-		auto command_list = graphics_command_list->GetCommandList4();
+		const auto command_list = graphics_command_list->GetCommandList4();
 
 		graphics_command_list->SetTransitionBarrier(output_buffer_.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
@@ -147,37 +160,22 @@ namespace argent::graphics
 	void Raytracer::BuildGeometry(const dx12::GraphicsDevice* graphics_device)
 	{
 		//Plane
+		Position vertices1[6]
 		{
-			Vertex vertices1[6]
-			{
-				{{ -1.0f, 0.0f, 1.0f}, {}},
-				{{ 1.0f, 0.0f, 1.0}, {}},
-				{{ -1.0f, 0.0f, -1.0f}, {}},
-
-				{{ -1.0f, 0.0f, -1.0f}, {}},
-				{{ 1.0f, 0.0f, 1.0f}, {}},
-				{{ 1.0f, 0.0f, -1.0f}, {}},
-			};
-
-			vertex_buffers_[Plane] = std::make_unique<dx12::VertexBuffer>(graphics_device, vertices1, sizeof(Vertex), 6u);
-		}
+			{ -1.0f, 0.0f, 1.0f}, { 1.0f, 0.0f, 1.0}, { -1.0f, 0.0f, -1.0f},
+			{ -1.0f, 0.0f, -1.0f}, { 1.0f, 0.0f, 1.0f}, { 1.0f, 0.0f, -1.0f},
+		};
+		vertex_buffers_[Plane] = std::make_unique<dx12::VertexBuffer>(graphics_device, 
+			vertices1, sizeof(Position), 6u);
 
 		//AABB
-		{
-			Microsoft::WRL::ComPtr<ID3D12Resource> aabb_buffer_;
-			D3D12_RAYTRACING_AABB rt_aabb;
-			float aabb_size = 500.0f;
+		D3D12_RAYTRACING_AABB rt_aabb;
+		float aabb_size = 20.0f;
+		rt_aabb.MaxX = rt_aabb.MaxY = rt_aabb.MaxZ = aabb_size;
+		rt_aabb.MinX = rt_aabb.MinY = rt_aabb.MinZ = -aabb_size;
 
-			rt_aabb.MaxX = 
-			rt_aabb.MaxY = 
-			rt_aabb.MaxZ = aabb_size;
-			rt_aabb.MinX = 
-			rt_aabb.MinY = 
-			rt_aabb.MinZ = -aabb_size;
-
-			vertex_buffers_[Sphere] = std::make_unique<dx12::VertexBuffer>(graphics_device,
-			                                                               &rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
-		}
+		vertex_buffers_[Sphere] = std::make_unique<dx12::VertexBuffer>(graphics_device, 
+			&rt_aabb, sizeof(D3D12_RAYTRACING_AABB), 1u);
 	}
 
 	void Raytracer::CreateAS(const dx12::GraphicsDevice* graphics_device,
@@ -252,6 +250,13 @@ namespace argent::graphics
 		hit_group_root_signature_.AddHeapRangeParameter(2u, 6u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
 		hit_group_root_signature_.Create(graphics_device, true);
 
+		//library_manager_ = std::make_unique<ShaderLibraryManager>();
+		//library_manager_->AddShaderLibrary("./Assets/Shader/RayGen.hlsl", {L"RayGen"});
+		//library_manager_->AddShaderLibrary("./Assets/Shader/Miss.hlsl", {L"Miss"});
+		//library_manager_->AddShaderLibrary("./Assets/Shader/Plane.lib.hlsl", {L"PlaneClosestHit"});
+		//library_manager_->AddShaderLibrary("./Assets/Shader/StandardMesh.lib.hlsl", {L"StaticMeshClosestHit"});
+		//library_manager_->AddShaderLibrary("./Assets/Shader/Sphere.lib.hlsl", {{L"SphereClosestHit"}, {L"SphereIntersection"}});
+
 		//Compile the shader library.
 		ShaderCompiler shader_compiler;
 		shader_compiler.CompileShaderLibrary(L"./Assets/Shader/RayGen.hlsl", ray_gen_library_.ReleaseAndGetAddressOf());;
@@ -281,10 +286,9 @@ namespace argent::graphics
 		}
 
 		//Add Root Signature Association
-		{
-			pipeline_state_.AddRootSignatureAssociation(raygen_miss_root_signature_.GetRootSignatureObject(), {{L"RayGen"}, {L"Miss"}});
-			pipeline_state_.AddRootSignatureAssociation(hit_group_root_signature_.GetRootSignatureObject(), kHitGroupName);
-		}
+		pipeline_state_.AddRootSignatureAssociation(raygen_miss_root_signature_.GetRootSignatureObject(), {{L"RayGen"}, {L"Miss"}});
+		pipeline_state_.AddRootSignatureAssociation(hit_group_root_signature_.GetRootSignatureObject(), kHitGroupName);
+		
 
 		pipeline_state_.SetMaxAttributeSize(3 * sizeof(float));
 		pipeline_state_.SetMaxPayloadSize(sizeof(RayPayload));
@@ -311,6 +315,9 @@ namespace argent::graphics
 
 		as_manager_.CreateResultSRV(graphics_device, cbv_srv_uav_descriptor_heap);
 
+		//ワールド座標を保持するバッファを一つにまとめているが
+		//実際のゲームでは使えないと思うので、普通にコンスタントバッファがほしい
+		//ただ、動的にバインドするのは結構きつそうなのでなんとかいい感じの方法がほしい
 		//All Instance World Matrix Buffer
 		uint stride = sizeof(ObjectConstant);
 		uint num = as_manager_.GetInstanceCounts();
@@ -335,6 +342,8 @@ namespace argent::graphics
 
 	void Raytracer::CreateShaderBindingTable(const dx12::GraphicsDevice* graphics_device)
 	{
+		//Shader Tableの作成
+		//Raygen Missは動的に変化することは基本的にないため、結構楽です
 		{
 			raygen_shader_table_.AddShaderIdentifier(L"RayGen");
 			raygen_shader_table_.Generate(graphics_device, 

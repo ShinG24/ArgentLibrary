@@ -1,5 +1,7 @@
 #ifdef __cplusplus
+#include <DirectXMath.h>
 #define uint    UINT
+#define float4 DirectX::XMFLOAT4
 #endif
 
 struct RayPayload

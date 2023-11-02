@@ -12,6 +12,8 @@
 #include "Subsystem/Graphics/API/D3D12/DescriptorHeap.h"
 #include "Subsystem/Graphics/Wrapper/ShaderCompiler.h"
 
+#include "Subsystem/Graphics/Common/GraphicsContext.h"
+
 #include "Subsystem/Graphics/Resource/Texture.h"
 
 #include "Subsystem/Input/InputManager.h"
@@ -20,20 +22,19 @@
 
 namespace argent::graphics
 {
-	void RasterRenderer::Awake(const dx12::GraphicsDevice* graphics_device, const dx12::CommandQueue* command_queue,
-		dx12::DescriptorHeap* descriptor_heap)
+	void RasterRenderer::Awake(const GraphicsContext* graphics_context)
 	{
-		const ShaderCompiler compiler;
+				const ShaderCompiler compiler;
 		compiler.Compile(L"./Assets/Shader/FullscreenQuad.VS.hlsl", L"vs_6_6", fullscreen_quad_vs_.ReleaseAndGetAddressOf());
 		compiler.Compile(L"./Assets/Shader/FullscreenQuad.PS.hlsl", L"ps_6_6", fullscreen_quad_ps_.ReleaseAndGetAddressOf());
 
 		compiler.Compile(L"./Assets/Shader/VertexShader.hlsl", L"vs_6_6", vertex_shader_.ReleaseAndGetAddressOf());
 		compiler.Compile(L"./Assets/Shader/PixelShader.hlsl", L"ps_6_6", pixel_shader_.ReleaseAndGetAddressOf());
 
-		texture_ = std::make_unique<Texture>(graphics_device, command_queue, descriptor_heap,
-			L"./Assets/Images/Title.dds");
-		CreateVertexBuffer(graphics_device);
-		CreateRootSignatureAndPipeline(graphics_device);
+		texture_ = std::make_unique<Texture>(graphics_context, "./Assets/Images/Title.dds");
+		CreateVertexBuffer(graphics_context->graphics_device_);
+		CreateRootSignatureAndPipeline(graphics_context->graphics_device_);
+
 	}
 
 	void RasterRenderer::OnRender(ID3D12GraphicsCommandList* command_list)
@@ -74,6 +75,8 @@ namespace argent::graphics
 		command_list->SetGraphicsRoot32BitConstants(1u, 1u, &alpha_, 0u);
 		command_list->DrawInstanced(4u, 1u, 0u, 0u);
 	}
+
+
 
 	void RasterRenderer::OnGui()
 	{

@@ -17,8 +17,11 @@ namespace argent::graphics::dx12
 	class CommandQueue;
 	class DescriptorHeap;
 }
+
 namespace argent::graphics
 {
+	class GraphicsContext;
+
 	class RasterRenderer
 	{
 	public:
@@ -26,8 +29,8 @@ namespace argent::graphics
 		~RasterRenderer() = default;
 
 
-		void Awake(const dx12::GraphicsDevice* graphics_device, 
-			const dx12::CommandQueue* command_queue, dx12::DescriptorHeap* descriptor_heap);
+		void Awake(const GraphicsContext* graphics_context);
+
 		void OnRender(ID3D12GraphicsCommandList* command_list);
 		void OnGui();
 		bool IsInputEnter() const { return input_enter_ && alpha_ < 0.01;}

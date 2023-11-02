@@ -6,8 +6,8 @@
 
 namespace argent::graphics
 {
-	ShaderLibrary::ShaderLibrary(const char* filepath, std::vector<LibraryData>& library_data):
-		library_data_(std::move(library_data))
+	ShaderLibrary::ShaderLibrary(const char* filepath, const std::vector<std::wstring>& library_data):
+		export_name_(library_data)
 	,	filepath_(filepath)
 	{
 		ShaderCompiler compiler;

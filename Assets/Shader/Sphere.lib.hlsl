@@ -157,7 +157,7 @@ bool IntersectRaySpheres(in Ray ray, out float t_hit, out SphereHitAttribute att
     };
     float radius[N] =
     {
-        50.0f
+        10.0f
         //200.0f,
         //200.0f
     };

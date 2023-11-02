@@ -21,6 +21,7 @@ namespace argent::graphics
 	class GameResource
 	{
 	public:
+
 		GameResource() = default;
 		//TODO リソースマネージャを作りユニークIDをもたせること
 		explicit GameResource(std::string name):
@@ -47,8 +48,11 @@ namespace argent::graphics
 		 * \return Unique ID
 		 */
 		uint64_t GetUniqueId() const { return unique_id_; }
+
 	private:
+
 		std::string name_;
 		uint64_t unique_id_{};
+
 	};
 }

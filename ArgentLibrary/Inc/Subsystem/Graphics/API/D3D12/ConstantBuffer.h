@@ -12,6 +12,7 @@ namespace argent::graphics::dx12
 {
 	class GraphicsDevice;
 	class DescriptorHeap;
+
 	//テンプレートを用いたConstant Buffer Class
 	//ディスクリプタヒープを用いるかどうかは選択式
 	class ConstantBuffer

@@ -10,6 +10,11 @@
 #include "Core/SubsystemLocator.h"
 #include "Core/Engine.h"
 
+
+#include "Subsystem/Graphics/Wrapper/DXR/ShaderLibrary.h"
+#include "Subsystem/Graphics/Wrapper/DXR/ShaderLibraryManager.h"
+
+
 #include "Subsystem/Platform/Platform.h"
 #include "Subsystem/Input/InputManager.h"
 
@@ -71,13 +76,18 @@ namespace argent::graphics
 #endif
 
 		CreateDeviceDependencyObjects();
-		CreateWindowDependencyObjects();
 
 		graphics_context_.graphics_device_ = graphics_device_.get();
+		
 		graphics_context_.resource_upload_command_queue_ = resource_upload_queue_.get();
 		graphics_context_.resource_upload_command_list_ = resource_upload_command_list_.get();
-		graphics_context_.cbv_srv_uav_descriptor_ = cbv_srv_uav_heap_.get();
+		graphics_context_.cbv_srv_uav_descriptor_heap_ = cbv_srv_uav_heap_.get();
+		graphics_context_.rtv_descriptor_ = rtv_heap_.get();
+		graphics_context_.dsv_descriptor_ = dsv_heap_.get();
 		graphics_context_.as_manager_ = as_manager_.get();
+
+		CreateWindowDependencyObjects();
+
 
 		InitializeScene();
 	}
@@ -136,19 +146,15 @@ namespace argent::graphics
 
 	void GraphicsLibrary::InitializeScene()
 	{
-		//scene_constant_buffer_.Awake(graphics_device_, cbv_srv_uav_heap_);
-		//scene_constant_buffer_.Create(graphics_device_, kNumBackBuffers);
 		scene_constant_buffer_ = std::make_unique<dx12::ConstantBuffer>(graphics_device_.get(), sizeof(SceneConstant), kNumBackBuffers);
 
-		raster_renderer_.Awake(graphics_device_.get(), resource_upload_queue_.get(), cbv_srv_uav_heap_.get());
+		raster_renderer_.Awake(&graphics_context_);
 
 		resource_upload_command_list_->Activate();
 #if _USE_RAY_TRACER_
 		if(!on_raster_mode_)
 		{
-			raytracer_.Awake(graphics_device_.get(), resource_upload_command_list_.get(),
-				resource_upload_queue_.get(), swap_chain_->GetWidth(), swap_chain_->GetHeight(),
-				cbv_srv_uav_heap_.get(), &graphics_context_);
+			raytracer_.Awake(&graphics_context_, swap_chain_->GetWidth(), swap_chain_->GetHeight());
 		}
 #endif
 	}
@@ -240,7 +246,7 @@ namespace argent::graphics
 				}
 			}
 
-
+			using namespace DirectX;
 			//Update camera forward direction by the rotation
 			DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
 			DirectX::XMVECTOR F = R.r[2];
@@ -249,7 +255,7 @@ namespace argent::graphics
 			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
 			DirectX::XMVECTOR Focus = Eye + F;
 			//Focus.m128_f32[2] += 1.0f;
-			DirectX::XMVECTOR Up = XMVector3Normalize(R.r[1]);
+			DirectX::XMVECTOR Up = DirectX::XMVector3Normalize(R.r[1]);
 			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
 			auto proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov_angle_), aspect_ratio_, near_z_, far_z_);
 
@@ -316,9 +322,12 @@ namespace argent::graphics
 		swap_chain_->Awake(hwnd_, dxgi_factory_->GetIDxgiFactory(), main_rendering_queue_->GetCommandQueue(), kNumBackBuffers);
 		back_buffer_index_ = swap_chain_->GetCurrentBackBufferIndex();
 
+		graphics_context_.swap_chain_ = swap_chain_.get();
+
+
 		for (int i = 0; i < kNumBackBuffers; ++i)
 		{
-			frame_resources_[i].Awake(graphics_device_.get(), swap_chain_.get(), i, rtv_heap_->PopDescriptor(), dsv_heap_->PopDescriptor());
+			frame_resources_[i].Awake(&graphics_context_, i);
 		}
 
 		RECT rect{};

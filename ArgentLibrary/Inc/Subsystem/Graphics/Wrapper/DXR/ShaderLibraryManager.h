@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace argent::graphics
@@ -10,6 +11,7 @@ namespace argent::graphics
 	class ShaderLibraryManager
 	{
 	public:
+
 		ShaderLibraryManager() = default;
 		~ShaderLibraryManager() = default;
 
@@ -18,7 +20,8 @@ namespace argent::graphics
 		ShaderLibraryManager& operator=(const ShaderLibraryManager&) = delete;
 		ShaderLibraryManager& operator=(const ShaderLibraryManager&&) = delete;
 
-		void AddShaderLibrary();
+		void AddShaderLibrary(const char* filepath, const std::vector<std::wstring>& export_name);
+
 	private:
 
 		std::vector<std::unique_ptr<ShaderLibrary>> shader_libraries_;
