@@ -53,7 +53,12 @@ namespace argent::graphics
 		 */
 		void Awake() override;
 
+		/**
+		 * \brief 終了処理
+		 */
 		void Shutdown() override;
+
+		void OnGui();
 
 		/**
 		 * \brief 開始命令　
@@ -64,14 +69,14 @@ namespace argent::graphics
 		/**
 		 * \brief 描画終了
 		 */
-		void FrameEnd();
+		void FrameEnd() const;
 
 		/**
 		 * \brief レイトレーシングの実行
 		 * \param render_context RenderContext
 		 * \param graphics_context Graphics Context
 		 */
-		void OnRaytrace(const RenderContext* render_context, const GraphicsContext* graphics_context);
+		void OnRaytrace(const RenderContext* render_context, const GraphicsContext* graphics_context) const;
 
 		/**
 		 * \brief レイトレモードがオンかどうか

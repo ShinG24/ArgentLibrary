@@ -16,7 +16,7 @@ namespace argent::graphics::dx12
 		, num_instances_(back_buffer_counts)
 	{
 		graphics_device->CreateBuffer(dx12::kUploadHeapProp, D3D12_RESOURCE_FLAG_NONE,
-			aligned_data_size_ * num_instances_, D3D12_RESOURCE_STATE_GENERIC_READ, 
+			static_cast<UINT>(aligned_data_size_) * num_instances_, D3D12_RESOURCE_STATE_GENERIC_READ, 
 			resource_objects_.ReleaseAndGetAddressOf());
 		resource_objects_->Map(0u, nullptr, reinterpret_cast<void**>(&mapped_data_));
 

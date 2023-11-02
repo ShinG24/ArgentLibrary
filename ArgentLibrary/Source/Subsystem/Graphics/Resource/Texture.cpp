@@ -12,8 +12,6 @@
 #include "Subsystem/Graphics/API/D3D12/DescriptorHeap.h"
 #include "Subsystem/Graphics/Common/GraphicsContext.h"
 
-
-
 //TODO è¡ÇµÇ‹ÇµÇÂÇ§
 std::unordered_map<std::wstring, argent::graphics::dx12::Descriptor> loaded_texture;
 
@@ -74,7 +72,7 @@ namespace argent::graphics
 		}
 
 		auto desc = resource_object_->GetDesc();
-		width_ = desc.Width;
+		width_ = static_cast<UINT>(desc.Width);
 		height_ = desc.Height;
 	}
 
@@ -85,7 +83,6 @@ namespace argent::graphics
 			wait_for_finish_upload_.wait();
 		}
 	}
-
 
 	void CreateDummyTexture(const dx12::GraphicsDevice* graphics_device, ID3D12Resource** pp_resource)
 	{

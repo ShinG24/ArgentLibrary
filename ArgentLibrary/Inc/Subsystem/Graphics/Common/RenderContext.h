@@ -11,6 +11,6 @@ namespace argent::graphics
 	struct RenderContext
 	{
 		dx12::GraphicsCommandList* graphics_command_list_;
-		int back_buffer_index_;
+		UINT back_buffer_index_;
 	};
 }

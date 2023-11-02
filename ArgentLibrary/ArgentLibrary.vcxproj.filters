@@ -73,6 +73,9 @@
     <Filter Include="Library\Subsystem\Graphics\Wrapper\DXR">
       <UniqueIdentifier>{3689e013-f57c-4528-9623-6c2e705444cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Library\Subsystem\ResourceManager">
+      <UniqueIdentifier>{9f32c3a8-e221-4299-bfd8-46c5126e3f05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\Imgui\imconfig.h">

@@ -24,7 +24,7 @@ namespace argent::graphics::dx12
 		 * \param vertex_counts 頂点数
 		 * \param allow_update データのアップデートをするかどうか
 		 */
-		VertexBuffer(const GraphicsDevice* graphics_device, const void* p_data, UINT structure_size, UINT vertex_counts, bool allow_update = false);
+		VertexBuffer(const GraphicsDevice* graphics_device, const void* p_data, size_t structure_size, size_t vertex_counts, bool allow_update = false);
 
 		/**
 		 * \brief デストラクタ

@@ -1,5 +1,8 @@
 #include "Subsystem/Graphics/RenderingManager.h"
 
+#include <imgui.h>
+
+
 #include "Subsystem/Graphics/API/D3D12/ConstantBuffer.h"
 
 #include "Subsystem/Graphics/Common/GraphicsContext.h"
@@ -33,6 +36,15 @@ namespace argent::graphics
 		raytracer_->Shutdown();
 	}
 
+	void RenderingManager::OnGui()
+	{
+		if(ImGui::TreeNode("Rendering Manager"))
+		{
+			ImGui::Checkbox("On Raytrace", &on_raytrace_);
+			ImGui::TreePop();
+		}
+	}
+
 	void RenderingManager::FrameBegin(const RenderContext* render_context, const SceneConstant& scene_data)
 	{
 		//シーンデータをアップデート
@@ -40,12 +52,13 @@ namespace argent::graphics
 		scene_constant_buffer_->CopyToGpu(&scene_data_, render_context->back_buffer_index_);
 	}
 
-	void RenderingManager::FrameEnd()
+	void RenderingManager::FrameEnd() const
 	{
-		GetEngine()->GetSubsystemLocator()->GetSubsystem<graphics::GraphicsLibrary>()->CopyToBackBuffer(raytracer_->GetOutputBuffer());
+		if(on_raytrace_)
+			GetEngine()->GetSubsystemLocator()->GetSubsystem<graphics::GraphicsLibrary>()->CopyToBackBuffer(raytracer_->GetOutputBuffer());
 	}
 
-	void RenderingManager::OnRaytrace(const RenderContext* render_context, const GraphicsContext* graphics_context)
+	void RenderingManager::OnRaytrace(const RenderContext* render_context, const GraphicsContext* graphics_context) const
 	{
 		raytracer_->Update(graphics_context->resource_upload_command_list_, graphics_context->resource_upload_command_queue_);
 		raytracer_->OnRender(render_context->graphics_command_list_,

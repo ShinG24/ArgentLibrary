@@ -20,7 +20,7 @@ namespace argent::component
 		if(ImGui::TreeNode("Camera"))
 		{
 			transform_->OnGui();
-			ImGui::DragFloat("FOV", &fov_y_, 0.001f, 0.1, 10.0f);
+			ImGui::DragFloat("FOV", &fov_y_, 0.001f, 0.1f, 10.0f);
 			ImGui::TreePop();
 		}
 	}

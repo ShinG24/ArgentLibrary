@@ -97,12 +97,16 @@ namespace argent
 				{
 					//ƒŒƒCƒgƒŒ‚É‚æ‚é•`‰æ
 					rendering->OnRaytrace(&render_context, graphics->GetGraphicsContext());
-					scene->Render();
 				}
 				else
 				{
 					//ƒ‰ƒXƒ^ƒ‰ƒCƒU‚É‚æ‚é•`‰æ
+					scene->Render();
 				}
+
+				//Gui‚Ö•`‰æ
+				rendering->OnGui();
+				scene->OnGui();
 
 				rendering->FrameEnd();
 

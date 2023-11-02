@@ -5,6 +5,7 @@
 class DemoScene : public argent::scene::BaseScene
 {
 public:
+
 	DemoScene() = default;
 
 	void Awake() override;
@@ -12,6 +13,7 @@ public:
 
 	void Update() override;
 	void Render() override;
+	void OnGui() override;
 
 	DirectX::XMFLOAT3 GetCameraPosition() const override { return camera_.GetEye(); }
 	DirectX::XMFLOAT4X4 GetViewMatrix() const override { return camera_.CalcViewMatrix(); };

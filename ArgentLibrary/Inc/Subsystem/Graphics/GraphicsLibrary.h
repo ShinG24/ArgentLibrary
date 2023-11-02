@@ -1,56 +1,48 @@
 #pragma once
+#include <d3d12.h>
 #include <windows.h>
 
 #include <memory>
 
 #include "Subsystem/Subsystem.h"
 
-//TODO インクルードするべき？？？
-
-#include "API/D3D12/GraphicsDevice.h"
-#include "API/D3D12/CommandQueue.h"
-#include "API/D3D12/GraphicsCommandList.h"
-#include "API/D3D12/DescriptorHeap.h"
-
-#include "API/D3D12/BottomLevelAccelerationStructure.h"
-#include "API/D3D12/TopLevelAccelerationStructure.h"
-#include "Wrapper/DXR/AccelerationStructureManager.h"
-
-#include "API/D3D12/ConstantBuffer.h"
-
-#include "API/DXGI/SwapChain.h"
-#include "API/DXGI/DxgiFactory.h"
-
 #include "Common/GraphicsCommon.h"
 #include "Common/GraphicsContext.h"
 
-#include "Wrapper/ImGuiWrapper.h"
-#include "Wrapper/FrameResource.h"
-
-
-#include "RasterRenderer.h"
-#include "Raytracer.h"
-
 namespace argent::graphics
 {
+	class SwapChain;
+	class DxgiFactory;
 	struct RenderContext;
+	class ImGuiWrapper;
+	class FrameResource;
 }
 
-#define _USE_RAY_TRACER_ 1
+namespace argent::graphics::dx12
+{
+	class GraphicsDevice;
+	class CommandQueue;
+	class CommandQueue;
+	class GraphicsCommandList;
+	class GraphicsCommandList;
+	class DescriptorHeap;
+	class DescriptorHeap;
+	class DescriptorHeap;
+	class DescriptorHeap;
+	class AccelerationStructureManager;
+}
+
 
 namespace argent::graphics
 {
-
-
 	/**
 	 * \brief 描画統括のクラス
+	 *描画APIの管理を行う。描画開始や終了、バックバッファの入れ替えなど
 	 */
 	class GraphicsLibrary final : public Subsystem
 	{
 	public:
-		static int GetNumBackBuffers() { return kNumBackBuffers;  }
 
-	public:
 		GraphicsLibrary();
 
 		~GraphicsLibrary() override = default;
@@ -60,27 +52,62 @@ namespace argent::graphics
 		GraphicsLibrary& operator=(GraphicsLibrary&) = delete;
 		GraphicsLibrary& operator=(GraphicsLibrary&&) = delete;
 
+		/**
+		 * \brief 初期化処理
+		 * ID3D12から始まるAPIオブジェクトの作成
+		 */
 		void Awake() override;
+
+		/**
+		 * \brief 終了処理
+		 * Gpuが描画を終えるまで待機する
+		 */
 		void Shutdown() override;
 
+		/**
+		 * \brief 描画開始
+		 * Current Indexのコマンドリストを有効化する
+		 * \return RenderContext
+		 */
 		RenderContext FrameBegin();
+
+		/**
+		 * \brief 描画終了
+		 * コマンドキューから描画命令を発行する
+		 */
 		void FrameEnd();
 
+		/**
+		 * \brief バックバッファにSubResourceをコピーする
+		 * \param p_resource ID3D12Resource
+		 */
 		void CopyToBackBuffer(ID3D12Resource* p_resource) const;
 
+		/**
+		 * \brief Graphics Contextを取得
+		 * \return Graphics Context
+		 */
 		const GraphicsContext* GetGraphicsContext() const { return &graphics_context_; }
+
 	private:
 
-		void InitializeScene();
-		void OnRender();
-
+		/**
+		 * \brief デバイスにのみ依存しているオブジェクトを作成する
+		 */
 		void CreateDeviceDependencyObjects();
+
+		/**
+		 * \brief デバイス等のAPIオブジェクトと画面サイズに依存しているオブジェクトを作成する
+		 */
 		void CreateWindowDependencyObjects();
 
+		/**
+		 * \brief デバッグレイヤーを有効化する
+		 */
 		void OnDebugLayer() const;
 
-
 	private:
+
 		HWND hwnd_;	//Window handle
 
 		std::unique_ptr<DxgiFactory> dxgi_factory_;			//Wraped factory
@@ -97,50 +124,16 @@ namespace argent::graphics
 
 		std::unique_ptr<dx12::AccelerationStructureManager> as_manager_;
 
-		FrameResource frame_resources_[kNumBackBuffers];
-
-		UINT back_buffer_index_{};
+		GraphicsContext graphics_context_;
 
 		D3D12_VIEWPORT viewport_;
 		D3D12_RECT scissor_rect_{};
 
-	private:
+		std::unique_ptr<FrameResource> frame_resources_[kNumBackBuffers];
 
-		RasterRenderer raster_renderer_;
+		UINT back_buffer_index_{};
 
-#if _USE_RAY_TRACER_
-		/*Raytracer raytracer_;*/
-#endif
-
-		struct SceneConstant
-		{
-			DirectX::XMFLOAT4X4 view_projection_;
-			DirectX::XMFLOAT4X4 inv_view_projection_;
-			DirectX::XMFLOAT4 camera_position_;
-			DirectX::XMFLOAT4 light_position_;
-		};
-
-		std::unique_ptr<dx12::ConstantBuffer> scene_constant_buffer_;
-
-		//Camera
-		DirectX::XMFLOAT4 camera_position_{ 0.0, 100.0f, -100.0f, 1.0f };
-		DirectX::XMFLOAT3 camera_rotation_{ 0.36f, 0.0f, 0.0f};
-		float near_z_ = 0.1f;
-		float far_z_ = 1000.0f;
-		float fov_angle_ = 60.0f;
-		float aspect_ratio_ = 16.0f / 9.0f;
-		float rotation_speed_ = 0.003f;
-		float move_speed_ = 0.5f;
-
-		DirectX::XMFLOAT4 light_position{ 1000.0, 1000.0f, -1000.0f, 1.0f };
-
-		bool on_raster_mode_ = false;
-
-		GraphicsContext graphics_context_;
-
-	private:
 		//For imgui
-		dx12::Descriptor imgui_font_srv_descriptor_;
-		ImGuiWrapper imgui_wrapper_;
+		std::unique_ptr<ImGuiWrapper> imgui_wrapper_;
 	};
 }

@@ -64,11 +64,14 @@ void DemoScene::Update()
 		DirectX::XMFLOAT3 r{ x_d_angle, y_d_angle, 0.0f };
 		camera_.GetTransform()->AddRotation(r);
 	}
-
-
 }
 
 void DemoScene::Render()
+{
+
+}
+
+void DemoScene::OnGui()
 {
 	if(ImGui::TreeNode("ImGui"))
 	{
