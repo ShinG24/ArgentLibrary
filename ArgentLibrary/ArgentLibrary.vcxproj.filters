@@ -256,6 +256,9 @@
     <ClInclude Include="Inc\Subsystem\Graphics\RenderingManager.h">
       <Filter>Library\Subsystem\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\GraphicsPipelineState.h">
+      <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -414,6 +417,9 @@
     </ClCompile>
     <ClCompile Include="Source\Subsystem\Graphics\RenderingManager.cpp">
       <Filter>Library\Subsystem\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\GraphicsPipelineState.cpp">
+      <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

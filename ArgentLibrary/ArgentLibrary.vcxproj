@@ -171,6 +171,7 @@
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\DescriptorHeap.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\GraphicsCommandList.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\GraphicsDevice.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\GraphicsPipelineState.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\IndexBuffer.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\RaytracingPipelineState.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\RootSignature.h" />
@@ -230,6 +231,7 @@
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\DescriptorHeap.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\GraphicsCommandList.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\GraphicsDevice.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\GraphicsPipelineState.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\IndexBuffer.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\RaytracingPipelineState.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\RootSignature.cpp" />

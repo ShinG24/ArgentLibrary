@@ -15,6 +15,5 @@ namespace argent::graphics::dx12
 
 		if(!allow_update) buffer_object_->Unmap(0u, nullptr);
 		is_unmapped_ = !allow_update;
-
 	}
 }
