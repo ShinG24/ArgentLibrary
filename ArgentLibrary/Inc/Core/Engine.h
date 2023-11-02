@@ -48,8 +48,8 @@ namespace argent
 	private:
 
 		std::unique_ptr<SubsystemLocator> subsystem_locator_;
-		long window_width_;
-		long window_height_;
+		long window_width_{};
+		long window_height_{};
 
 	};
 

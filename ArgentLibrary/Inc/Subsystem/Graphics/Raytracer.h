@@ -19,8 +19,6 @@
 #include "API/D3D12/RootSignature.h"
 #include "API/D3D12/RaytracingPipelineState.h"
 
-
-
 #include "Resource/Texture.h"
 #include "Resource/Model.h"
 

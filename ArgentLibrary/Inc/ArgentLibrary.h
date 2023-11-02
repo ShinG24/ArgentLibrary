@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
 
+#include "Component/Component.h"
+#include "Component/Transform.h"
+#include "Component/Camera.h"
+#include "Component/Light.h"
+
 #include "Subsystem/Scene/BaseScene.h"
 
 /**

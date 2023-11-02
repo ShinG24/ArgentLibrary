@@ -1,5 +1,7 @@
 #pragma once
 
+#include <DirectXMath.h>
+
 #include <string>
 
 namespace argent::scene
@@ -56,6 +58,12 @@ namespace argent::scene
 		virtual void OnGui() {}
 
 		std::string GetName() const { return name_; }
+
+		//TODO 仮の実装　ユーザーが触る必要のない形に変える
+		virtual DirectX::XMFLOAT3 GetCameraPosition() const = 0;
+		virtual DirectX::XMFLOAT4X4 GetViewMatrix() const = 0;
+		virtual DirectX::XMFLOAT4X4 GetProjectionMatrix() const = 0;
+		virtual DirectX::XMFLOAT3 GetLightDirection() const = 0;
 
 	protected:
 

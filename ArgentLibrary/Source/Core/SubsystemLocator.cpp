@@ -2,6 +2,7 @@
 
 #include "Subsystem/Platform/Platform.h"
 #include "Subsystem/Graphics/GraphicsLibrary.h"
+#include "Subsystem/Graphics/RenderingManager.h"
 #include "Subsystem/Input/InputManager.h"
 #include "Subsystem/Timer/Timer.h"
 
@@ -18,6 +19,7 @@ namespace argent
 	{
 		AddSubsystem<platform::Platform>();
 		AddSubsystem<graphics::GraphicsLibrary>();
+		AddSubsystem<graphics::RenderingManager>();
 		AddSubsystem<input::InputManager>();
 		AddSubsystem<Timer>();
 		AddSubsystem<scene::SceneManager>();
@@ -28,6 +30,7 @@ namespace argent
 		GetSubsystem<scene::SceneManager>()->Shutdown();
 		GetSubsystem<Timer>()->Shutdown();
 		GetSubsystem<input::InputManager>()->Shutdown();
+		GetSubsystem<graphics::RenderingManager>();
 		GetSubsystem<graphics::GraphicsLibrary>()->Shutdown();
 		GetSubsystem<platform::Platform>()->Shutdown();
 	}

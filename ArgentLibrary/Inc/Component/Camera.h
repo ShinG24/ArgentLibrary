@@ -118,6 +118,8 @@ namespace argent::component
 		 */
 		bool GetAllowAutoFocusUpdate() const { return auto_focus_update_; }
 
+		DirectX::XMFLOAT3 GetEye() const { return transform_->GetLocalPosition(); }
+
 	private:
 
 		std::unique_ptr<Transform> transform_{};

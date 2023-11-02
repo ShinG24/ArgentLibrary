@@ -18,6 +18,7 @@ namespace argent::component
 			Directional,
 		};
 	public:
+
 		Light();
 		virtual ~Light() override = default;
 

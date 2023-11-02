@@ -20,7 +20,7 @@ namespace argent::graphics::dx12
 
 namespace argent::graphics
 {
-	class GraphicsContext;
+	struct GraphicsContext;
 
 	class RasterRenderer
 	{

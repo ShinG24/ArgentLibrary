@@ -7,9 +7,9 @@
 //Imgui
 #include <imgui.h>
 
-#include "Core/SubsystemLocator.h"
-#include "Core/Engine.h"
 
+
+#include "Subsystem/Graphics/Common/RenderContext.h"
 
 #include "Subsystem/Graphics/Wrapper/DXR/ShaderLibrary.h"
 #include "Subsystem/Graphics/Wrapper/DXR/ShaderLibraryManager.h"
@@ -20,6 +20,12 @@
 
 #include "Subsystem/Timer/Timer.h"
 #include "Subsystem/Input/InputManager.h"
+
+
+#include "Core/SubsystemLocator.h"
+#include "Core/Engine.h"
+
+
 
 #pragma comment(lib, "DXGI.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -100,7 +106,7 @@ namespace argent::graphics
 		imgui_wrapper_.Shutdown();
 	}
 
-	void GraphicsLibrary::FrameBegin()
+	RenderContext GraphicsLibrary::FrameBegin()
 	{
 		HRESULT hr = graphics_device_->GetLatestDevice()->GetDeviceRemovedReason();
 		if(FAILED(hr))
@@ -122,6 +128,12 @@ namespace argent::graphics
 		imgui_wrapper_.FrameBegin();
 
 		OnRender();
+
+		RenderContext render_context;
+		render_context.graphics_command_list_ = command_list.get();
+		render_context.back_buffer_index_ = back_buffer_index_;
+
+		return render_context;
 	}
 
 	void GraphicsLibrary::FrameEnd()

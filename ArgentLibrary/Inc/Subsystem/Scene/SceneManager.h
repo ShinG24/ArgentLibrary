@@ -64,6 +64,12 @@ namespace argent::scene
 		 */
 		void SetNextScene(const std::string& scene_name) { next_scene_name_ = scene_name; }
 
+		/**
+		 * \brief Œ»İ‚ÌƒV[ƒ“‚ğæ“¾
+		 * \return Current Scene
+		 */
+		BaseScene* GetCurrentScene() const { return current_scene_; }
+
 	private:
 
 		void ChangeScene();

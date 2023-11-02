@@ -79,8 +79,6 @@ namespace argent
 		library_instance.Run();
 	}
 
-
-	
 }
 
 namespace argent::scene_management

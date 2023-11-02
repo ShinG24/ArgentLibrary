@@ -3,8 +3,15 @@
 #include "Core/SubsystemLocator.h"
 
 #include "Subsystem/Platform/Platform.h"
+
+
+#include "Subsystem/Graphics/Common/RenderContext.h"
 #include "Subsystem/Graphics/GraphicsLibrary.h"
+#include "Subsystem/Graphics/RenderingManager.h"
+
+
 #include "Subsystem/Input/InputManager.h"
+#include "Subsystem/Scene/BaseScene.h"
 #include "Subsystem/Timer/Timer.h"
 #include "Subsystem/Scene/SceneManager.h"
 
@@ -45,9 +52,12 @@ namespace argent
 	{
 		auto platform = subsystem_locator_->GetSubsystem<platform::Platform>();
 		auto graphics = subsystem_locator_->GetSubsystem<graphics::GraphicsLibrary>();
+		auto rendering = subsystem_locator_->GetSubsystem<graphics::RenderingManager>();
 		auto timer = subsystem_locator_->GetSubsystem<Timer>();
 		auto input_manager = subsystem_locator_->GetSubsystem<input::InputManager>();
 		auto scene = subsystem_locator_->GetSubsystem<scene::SceneManager>();
+
+		graphics::RenderingManager::SceneConstant scene_data{};
 
 		//Main Loop
 		while (!platform->GetRequestShutdown())
@@ -62,12 +72,42 @@ namespace argent
 				scene->Update();
 
 				//描画
-				graphics->FrameBegin();
-				scene->Render();
+				auto render_context = graphics->FrameBegin();
+
+				//TODO ここでやるもんじゃなくね シーンコンスタント
+				{
+					auto current_scene = scene->GetCurrentScene();
+					auto c_pos = current_scene->GetCameraPosition();
+					auto l_dir = current_scene->GetLightDirection();
+					scene_data.camera_position_ = { c_pos.x, c_pos.y, c_pos.z, 1.0f };
+					scene_data.view_matrix_ = current_scene->GetViewMatrix();
+					scene_data.projection_matrix_ = current_scene->GetProjectionMatrix();
+					DirectX::XMStoreFloat4x4(&scene_data.view_projection_matrix_, 
+						DirectX::XMLoadFloat4x4(&scene_data.view_matrix_) * 
+						DirectX::XMLoadFloat4x4(&scene_data.projection_matrix_));
+					DirectX::XMStoreFloat4x4(&scene_data.inv_view_projection_matrix_, 
+						DirectX::XMMatrixInverse(nullptr, 
+							DirectX::XMLoadFloat4x4(&scene_data.view_matrix_))); 
+					scene_data.light_direction_ = { l_dir.x, l_dir.y, l_dir.z, 0.0f };
+				}
+
+				rendering->FrameBegin(&render_context, scene_data);
+				
+				if(rendering->IsRaytracing())
+				{
+					//レイトレによる描画
+					rendering->OnRaytrace(&render_context);
+				}
+				else
+				{
+					//ラスタライザによる描画
+					scene->Render();
+				}
+
+				rendering->FrameEnd();
+
 				graphics->FrameEnd();
 			}
 		}
 	}
-
-
 }

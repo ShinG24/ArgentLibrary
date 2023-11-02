@@ -31,11 +31,17 @@
 #include "RasterRenderer.h"
 #include "Raytracer.h"
 
+namespace argent::graphics
+{
+	struct RenderContext;
+}
 
 #define _USE_RAY_TRACER_ 1
 
 namespace argent::graphics
 {
+
+
 	/**
 	 * \brief •`‰æ“Š‡‚ÌƒNƒ‰ƒX
 	 */
@@ -57,9 +63,10 @@ namespace argent::graphics
 		void Awake() override;
 		void Shutdown() override;
 
-		void FrameBegin();
+		RenderContext FrameBegin();
 		void FrameEnd();
 
+		const GraphicsContext* GetGraphicsContext() const { return &graphics_context_; }
 	private:
 
 		void InitializeScene();
@@ -70,7 +77,6 @@ namespace argent::graphics
 
 		void OnDebugLayer() const;
 
-		const GraphicsContext* GetGraphicsContext() const { return &graphics_context_; }
 
 	private:
 		HWND hwnd_;	//Window handle
