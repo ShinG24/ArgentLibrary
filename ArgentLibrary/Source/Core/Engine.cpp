@@ -96,12 +96,12 @@ namespace argent
 				if(rendering->IsRaytracing())
 				{
 					//レイトレによる描画
-					rendering->OnRaytrace(&render_context);
+					rendering->OnRaytrace(&render_context, graphics->GetGraphicsContext());
+					scene->Render();
 				}
 				else
 				{
 					//ラスタライザによる描画
-					scene->Render();
 				}
 
 				rendering->FrameEnd();

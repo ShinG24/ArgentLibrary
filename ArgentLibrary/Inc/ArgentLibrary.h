@@ -6,6 +6,9 @@
 #include "Component/Camera.h"
 #include "Component/Light.h"
 
+#include "Subsystem/Input/Keyboard.h"
+#include "Subsystem/Input/Mouse.h"
+
 #include "Subsystem/Scene/BaseScene.h"
 
 /**
@@ -41,9 +44,14 @@ namespace argent
  */
 namespace argent::input
 {
-	bool GetKey();
-	bool GetKeyDown();
-	bool GetKeyUp();
+	bool GetKey(KeyCode key);
+	bool GetKeyDown(KeyCode key);
+	bool GetKeyUp(KeyCode key);
+	bool GetButton(MouseButton button);
+
+	float GetMouseMoveX();
+	float GetMouseMoveY();
+	DirectX::XMFLOAT2 GetMouseMove();
 }
 
 /**

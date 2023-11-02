@@ -21,6 +21,8 @@ namespace argent::component
 		Camera& operator=(const Camera&) = delete;
 		Camera& operator=(const Camera&&) = delete;
 
+		void OnGui() override;
+
 		/**
 		 * \brief ビュー行列を計算する
 		 * \return View Matrix
@@ -118,7 +120,17 @@ namespace argent::component
 		 */
 		bool GetAllowAutoFocusUpdate() const { return auto_focus_update_; }
 
+		/**
+		 * \brief カメラの座標を取得
+		 * \return Eye Position
+		 */
 		DirectX::XMFLOAT3 GetEye() const { return transform_->GetLocalPosition(); }
+
+		/**
+		 * \brief Transformを取得
+		 * \return Transform
+		 */
+		Transform* GetTransform() const { return transform_.get(); }
 
 	private:
 

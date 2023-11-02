@@ -128,6 +128,17 @@ namespace argent::component
 		 */
 		DirectX::XMFLOAT3 CalcRight();
 
+		/**
+		 * \brief À•W‚ğ‘«‚·
+		 * \param pos Pos
+		 */
+		void AddPosition(const DirectX::XMFLOAT3& pos);
+
+		/**
+		 * \brief ‰ñ“]’l‚ğ‘«‚·
+		 * \param rot Rot
+		 */
+		void AddRotation(const DirectX::XMFLOAT3& rot);
 	private:
 
 		DirectX::XMFLOAT3 position_;	//À•W

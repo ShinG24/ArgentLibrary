@@ -19,7 +19,11 @@ public:
 	DirectX::XMFLOAT3 GetLightDirection() const override { return directional_light_.GetDirection(); }
 
 private:
+
 	argent::component::Camera camera_;
 	argent::component::Light directional_light_;
+
+	float rotation_speed_;
+	float move_speed_;
 };
 

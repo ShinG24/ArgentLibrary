@@ -1,5 +1,7 @@
 #include "Component/Camera.h"
 
+#include <imgui.h>
+
 namespace argent::component
 {
 	Camera::Camera() :
@@ -11,6 +13,16 @@ namespace argent::component
 	,	auto_focus_update_(true)
 	{
 		transform_ = std::make_unique<Transform>();
+	}
+
+	void Camera::OnGui()
+	{
+		if(ImGui::TreeNode("Camera"))
+		{
+			transform_->OnGui();
+			ImGui::DragFloat("FOV", &fov_y_, 0.001f, 0.1, 10.0f);
+			ImGui::TreePop();
+		}
 	}
 
 	DirectX::XMFLOAT4X4 Camera::CalcViewMatrix() const

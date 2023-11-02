@@ -26,16 +26,17 @@
 #include "Subsystem/Graphics/Loader/FbxLoader.h"
 
 #include "../../Assets/Shader/Common.hlsli"
+#include "Subsystem/Graphics/API/DXGI/SwapChain.h"
 
 namespace argent::graphics
 {
-	void Raytracer::Awake(const GraphicsContext* graphics_context, UINT64 width, UINT height)
+	void Raytracer::Awake(const GraphicsContext* graphics_context)
 	{
 		skymaps_ = std::make_unique<Texture>(graphics_context, "./Assets/Images/Skymap00.dds");
 
 
-		width_ = width;
-		height_ = height;
+		width_ = graphics_context->swap_chain_->GetWidth();
+		height_ = graphics_context->swap_chain_->GetHeight();
 
 		object_descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
 
@@ -52,7 +53,7 @@ namespace argent::graphics
 		CreatePipeline(graphics_context->graphics_device_);
 
 		//‚±‚ê‚ÍŠÈ’P@
-		CreateOutputBuffer(graphics_context->graphics_device_, width, height);
+		CreateOutputBuffer(graphics_context->graphics_device_, width_, height_);
 
 		//‚±‚ê‚àŠÈ’P
 		CreateShaderResourceHeap(graphics_context->graphics_device_, 

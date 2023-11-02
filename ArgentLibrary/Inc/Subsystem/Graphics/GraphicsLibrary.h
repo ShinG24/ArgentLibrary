@@ -66,6 +66,8 @@ namespace argent::graphics
 		RenderContext FrameBegin();
 		void FrameEnd();
 
+		void CopyToBackBuffer(ID3D12Resource* p_resource) const;
+
 		const GraphicsContext* GetGraphicsContext() const { return &graphics_context_; }
 	private:
 
@@ -107,7 +109,7 @@ namespace argent::graphics
 		RasterRenderer raster_renderer_;
 
 #if _USE_RAY_TRACER_
-		Raytracer raytracer_;
+		/*Raytracer raytracer_;*/
 #endif
 
 		struct SceneConstant

@@ -17,6 +17,8 @@ namespace argent::graphics
 	struct GraphicsContext;
 	struct RenderContext;
 
+	class Raytracer;
+
 	/**
 	 * \brief 描画マネージャ　描画管理を行う
 	 * レイトレーシングを用いるかどうかもこいつで切り替える
@@ -51,6 +53,8 @@ namespace argent::graphics
 		 */
 		void Awake() override;
 
+		void Shutdown() override;
+
 		/**
 		 * \brief 開始命令　
 		 * 描画に必要なデータ（カメラ、ライトなど）の情報を集める。
@@ -65,8 +69,9 @@ namespace argent::graphics
 		/**
 		 * \brief レイトレーシングの実行
 		 * \param render_context RenderContext
+		 * \param graphics_context Graphics Context
 		 */
-		void OnRaytrace(const RenderContext* render_context);
+		void OnRaytrace(const RenderContext* render_context, const GraphicsContext* graphics_context);
 
 		/**
 		 * \brief レイトレモードがオンかどうか
@@ -78,7 +83,10 @@ namespace argent::graphics
 
 		std::unique_ptr<dx12::ConstantBuffer> scene_constant_buffer_;
 		SceneConstant scene_data_{};
-		bool on_raytrace_{};
+		bool on_raytrace_{ true };
+
+		//TODO いずれまともな形にする
+		std::unique_ptr<Raytracer> raytracer_;
 	};
 }
 

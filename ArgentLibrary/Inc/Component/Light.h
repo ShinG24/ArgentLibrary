@@ -22,6 +22,8 @@ namespace argent::component
 		Light();
 		virtual ~Light() override = default;
 
+		void OnGui() override;
+
 		DirectX::XMFLOAT3 GetDirection() const { return direction_; }
 
 	private:

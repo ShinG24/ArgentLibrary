@@ -65,4 +65,17 @@ namespace argent::component
 		DirectX::XMStoreFloat3(&right_, DirectX::XMVector3Normalize(r.r[0]));
 		return right_;
 	}
+
+	void Transform::AddPosition(const DirectX::XMFLOAT3& pos)
+	{
+		using namespace DirectX;
+		DirectX::XMStoreFloat3(&position_, DirectX::XMLoadFloat3(&position_) + DirectX::XMLoadFloat3(&pos));
+	}
+
+	void Transform::AddRotation(const DirectX::XMFLOAT3& rot)
+	{
+		using namespace DirectX;
+		DirectX::XMStoreFloat3(&rotation_, DirectX::XMLoadFloat3(&rotation_) + DirectX::XMLoadFloat3(&rot));
+	}
+
 }

@@ -61,9 +61,11 @@ RWTexture2D<float4> output_texture : register(u0);
 
 struct SceneConstant
 {
+    float4 camera_position_;
+    row_major float4x4 view_matrix_;
+    row_major float4x4 projection_matrix_;
     row_major float4x4 view_projection_;
     row_major float4x4 inv_view_projection_;
-    float4 camera_position_;
     float4 light_position_;
 };
 

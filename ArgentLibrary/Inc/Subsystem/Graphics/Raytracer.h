@@ -112,7 +112,7 @@ namespace argent::graphics
 		Raytracer& operator=(Raytracer&) = delete;
 		Raytracer& operator=(Raytracer&&) = delete;
 
-		void Awake(const GraphicsContext* graphics_context, UINT64 width, UINT height);
+		void Awake(const GraphicsContext* graphics_context);
 		void Shutdown();
 
 		void Update(dx12::GraphicsCommandList* graphics_command_list, dx12::CommandQueue* upload_command_queue);

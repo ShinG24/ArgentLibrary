@@ -100,7 +100,6 @@ namespace argent::graphics
 
 	void GraphicsLibrary::Shutdown()
 	{
-		raytracer_.Shutdown();
 		main_rendering_queue_->WaitForGpu();
 		resource_upload_queue_->WaitForGpu();
 		imgui_wrapper_.Shutdown();
@@ -156,6 +155,22 @@ namespace argent::graphics
 		main_rendering_queue_->WaitForGpu(back_buffer_index_);
 	}
 
+	void GraphicsLibrary::CopyToBackBuffer(ID3D12Resource* p_resource) const
+	{
+		auto& command_list = graphics_command_list_[back_buffer_index_];
+		//レイトレーシングの結果をコピーする
+		command_list->SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET, 
+			D3D12_RESOURCE_STATE_COPY_DEST);
+		command_list->GetCommandList()->CopyResource(
+			frame_resources_[back_buffer_index_].GetBackBuffer(), 
+				p_resource);
+		command_list->SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), 
+			D3D12_RESOURCE_STATE_COPY_DEST, 
+			D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	}
+
 	void GraphicsLibrary::InitializeScene()
 	{
 		scene_constant_buffer_ = std::make_unique<dx12::ConstantBuffer>(graphics_device_.get(), sizeof(SceneConstant), kNumBackBuffers);
@@ -166,149 +181,149 @@ namespace argent::graphics
 #if _USE_RAY_TRACER_
 		if(!on_raster_mode_)
 		{
-			raytracer_.Awake(&graphics_context_, swap_chain_->GetWidth(), swap_chain_->GetHeight());
+			/*raytracer_.Awake(&graphics_context_, swap_chain_->GetWidth(), swap_chain_->GetHeight());*/
 		}
 #endif
 	}
 
 	void GraphicsLibrary::OnRender()
 	{
-		//Update Constant Buffer
-		{
-			if(raster_renderer_.IsInputEnter())
-			{
-				//Camera Controller
-				{
-					auto input_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<input::InputManager>();
-					auto keyboard = input_manager->GetKeyboard();
-					auto mouse = input_manager->GetMouse();
-					using namespace argent::input;
-					if (mouse->GetButton(argent::input::MouseButton::RButton)/*右クリックの入力*/)
-					{
-						//カメラの移動
-						{
-							//方向を算出
-							const auto rotation_matrix = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
-							const DirectX::XMVECTOR front = DirectX::XMVector3Normalize(rotation_matrix.r[2]);
-							const DirectX::XMVECTOR up = { 0.0f, 1.0f, 0.0f, 0.0f };
-							const DirectX::XMVECTOR right = DirectX::XMVector3Normalize(rotation_matrix.r[0]);
-
-							float front_input = 0;
-							float right_input = 0;
-							float up_input = 0;
-
-							//前後
-							if (keyboard->GetKey(W)/* Keyboard W */) front_input += 1.0f;
-							if (keyboard->GetKey(S)/* Keyboard S */) front_input -= 1.0f;
-
-							//左右
-							if (keyboard->GetKey(A)/* Keyboard A */) right_input -= 1.0f;
-							if (keyboard->GetKey(D)/* Keyboard D */) right_input += 1.0f;
-
-							//上下
-							if (keyboard->GetKey(Q)/* Keyboard Q */) up_input -= 1.0f;
-							if (keyboard->GetKey(E)/* Keyboard E */) up_input += 1.0f;
-
-							using namespace DirectX;
-
-							const DirectX::XMVECTOR move_vector = DirectX::XMVector3Normalize(front * front_input + up * up_input + right * right_input);
-							DirectX::XMFLOAT3 p = { camera_position_.x, camera_position_.y, camera_position_.z };
-							DirectX::XMStoreFloat3(&p, DirectX::XMLoadFloat3(&p) + move_vector * move_speed_);
-							camera_position_ = { p.x, p.y, p.z, 1.0f };
-						}
-
-						//カメラの回転
-						{
-							const float dx = mouse->GetMovedVec().x;	//マウスX軸方向の移動値
-							const float dy = mouse->GetMovedVec().y;	//マウスY軸方向の移動値
-
-							const float x_d_angle = dy * rotation_speed_;
-							const float y_d_angle = dx * rotation_speed_;
-
-							camera_rotation_.x += x_d_angle;
-							camera_rotation_.y += y_d_angle;
-						}
-					}
-				}
-
-				//Draw on ImGui
-				{
-					if(ImGui::TreeNode("Performance"))
-					{
-						float delta_time = Timer::Get()->GetDeltaTime();
-						int fps = Timer::Get()->GetFps();
-						ImGui::InputFloat("Delta Time", &delta_time);
-						ImGui::InputInt("FPS", &fps);
-						
-
-						ImGui::TreePop();
-					}
-					
-					if (ImGui::TreeNode("Camera"))
-					{
-						ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
-						ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
-						ImGui::DragFloat("Move Speed", &move_speed_, 0.01f, 0.1f, 10.0f);
-						ImGui::DragFloat("Rotation Speed", &rotation_speed_, 0.00001f, 0.00001f, 3.14f);
-						ImGui::TreePop();
-					}
-					ImGui::DragFloat3("Light Position", &light_position.x, 0.01f, -FLT_MAX, FLT_MAX);
-
-					//raster_renderer_.OnGui();
-				}
-			}
-
-			using namespace DirectX;
-			//Update camera forward direction by the rotation
-			DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
-			DirectX::XMVECTOR F = R.r[2];
-			F = DirectX::XMVector3Normalize(F) * 1000.0f;
-
-			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
-			DirectX::XMVECTOR Focus = Eye + F;
-			//Focus.m128_f32[2] += 1.0f;
-			DirectX::XMVECTOR Up = DirectX::XMVector3Normalize(R.r[1]);
-			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
-			auto proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov_angle_), aspect_ratio_, near_z_, far_z_);
-
-			SceneConstant data{};
-			data.camera_position_ = camera_position_;
-			DirectX::XMStoreFloat4x4(&data.view_projection_, view * proj);
-			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
-			data.light_position_ = light_position;
-
-			scene_constant_buffer_->CopyToGpu(&data, back_buffer_index_);
-		}
-
-		const auto& command_list = graphics_command_list_[back_buffer_index_];
-		if(on_raster_mode_)
-		{
-			raster_renderer_.OnRender(command_list->GetCommandList());
-		}
-		else
-		{
-#if _USE_RAY_TRACER_
-
-			if(raster_renderer_.IsInputEnter())
-			{
-			raytracer_.Update(resource_upload_command_list_.get(), resource_upload_queue_.get());
-			raytracer_.OnRender(graphics_command_list_[back_buffer_index_].get(), scene_constant_buffer_->GetGpuVirtualAddress(back_buffer_index_));
-
-			command_list->SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
-
-			command_list->GetCommandList()->CopyResource(frame_resources_[back_buffer_index_].GetBackBuffer(), 
-				raytracer_.GetOutputBuffer());
-
-			command_list->SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
-			}
-			else
-			{
-			raster_renderer_.OnRender(command_list->GetCommandList());
-				
-			}
-
-#endif
-		}
+//		//Update Constant Buffer
+//		{
+//			if(raster_renderer_.IsInputEnter())
+//			{
+//				//Camera Controller
+//				{
+//					auto input_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<input::InputManager>();
+//					auto keyboard = input_manager->GetKeyboard();
+//					auto mouse = input_manager->GetMouse();
+//					using namespace argent::input;
+//					if (mouse->GetButton(argent::input::MouseButton::RButton)/*右クリックの入力*/)
+//					{
+//						//カメラの移動
+//						{
+//							//方向を算出
+//							const auto rotation_matrix = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
+//							const DirectX::XMVECTOR front = DirectX::XMVector3Normalize(rotation_matrix.r[2]);
+//							const DirectX::XMVECTOR up = { 0.0f, 1.0f, 0.0f, 0.0f };
+//							const DirectX::XMVECTOR right = DirectX::XMVector3Normalize(rotation_matrix.r[0]);
+//
+//							float front_input = 0;
+//							float right_input = 0;
+//							float up_input = 0;
+//
+//							//前後
+//							if (keyboard->GetKey(W)/* Keyboard W */) front_input += 1.0f;
+//							if (keyboard->GetKey(S)/* Keyboard S */) front_input -= 1.0f;
+//
+//							//左右
+//							if (keyboard->GetKey(A)/* Keyboard A */) right_input -= 1.0f;
+//							if (keyboard->GetKey(D)/* Keyboard D */) right_input += 1.0f;
+//
+//							//上下
+//							if (keyboard->GetKey(Q)/* Keyboard Q */) up_input -= 1.0f;
+//							if (keyboard->GetKey(E)/* Keyboard E */) up_input += 1.0f;
+//
+//							using namespace DirectX;
+//
+//							const DirectX::XMVECTOR move_vector = DirectX::XMVector3Normalize(front * front_input + up * up_input + right * right_input);
+//							DirectX::XMFLOAT3 p = { camera_position_.x, camera_position_.y, camera_position_.z };
+//							DirectX::XMStoreFloat3(&p, DirectX::XMLoadFloat3(&p) + move_vector * move_speed_);
+//							camera_position_ = { p.x, p.y, p.z, 1.0f };
+//						}
+//
+//						//カメラの回転
+//						{
+//							const float dx = mouse->GetMovedVec().x;	//マウスX軸方向の移動値
+//							const float dy = mouse->GetMovedVec().y;	//マウスY軸方向の移動値
+//
+//							const float x_d_angle = dy * rotation_speed_;
+//							const float y_d_angle = dx * rotation_speed_;
+//
+//							camera_rotation_.x += x_d_angle;
+//							camera_rotation_.y += y_d_angle;
+//						}
+//					}
+//				}
+//
+//				//Draw on ImGui
+//				{
+//					if(ImGui::TreeNode("Performance"))
+//					{
+//						float delta_time = Timer::Get()->GetDeltaTime();
+//						int fps = Timer::Get()->GetFps();
+//						ImGui::InputFloat("Delta Time", &delta_time);
+//						ImGui::InputInt("FPS", &fps);
+//						
+//
+//						ImGui::TreePop();
+//					}
+//					
+//					if (ImGui::TreeNode("Camera"))
+//					{
+//						ImGui::DragFloat3("Position", &camera_position_.x, 0.01f, -FLT_MAX, FLT_MAX);
+//						ImGui::DragFloat3("Rotation", &camera_rotation_.x, 1.0f / 3.14f * 0.01f, -FLT_MAX, FLT_MAX);
+//						ImGui::DragFloat("Move Speed", &move_speed_, 0.01f, 0.1f, 10.0f);
+//						ImGui::DragFloat("Rotation Speed", &rotation_speed_, 0.00001f, 0.00001f, 3.14f);
+//						ImGui::TreePop();
+//					}
+//					ImGui::DragFloat3("Light Position", &light_position.x, 0.01f, -FLT_MAX, FLT_MAX);
+//
+//					//raster_renderer_.OnGui();
+//				}
+//			}
+//
+//			using namespace DirectX;
+//			//Update camera forward direction by the rotation
+//			DirectX::XMMATRIX R = DirectX::XMMatrixRotationRollPitchYaw(camera_rotation_.x, camera_rotation_.y, camera_rotation_.z);
+//			DirectX::XMVECTOR F = R.r[2];
+//			F = DirectX::XMVector3Normalize(F) * 1000.0f;
+//
+//			DirectX::XMVECTOR Eye = DirectX::XMLoadFloat4(&camera_position_);
+//			DirectX::XMVECTOR Focus = Eye + F;
+//			//Focus.m128_f32[2] += 1.0f;
+//			DirectX::XMVECTOR Up = DirectX::XMVector3Normalize(R.r[1]);
+//			auto view = DirectX::XMMatrixLookAtLH(Eye, Focus, Up);
+//			auto proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov_angle_), aspect_ratio_, near_z_, far_z_);
+//
+//			SceneConstant data{};
+//			data.camera_position_ = camera_position_;
+//			DirectX::XMStoreFloat4x4(&data.view_projection_, view * proj);
+//			DirectX::XMStoreFloat4x4(&data.inv_view_projection_, DirectX::XMMatrixInverse(nullptr, view * proj));
+//			data.light_position_ = light_position;
+//
+//			scene_constant_buffer_->CopyToGpu(&data, back_buffer_index_);
+//		}
+//
+//		const auto& command_list = graphics_command_list_[back_buffer_index_];
+//		if(on_raster_mode_)
+//		{
+//			raster_renderer_.OnRender(command_list->GetCommandList());
+//		}
+//		else
+//		{
+//#if _USE_RAY_TRACER_
+//
+//			if(raster_renderer_.IsInputEnter())
+//			{
+//			raytracer_.Update(resource_upload_command_list_.get(), resource_upload_queue_.get());
+//			raytracer_.OnRender(graphics_command_list_[back_buffer_index_].get(), scene_constant_buffer_->GetGpuVirtualAddress(back_buffer_index_));
+//
+//			command_list->SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
+//
+//			command_list->GetCommandList()->CopyResource(frame_resources_[back_buffer_index_].GetBackBuffer(), 
+//				raytracer_.GetOutputBuffer());
+//
+//			command_list->SetTransitionBarrier(frame_resources_[back_buffer_index_].GetBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+//			}
+//			else
+//			{
+//			raster_renderer_.OnRender(command_list->GetCommandList());
+//				
+//			}
+//
+//#endif
+//		}
 	}
 
 	void GraphicsLibrary::CreateDeviceDependencyObjects()
