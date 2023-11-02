@@ -87,7 +87,7 @@ namespace argent
 						DirectX::XMLoadFloat4x4(&scene_data.projection_matrix_));
 					DirectX::XMStoreFloat4x4(&scene_data.inv_view_projection_matrix_, 
 						DirectX::XMMatrixInverse(nullptr, 
-							DirectX::XMLoadFloat4x4(&scene_data.view_matrix_))); 
+							DirectX::XMLoadFloat4x4(&scene_data.view_projection_matrix_))); 
 					scene_data.light_direction_ = { l_dir.x, l_dir.y, l_dir.z, 0.0f };
 				}
 
