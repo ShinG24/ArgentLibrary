@@ -259,6 +259,7 @@
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\GraphicsPipelineState.h">
       <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Resource\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -421,5 +422,6 @@
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\GraphicsPipelineState.cpp">
       <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\Resource\Shader.cpp" />
   </ItemGroup>
 </Project>

@@ -193,6 +193,7 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Material.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Mesh.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Model.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Resource\Shader.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\StandardMaterial.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Texture.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.h" />
@@ -250,6 +251,7 @@
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Material.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Mesh.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Model.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Resource\Shader.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\StandardMaterial.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Texture.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.cpp" />

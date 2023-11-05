@@ -86,12 +86,12 @@ namespace argent::graphics
 
 	private:
 
-		std::unique_ptr<dx12::ConstantBuffer> scene_constant_buffer_;
+		std::unique_ptr<dx12::ConstantBuffer> scene_constant_buffer_{};
 		SceneConstant scene_data_{};
 		bool on_raytrace_{ true };
 
 		//TODO ‚¢‚¸‚ê‚Ü‚Æ‚à‚ÈŒ`‚É‚·‚é
-		std::unique_ptr<Raytracer> raytracer_;
+		std::unique_ptr<Raytracer> raytracer_{};
 	};
 }
 
