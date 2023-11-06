@@ -10,6 +10,8 @@
 namespace argent::graphics::dx12
 {
 	class ConstantBuffer;
+	class RootSignature;
+	class GraphicsPipelineState;
 }
 
 namespace argent::graphics
@@ -84,9 +86,13 @@ namespace argent::graphics
 		 */
 		bool IsRaytracing() const { return on_raytrace_; }
 
+		std::shared_ptr<dx12::RootSignature> GetRasterGlobalRootSignature() const { return scene_constant_binding_signature_; }
+
 	private:
 
+		std::shared_ptr<dx12::RootSignature> scene_constant_binding_signature_;
 		std::unique_ptr<dx12::ConstantBuffer> scene_constant_buffer_{};
+
 		SceneConstant scene_data_{};
 		bool on_raytrace_{ true };
 

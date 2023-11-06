@@ -15,34 +15,57 @@
 
 #include "Core/SubsystemLocator.h"
 #include "Core/Engine.h"
+#include "Subsystem/Graphics/API/D3D12/GraphicsCommandList.h"
+#include "Subsystem/Graphics/API/D3D12/GraphicsPipelineState.h"
+#include "Subsystem/Graphics/Resource/Shader.h"
 
 
+#include "Subsystem/Graphics/Renderer/StaticMeshRenderer.h"
 
+#include "Subsystem/Graphics/Loader/FbxLoader.h"
 
 namespace argent::graphics
 {
+	std::unique_ptr<StaticMeshRenderer> renderer;
 	void RenderingManager::Awake()
 	{
 		auto graphics_context = GetEngine()->GetSubsystemLocator()->GetSubsystem<graphics::GraphicsLibrary>()->GetGraphicsContext();
 		scene_constant_buffer_ = std::make_unique<dx12::ConstantBuffer>(
 			graphics_context->graphics_device_, sizeof(SceneConstant), 
 			kNumBackBuffers, graphics_context->cbv_srv_uav_descriptor_heap_);
-		raytracer_ = std::make_unique<Raytracer>();
-		raytracer_->Awake(graphics_context);
+
+		on_raytrace_ = false;
+		if(IsRaytracing())
+		{
+			raytracer_ = std::make_unique<Raytracer>();
+			raytracer_->Awake(graphics_context);
+		}
+
+		scene_constant_binding_signature_ = std::make_unique<dx12::RootSignature>();
+
+		//Scene Constant
+		scene_constant_binding_signature_->AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV,
+			0u, 0u, 1u);
+		scene_constant_binding_signature_->AddHeapRangeParameter(1u,
+			1u, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 0u);
+		scene_constant_binding_signature_->AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 2u, 0u, 61);
+		scene_constant_binding_signature_->Create(graphics_context->graphics_device_, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+
+		std::shared_ptr<Model> model = LoadFbxFromFile("./Assets/Model/Plantune.fbx");
+		renderer = std::make_unique<StaticMeshRenderer>();
+		renderer->Awake(graphics_context, model);
 	}
 
 	void RenderingManager::Shutdown()
 	{
-		raytracer_->Shutdown();
+		if(IsRaytracing())
+			raytracer_->Shutdown();
 	}
 
 	void RenderingManager::OnGui()
 	{
-		if(ImGui::TreeNode("Rendering Manager"))
-		{
-			ImGui::Checkbox("On Raytrace", &on_raytrace_);
-			ImGui::TreePop();
-		}
+
 	}
 
 	void RenderingManager::FrameBegin(const RenderContext* render_context, const SceneConstant& scene_data)
@@ -50,6 +73,19 @@ namespace argent::graphics
 		//シーンデータをアップデート
 		scene_data_  = scene_data;
 		scene_constant_buffer_->CopyToGpu(&scene_data_, render_context->back_buffer_index_);
+
+		//シーンコンスタントを設定
+		render_context->graphics_command_list_->GetCommandList()->SetGraphicsRootSignature(
+			scene_constant_binding_signature_->GetRootSignatureObject());
+
+		render_context->graphics_command_list_->GetCommandList()->SetGraphicsRootConstantBufferView(0u, scene_constant_buffer_->GetGpuVirtualAddress(render_context->back_buffer_index_));
+		//render_context->graphics_command_list_->GetCommandList()->SetGraphicsRootDescriptorTable(0u, scene_constant_buffer_->GetDescriptor(
+		//	render_context->back_buffer_index_).gpu_handle_);
+
+		DirectX::XMFLOAT4X4 world;
+		DirectX::XMMATRIX S = DirectX::XMMatrixScaling(0.01f, 0.01f, 0.01f);
+		DirectX::XMStoreFloat4x4(&world, S);
+		renderer->Render(render_context, world);
 	}
 
 	void RenderingManager::FrameEnd() const

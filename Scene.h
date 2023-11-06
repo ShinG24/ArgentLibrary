@@ -25,7 +25,7 @@ private:
 	argent::component::Camera camera_;
 	argent::component::Light directional_light_;
 
-	float rotation_speed_;
-	float move_speed_;
+	float rotation_speed_ = 0.004f;
+	float move_speed_ = 5.0f;
 };
 

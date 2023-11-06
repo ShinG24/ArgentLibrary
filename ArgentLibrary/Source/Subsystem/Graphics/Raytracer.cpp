@@ -236,12 +236,12 @@ namespace argent::graphics
 			}
 		);
 		global_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 0u, 1u);
-		global_root_signature_.Create(graphics_device, false);
+		global_root_signature_.Create(graphics_device, D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
 		//Shared root signature
 		raygen_miss_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);
 		raygen_miss_root_signature_.AddHeapRangeParameter(0u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);
-		raygen_miss_root_signature_.Create(graphics_device, true);
+		raygen_miss_root_signature_.Create(graphics_device, D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
 
 		//Hit Group Root Signature
 		hit_group_root_signature_.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0u, 1u, 1u);	//For Instance ID
@@ -249,7 +249,7 @@ namespace argent::graphics
 		hit_group_root_signature_.AddHeapRangeParameter(0u, 2u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Abledo
 
 		hit_group_root_signature_.AddHeapRangeParameter(2u, 6u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1u);	//For Vertex Buffer and Index Buffer
-		hit_group_root_signature_.Create(graphics_device, true);
+		hit_group_root_signature_.Create(graphics_device, D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
 
 		//library_manager_ = std::make_unique<ShaderLibraryManager>();
 		//library_manager_->AddShaderLibrary("./Assets/Shader/RayGen.hlsl", {L"RayGen"});

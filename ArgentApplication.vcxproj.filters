@@ -53,6 +53,12 @@
     <None Include="Assets\Shader\StandardMesh.lib.hlsl">
       <Filter>Shader\Raytracing</Filter>
     </None>
+    <None Include="Assets\Shader\StaticMesh.vs.hlsl">
+      <Filter>Shader\Rasterizer</Filter>
+    </None>
+    <None Include="Assets\Shader\Standard.ps.hlsl">
+      <Filter>Shader\Rasterizer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h" />

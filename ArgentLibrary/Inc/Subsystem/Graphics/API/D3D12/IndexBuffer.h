@@ -38,6 +38,12 @@ namespace argent::graphics::dx12
 		D3D12_INDEX_BUFFER_VIEW GetView() const { return buffer_view_; }
 
 		/**
+		 * \brief Buffer Viewのポインタを取得
+		 * \return D3D12_INDEX_BUFFER_VIEW Pointer
+		 */
+		const D3D12_INDEX_BUFFER_VIEW* GetViewPointer() const { return &buffer_view_; }
+
+		/**
 		 * \brief Bufferのポインタを取得
 		 * \return ID3D12Resource
 		 */

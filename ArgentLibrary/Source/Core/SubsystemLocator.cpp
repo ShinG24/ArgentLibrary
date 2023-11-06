@@ -12,6 +12,8 @@
 #include "Subsystem/Graphics/API/D3D12/BottomLevelAccelerationStructure.h"
 #include "Subsystem/Graphics/API/D3D12/TopLevelAccelerationStructure.h"
 #include "Subsystem/Graphics/API/D3D12/ConstantBuffer.h"
+#include "Subsystem/Graphics/API/D3D12/RootSignature.h"
+#include "Subsystem/Graphics/API/D3D12/GraphicsPipelineState.h"
 
 #include "Subsystem/Graphics/Wrapper/DXR/AccelerationStructureManager.h"
 #include "Subsystem/Graphics/Wrapper/ImGuiWrapper.h"

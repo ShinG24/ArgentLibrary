@@ -1,7 +1,9 @@
 #pragma once
 
 #include <wrl.h>
-#include "../External/DXC/Inc/dxcapi.h"
+
+#include <dxcapi.h>
+#include <d3d12shader.h>
 
 namespace argent::graphics
 {
@@ -23,6 +25,9 @@ namespace argent::graphics
 		void CompileShaderLibrary(LPCWSTR filename, IDxcBlob** pp_blob) const;
 
 		void CompileShaderLibraryWithReflectionData(LPCWSTR filename);
+
+		void CompileAndCreateShaderReflection(const wchar_t* filepath, LPCWSTR target_profile, 
+			IDxcBlob** pp_blob, ID3D12ShaderReflection** pp_shader_reflection);
 
 	private:
 		Microsoft::WRL::ComPtr<IDxcCompiler3> dxc_compiler{};

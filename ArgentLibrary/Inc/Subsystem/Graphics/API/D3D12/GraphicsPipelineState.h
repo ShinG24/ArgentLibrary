@@ -12,6 +12,8 @@ namespace argent::graphics
 
 namespace argent::graphics::dx12
 {
+	class RootSignature;
+
 	struct BlendDesc
 	{
 		enum Type
@@ -38,8 +40,11 @@ namespace argent::graphics::dx12
 
 	struct RasterizerDesc
 	{
-		D3D12_FILL_MODE fill_mode_;
-		D3D12_CULL_MODE cull_mode_;
+		RasterizerDesc() = default;
+		RasterizerDesc(D3D12_FILL_MODE fill_mode, D3D12_CULL_MODE cull_mode, bool is_front_ccw);
+
+		D3D12_FILL_MODE fill_mode_ = D3D12_FILL_MODE_SOLID;
+		D3D12_CULL_MODE cull_mode_ = D3D12_CULL_MODE_NONE;
 		bool is_front_ccw_;
 		int32_t depth_bias_;
 		float depth_bias_clamp_;
@@ -61,6 +66,11 @@ namespace argent::graphics::dx12
 		std::shared_ptr<Shader> hull_shader_{};
 		std::shared_ptr<Shader> domain_shader_{};
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE topology_type_ = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		std::shared_ptr<RootSignature> root_signature_;
+		bool increment_input_slot_;
+		UINT num_render_targets_;
+		DXGI_FORMAT render_target_view_format_[8];
+		DXGI_FORMAT depth_stencil_format_ = DXGI_FORMAT_UNKNOWN;
 	};
 
 	class GraphicsPipelineState
@@ -75,12 +85,12 @@ namespace argent::graphics::dx12
 		GraphicsPipelineState& operator=(const GraphicsPipelineState&) = delete;
 		GraphicsPipelineState& operator=(const GraphicsPipelineState&&) = delete;
 
-
+		void SetOnCommandList(ID3D12GraphicsCommandList* graphics_command_list) const;
 
 	private:
-
 		
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipeline_state_object_;
+		std::shared_ptr<RootSignature> root_signature_;
 
 	};
 }

@@ -259,7 +259,13 @@
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\GraphicsPipelineState.h">
       <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
     </ClInclude>
-    <ClInclude Include="Inc\Subsystem\Graphics\Resource\Shader.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Resource\Shader.h">
+      <Filter>Library\Subsystem\Graphics\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\SpriteRenderer.h">
+      <Filter>Library\Subsystem\Graphics\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Resource\Sprite.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -422,6 +428,12 @@
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\GraphicsPipelineState.cpp">
       <Filter>Library\Subsystem\Graphics\API\D3D12</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Subsystem\Graphics\Resource\Shader.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Resource\Shader.cpp">
+      <Filter>Library\Subsystem\Graphics\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\Renderer\SpriteRenderer.cpp">
+      <Filter>Library\Subsystem\Graphics\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\Resource\Sprite.cpp" />
   </ItemGroup>
 </Project>

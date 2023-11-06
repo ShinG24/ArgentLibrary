@@ -72,9 +72,9 @@ namespace argent::graphics::dx12
 		/**
 		 * \brief RootSignatureObject生成関数
 		 * \param graphics_device GraphicsDeviceのポインタ
-		 * \param is_local ルートシグネチャフラグ　ローカルかどうか
+		 * \param flag RootSignature Flag
 		 */
-		void Create(const GraphicsDevice* graphics_device, bool is_local);
+		void Create(const GraphicsDevice* graphics_device, D3D12_ROOT_SIGNATURE_FLAGS flag);
 
 		/**
 		 * \brief RootSignatureオブジェクトを取得

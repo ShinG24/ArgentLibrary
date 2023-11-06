@@ -109,6 +109,8 @@ namespace argent::graphics
 		Mesh& operator=(const Mesh&) = delete;
 		Mesh& operator=(const Mesh&&) = delete;
 
+		void SetVertexBufferAndIndexBuffer(ID3D12GraphicsCommandList* graphics_command_list) const;
+
 	public:
 
 		//TODO 頂点バッファ取得の関数はユーザーには触れてほしくないので隠す

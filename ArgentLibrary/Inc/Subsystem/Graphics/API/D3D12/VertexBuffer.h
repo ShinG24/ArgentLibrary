@@ -41,6 +41,8 @@ namespace argent::graphics::dx12
 		VertexBuffer& operator=(const VertexBuffer&) = delete;
 		VertexBuffer& operator=(const VertexBuffer&&) = delete;
 
+		void CopyToGpu(const void* data) const;
+
 		/**
 		 * \brief Buffer View‚ğæ“¾
 		 * \return D3D12_VERTEX_BUFFER_VIEW
@@ -52,7 +54,7 @@ namespace argent::graphics::dx12
 		 * \brief ’¸“_”‚ğæ“¾
 		 * \return Vertex Counts
 		 */
-		UINT GetVertexCounts() const { return buffer_view_.SizeInBytes / buffer_view_.StrideInBytes; }
+		UINT GetVertexCounts() const { return vertex_counts_; }
 
 		/**
 		 * \brief Buffer Object‚ğæ“¾
@@ -72,6 +74,7 @@ namespace argent::graphics::dx12
 		D3D12_VERTEX_BUFFER_VIEW buffer_view_{};
 		void* mapped_data_{};
 		bool is_unmapped_;
-
+		size_t structure_size_;
+		UINT vertex_counts_;
 	};
 }

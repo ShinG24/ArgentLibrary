@@ -37,6 +37,7 @@ namespace argent::graphics
 		 */
 		void WaitBeforeUse() const;
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const { return descriptor_.gpu_handle_; }
+		UINT GetHeapIndex() const { return descriptor_.heap_index_; }
 
 	private:
 

@@ -187,6 +187,7 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Loader\FbxLoader.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\RasterRenderer.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Raytracer.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\SpriteRenderer.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Renderer\StaticMeshRenderer.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\RenderingManager.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\GameResource.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Mesh.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Model.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Shader.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Resource\Sprite.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\StandardMaterial.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Texture.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.h" />
@@ -245,6 +247,7 @@
     <ClCompile Include="Source\Subsystem\Graphics\Loader\FbxLoader.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\RasterRenderer.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Raytracer.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Renderer\SpriteRenderer.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Renderer\StaticMeshRenderer.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\RenderingManager.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\GameResource.cpp" />
@@ -252,6 +255,7 @@
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Mesh.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Model.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Shader.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Resource\Sprite.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\StandardMaterial.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Texture.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\DXR\AccelerationStructureManager.cpp" />

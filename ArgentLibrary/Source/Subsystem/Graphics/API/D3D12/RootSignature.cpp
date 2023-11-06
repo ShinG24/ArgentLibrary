@@ -71,9 +71,8 @@ namespace argent::graphics::dx12
 		range_locations_.push_back(~0);
 	}
 
-	void RootSignature::Create(const GraphicsDevice* graphics_device, bool is_local)
+	void RootSignature::Create(const GraphicsDevice* graphics_device, D3D12_ROOT_SIGNATURE_FLAGS flag)
 	{
-
 		for(size_t i = 0; i < root_parameters_.size(); ++i)
 		{
 			if(root_parameters_.at(i).ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
@@ -86,10 +85,10 @@ namespace argent::graphics::dx12
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.NumParameters = static_cast<UINT>(root_parameters_.size());
 		desc.pParameters = root_parameters_.data();
-		desc.Flags = is_local ? D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE :
-			D3D12_ROOT_SIGNATURE_FLAG_NONE;
+		desc.Flags = flag;
 
 		graphics_device->SerializeAndCreateRootSignature(desc,
 			root_signature_object_.ReleaseAndGetAddressOf());
+
 	}
 }

@@ -39,6 +39,20 @@ namespace argent::graphics
 			binormal_vec_.empty() || texcoord_vec_.empty() || index_vec_.empty();
 	}
 
+	void Mesh::SetVertexBufferAndIndexBuffer(ID3D12GraphicsCommandList* graphics_command_list) const
+	{
+		D3D12_VERTEX_BUFFER_VIEW views[5]
+		{
+			position_buffer_->GetView(),
+			normal_buffer_->GetView(),
+			tangent_buffer_->GetView(),
+			binormal_buffer_->GetView(),
+			texcoord_buffer_->GetView(),
+		};
+		graphics_command_list->IASetVertexBuffers(0u, 5, views);
+		graphics_command_list->IASetIndexBuffer(index_buffer_->GetViewPointer());
+	}
+
 	void Mesh::Awake(const GraphicsContext* graphics_context)
 	{
 		//すべてのデータを使う前提のため一つでも.empty()なデータが有る場合はアサートを出す
