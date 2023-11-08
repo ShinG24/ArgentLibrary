@@ -15,6 +15,8 @@ namespace argent::graphics
 {
 	struct GraphicsContext;
 	struct RenderContext;
+	class Mesh;
+	class Material;
 	class Model;
 	class Shader;
 
@@ -34,8 +36,6 @@ namespace argent::graphics
 	public:
 
 		StaticMeshRenderer() =  default;
-		StaticMeshRenderer(const char* filepath);
-
 		~StaticMeshRenderer() = default;
 
 		StaticMeshRenderer(StaticMeshRenderer&) = delete;
@@ -48,6 +48,9 @@ namespace argent::graphics
 		void Render(const RenderContext* render_context, const DirectX::XMFLOAT4X4& world_matrix);
 
 	private:
+
+		std::vector<std::shared_ptr<Mesh>> meshes_;
+		std::vector<std::shared_ptr<Material>> materials_;
 
 		std::shared_ptr<Model> model_;
 		std::shared_ptr<dx12::GraphicsPipelineState> pipeline_state_;

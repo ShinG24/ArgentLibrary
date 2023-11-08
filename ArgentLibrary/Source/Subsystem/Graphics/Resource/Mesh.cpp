@@ -13,6 +13,10 @@
 		  
 #include "Subsystem/Graphics/Resource/Material.h"
 
+#include "Subsystem/ResourceManager/ResourceManager.h"
+
+#include "Core/SubsystemLocator.h"
+#include "Core/Engine.h"
 
 //#include "../Inc/BottomLevelAccelerationStructure.h"
 
@@ -21,17 +25,16 @@ namespace argent::graphics
 	Mesh::Data::Data(std::vector<Position>& position_vec, std::vector<Normal> normal_vec,
 		std::vector<Tangent>& tangent_vec, std::vector<Binormal>& binormal_vec, std::vector<Texcoord>& texcoord_vec,
 		std::vector<uint32_t>& index_vec, const DirectX::XMFLOAT4X4& default_global_transform,
-		std::shared_ptr<Material> material) :
+		uint64_t material_unique_id) :
 		position_vec_(std::move(position_vec))
-	,	normal_vec_(std::move(normal_vec))
-	,	tangent_vec_(std::move(tangent_vec))
-	,	binormal_vec_(std::move(binormal_vec))
-	,	texcoord_vec_(std::move(texcoord_vec))
-	,	index_vec_(std::move(index_vec))
-	,	default_global_transform_(default_global_transform)
-	,	material_(material)
+	, normal_vec_(std::move(normal_vec))
+	, tangent_vec_(std::move(tangent_vec))
+	, binormal_vec_(std::move(binormal_vec))
+	, texcoord_vec_(std::move(texcoord_vec))
+	, index_vec_(std::move(index_vec))
+	, default_global_transform_(default_global_transform)
+	, material_unique_id_(material_unique_id)
 	{}
-
 
 	bool Mesh::Data::HasNullData() const
 	{

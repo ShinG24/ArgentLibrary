@@ -6,7 +6,7 @@
 
 namespace argent::graphics
 {
-	class RenderContext;	
+	struct RenderContext;	
 }
 
 namespace argent::scene

@@ -44,6 +44,12 @@ namespace argent::graphics
 		desc.pixel_shader_ = pixel_shader_;
 
 		pipeline_state_ = std::make_unique<dx12::GraphicsPipelineState>(graphics_context->graphics_device_->GetDevice(), desc);
+
+		meshes_ = model_->GetMeshes();
+
+		for(const auto& m : meshes_)
+		{
+		}
 	}
 
 	void StaticMeshRenderer::Render(const RenderContext* render_context, const DirectX::XMFLOAT4X4& world_matrix)
@@ -60,11 +66,11 @@ namespace argent::graphics
 		command_list->SetGraphicsRootDescriptorTable(1u,
 			object_constant_buffer_->GetDescriptor(render_context->back_buffer_index_).gpu_handle_);
 
-		for(auto& m : model_->GetMeshes())
+		for(const auto& m : meshes_)
 		{
 			m->SetVertexBuffersAndIndexBuffer(command_list);
-			
-			command_list->DrawIndexedInstanced(m->GetRenderingIndexCount(), 1u, 0u, 0u, 0u);
+			command_list->DrawIndexedInstanced(static_cast<UINT>(m->GetRenderingIndexCount()),
+				1u, 0u, 0u, 0u);
 		}
 	}
 }

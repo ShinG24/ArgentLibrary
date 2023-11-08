@@ -20,6 +20,9 @@
 #include "Subsystem/Graphics/Resource/Model.h"
 
 
+#include "Subsystem/ResourceManager/ResourceManager.h"
+
+
 struct Scene
 	{
 		struct Node
@@ -57,6 +60,7 @@ namespace argent::graphics
 		std::vector<uint32_t> index_vec_{};
 
 		DirectX::XMFLOAT4X4 default_global_transform_{};
+		int64_t fbx_material_unique_id_{};
 
 		void Add(const Position& position, const Normal& normal, const Tangent& tangent, const Binormal& binormal, const Texcoord& texcoord, uint32_t index_value, size_t vector_index)
 		{
@@ -95,11 +99,12 @@ namespace argent::graphics
 	struct MaterialData
 	{
 		std::string name_;
+		int64_t fbx_unique_id_;
 		std::unordered_map<Material::TextureUsage, std::string> filepath_map_;
 	};
 
-	void FetchMesh(FbxScene* fbx_scene, const Scene& scene_view, std::vector<MeshData>& mesh_data_vec);
-	void FetchMaterial(FbxScene* fbx_scene, std::vector<MaterialData>& material_data);
+	void FetchMeshes(FbxScene* fbx_scene, const Scene& scene_view, std::vector<MeshData>& mesh_data_vec);
+	void FetchMaterials(FbxScene* fbx_scene, std::vector<MaterialData>& material_data);
 
 	std::shared_ptr<Model> LoadFbxFromFile(const char* filepath)
 	{
@@ -139,11 +144,11 @@ namespace argent::graphics
 
 		//メッシュ情報を取得
 		std::vector<MeshData> load_mesh_data;
-		FetchMesh(fbx_scene, scene_view, load_mesh_data);
+		FetchMeshes(fbx_scene, scene_view, load_mesh_data);
 
 		//マテリアル情報を取得
 		std::vector<MaterialData> load_material_data;
-		FetchMaterial(fbx_scene, load_material_data);
+		FetchMaterials(fbx_scene, load_material_data);
 
 		//ファイルからのロードはここまで
 		fbx_manager->Destroy();
@@ -173,6 +178,7 @@ namespace argent::graphics
 			resource_material_data.at(i).filepath_map_ = std::move(load_material_data.at(i).filepath_map_); 
 		}
 
+		//TODO リソースマネージャからマテリアルを取ってくる
 		for(size_t i = 0; i < materials.size(); ++i)
 		{
 			materials.at(i) = std::make_shared<StandardMaterial>(load_material_data.at(i).name_, resource_material_data.at(i));
@@ -182,29 +188,12 @@ namespace argent::graphics
 		return model;
 	}
 
-	void FetchMesh(FbxScene* fbx_scene, const Scene& scene_view, std::vector<MeshData>& mesh_data_vec)
+	void FetchMeshes(FbxScene* fbx_scene, const Scene& scene_view, std::vector<MeshData>& mesh_data_vec)
 	{
-		for(const auto& node : scene_view.nodes_)
-		{
-			if (node.attribute_ != FbxNodeAttribute::EType::eMesh) continue;
-
-			//TODO FindNodeByNameは欠陥品なので修正する
-			auto* fbx_node{ fbx_scene->FindNodeByName(node.name_.c_str()) };
-			auto* fbx_mesh{ fbx_node->GetMesh() };
-
-			auto& mesh{ mesh_data_vec.emplace_back() };
-			mesh.name_ = node.name_;
-
-			const int polygon_count{ fbx_mesh->GetPolygonCount() };
-			mesh.VectorResize(polygon_count * 3LL);
-
-			FbxStringList uv_names;
-			fbx_mesh->GetUVSetNames(uv_names);
-			const FbxVector4* control_points{ fbx_mesh->GetControlPoints() };
-			//ポリゴン数だけfor文を回す
-			for (int polygon_index = 0; polygon_index < polygon_count; ++polygon_index)
+		//1PolygonをFbxから引っ張ってくるやつ
+		auto fetch_polygon = [&](FbxMesh* fbx_mesh, FbxStringList uv_names, const FbxVector4* control_points,
+			int polygon_index, MeshData& dst)
 			{
-				//Fbxでは 1Polygon == 3 Indexなので三回分回す
 				for (int position_in_polygon = 0; position_in_polygon < 3; ++position_in_polygon)
 				{
 					const int vertex_index{ polygon_index * 3 + position_in_polygon };
@@ -221,9 +210,9 @@ namespace argent::graphics
 					v_position.z = static_cast<float>(control_points[polygon_vertex][2]);
 
 					//データがない場合は生成する
-					if(fbx_mesh->GetElementNormalCount() <= 0) fbx_mesh->CreateElementNormal();
-					if(fbx_mesh->GetElementTangentCount() <= 0)fbx_mesh->GenerateTangentsData(0, false);
-					if(fbx_mesh->GetElementBinormalCount() <= 0) fbx_mesh->CreateElementBinormal();
+					if (fbx_mesh->GetElementNormalCount() <= 0) fbx_mesh->CreateElementNormal();
+					if (fbx_mesh->GetElementTangentCount() <= 0)fbx_mesh->GenerateTangentsData(0, false);
+					if (fbx_mesh->GetElementBinormalCount() <= 0) fbx_mesh->CreateElementBinormal();
 
 					FbxVector4 normal;
 					fbx_mesh->GetPolygonVertexNormal(polygon_index, position_in_polygon, normal);
@@ -243,7 +232,7 @@ namespace argent::graphics
 
 					//UVはなくても問題はなので特に特別は処置はしない　
 					//ない==テクスチャマッピングはしない
-					if(fbx_mesh->GetElementUVCount() > 0)
+					if (fbx_mesh->GetElementUVCount() > 0)
 					{
 						FbxVector2 uv;
 						bool unmapped_uv;
@@ -251,22 +240,108 @@ namespace argent::graphics
 						v_texcoord.x = static_cast<float>(uv[0]);
 						v_texcoord.y = static_cast<float>(uv[1]);
 					}
-					
-					mesh.Add(v_position, v_normal, v_tangent, v_binormal, v_texcoord, vertex_index, vertex_index);
+					dst.Add(v_position, v_normal, v_tangent, v_binormal, v_texcoord, vertex_index, vertex_index);
 				}
-			}
+			};
+
+		//1MeshをFbxから引っ張ってくるやつ
+		auto fetch_mesh = [&](const Scene::Node& node, MeshData& dst)
+			{
+				auto* fbx_node{ fbx_scene->FindNodeByName(node.name_.c_str()) };
+				auto* fbx_mesh = fbx_node->GetMesh();
+
+				const int polygon_count{ fbx_mesh->GetPolygonCount() };
+
+				dst.name_ = node.name_;
+				dst.VectorResize(polygon_count * 3LL);
+				if (fbx_node->GetMaterialCount() > 0)
+				{
+					//TODO Multiple Material
+					dst.fbx_material_unique_id_ = static_cast<int64_t>(fbx_node->GetMaterial(0)->GetUniqueID());
+				}
+				else
+				{
+					dst.fbx_material_unique_id_ = -1;
+				}
+
+				FbxStringList uv_names;
+				fbx_mesh->GetUVSetNames(uv_names);
+				const FbxVector4* control_points{ fbx_mesh->GetControlPoints() };
+				for(int polygon_index = 0; polygon_index < polygon_count; ++polygon_index)
+				{
+					fetch_polygon(fbx_mesh, uv_names, control_points, polygon_index, dst);
+				}
+			};
+
+		//実際にロードしてるところ
+		for(const auto& node : scene_view.nodes_)
+		{
+			if (node.attribute_ != FbxNodeAttribute::EType::eMesh) continue;
+
+			auto& mesh{ mesh_data_vec.emplace_back() };
+			fetch_mesh(node, mesh);
 		}
 	}
 
-	void FetchMaterial(FbxScene* fbx_scene, std::vector<MaterialData>& material_data)
+	void FetchMaterials(FbxScene* fbx_scene, std::vector<MaterialData>& material_data)
 	{
+		auto fetch_material = [&](const FbxSurfaceMaterial* fbx_surface_material, MaterialData& dst)
+			{
+				dst.name_ = fbx_surface_material->GetName();
+
+				FbxProperty fbx_property{};
+
+				//Diffuse (Albedo)
+				fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+				if (fbx_property.IsValid())
+				{
+					const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
+					dst.filepath_map_[Material::TextureUsage::Albedo] = fbx_texture ?
+						fbx_texture->GetRelativeFileName() : "";
+				}
+
+				//Normal
+				fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sNormalMap);
+				if (fbx_property.IsValid())
+				{
+					const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
+					dst.filepath_map_[Material::TextureUsage::Normal] = fbx_texture ?
+						fbx_texture->GetRelativeFileName() : "";
+				}
+
+				//Emissive
+				fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sEmissive);
+				if (fbx_property.IsValid())
+				{
+					const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
+					dst.filepath_map_[Material::TextureUsage::Normal] = fbx_texture ?
+						fbx_texture->GetRelativeFileName() : "";
+				}
+
+			};
+
+		auto create_dummy_material = [&](MaterialData& dst)
+			{
+				dst.name_ = "StandardMaterial_Dummy";
+				dst.fbx_unique_id_ = -1;
+				dst.filepath_map_.clear();
+			};
+
+
 		const auto material_counts = fbx_scene->GetMaterialCount();
+		if(material_counts <= 0)
+		{
+			auto& m = material_data.emplace_back();
+			create_dummy_material(m);
+		}
+
 		material_data.resize(material_counts);
 		for(int i = 0; i < material_counts; ++i)
 		{
 			const auto fbx_surface_material = fbx_scene->GetMaterial(i);
 			auto& data = material_data.at(i);
 			data.name_ = fbx_surface_material->GetName();
+			data.fbx_unique_id_ = fbx_surface_material->GetUniqueID();
 
 			FbxProperty fbx_property{};
 

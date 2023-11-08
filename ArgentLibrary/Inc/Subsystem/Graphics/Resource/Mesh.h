@@ -54,11 +54,12 @@ namespace argent::graphics
 			 * \param texcoord_vec : texcoord vec
 			 * \param index_vec : index vec
 			 * \param default_global_transform	: default global transform
-			 * \param material : material //TODO そのうちけします 
+			 * \param material_unique_id : マテリアルのUnique ID
 			 */
 			Data(std::vector<Position>& position_vec, std::vector<Normal> normal_vec, std::vector<Tangent>& tangent_vec, 
 			     std::vector<Binormal>& binormal_vec, std::vector<Texcoord>& texcoord_vec, 
-			     std::vector<uint32_t>& index_vec, const DirectX::XMFLOAT4X4& default_global_transform, std::shared_ptr<Material> material);
+			     std::vector<uint32_t>& index_vec, const DirectX::XMFLOAT4X4& default_global_transform,
+				 uint64_t material_unique_id);
 
 			std::vector<Position>		position_vec_{};
 			std::vector<Normal>			normal_vec_{};
@@ -70,7 +71,7 @@ namespace argent::graphics
 			DirectX::XMFLOAT4X4			default_global_transform_{};	//グローバル空間でのトランスフォーム　
 																		//Global Space = Maya, Blenderでいうシーン World ↔ Local(Model) ↔ Global
 			//TODO 複数マテリアルへの対応
-			std::shared_ptr<Material>	material_;
+			uint64_t material_unique_id_{};
 
 		private:
 
@@ -233,13 +234,6 @@ namespace argent::graphics
 			collision_data_.default_global_transform_ = data_.default_global_transform_;
 		}
 
-		//TODO 複数のマテリアルに対応した関数を作る
-		/**
-		 * \brief Materialを取得 !!!そのうち消します
-		 * \return Materialへのポインタ
-		 */
-		std::shared_ptr<Material> GetMaterial() const { return material_; }
-
 	private:
 
 		/**
@@ -287,10 +281,5 @@ namespace argent::graphics
 		dx12::Descriptor binormal_srv_descriptor_{};
 		dx12::Descriptor texcoord_srv_descriptor_{};
 		dx12::Descriptor index_srv_descriptor_{};
-
-
-		//TODO 複数マテリアルへの対応 レイトレの場合はどうすればいいでしょうね
-		//マテリアルへのポインタ or Unique ID
-		std::shared_ptr<Material> material_{};
 	};
 }
