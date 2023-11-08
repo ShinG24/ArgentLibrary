@@ -39,7 +39,7 @@ namespace argent::graphics
 			binormal_vec_.empty() || texcoord_vec_.empty() || index_vec_.empty();
 	}
 
-	void Mesh::SetVertexBufferAndIndexBuffer(ID3D12GraphicsCommandList* graphics_command_list) const
+	void Mesh::SetVertexBuffersAndIndexBuffer(ID3D12GraphicsCommandList* graphics_command_list) const
 	{
 		D3D12_VERTEX_BUFFER_VIEW views[5]
 		{

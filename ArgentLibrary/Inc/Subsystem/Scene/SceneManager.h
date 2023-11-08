@@ -5,7 +5,11 @@
 #include <unordered_map>
 
 #include "Subsystem/Subsystem.h"
-#include "Subsystem/Input/Keyboard.h"
+
+namespace argent::graphics
+{
+	struct RenderContext;
+}
 
 namespace argent::scene
 {
@@ -44,7 +48,7 @@ namespace argent::scene
 		/**
 		 * \brief •`‰æŠÖ”
 		 */
-		void Render() const;
+		void Render(const graphics::RenderContext* render_context) const;
 
 		/**
 		 * \brief Guiã‚É•`‰æ‚·‚éŠÖ”

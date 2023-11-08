@@ -47,11 +47,12 @@ namespace argent::scene
 			current_scene_->Update();
 	}
 
-	void SceneManager::Render() const
+	void SceneManager::Render(const graphics::RenderContext* render_context) const
 	{
-		if(current_scene_)
-			current_scene_->Render();
+		//if(current_scene_)
+			//current_scene_->Render(render_context);
 	}
+
 
 	void SceneManager::OnGui() const
 	{

@@ -74,41 +74,7 @@ namespace argent
 				//描画
 				auto render_context = graphics->FrameBegin();
 
-				//TODO ここでやるもんじゃなくね シーンコンスタント
-				{
-					auto current_scene = scene->GetCurrentScene();
-					auto c_pos = current_scene->GetCameraPosition();
-					auto l_dir = current_scene->GetLightDirection();
-					scene_data.camera_position_ = { c_pos.x, c_pos.y, c_pos.z, 1.0f };
-					scene_data.view_matrix_ = current_scene->GetViewMatrix();
-					scene_data.projection_matrix_ = current_scene->GetProjectionMatrix();
-					DirectX::XMStoreFloat4x4(&scene_data.view_projection_matrix_, 
-						DirectX::XMLoadFloat4x4(&scene_data.view_matrix_) * 
-						DirectX::XMLoadFloat4x4(&scene_data.projection_matrix_));
-					DirectX::XMStoreFloat4x4(&scene_data.inv_view_projection_matrix_, 
-						DirectX::XMMatrixInverse(nullptr, 
-							DirectX::XMLoadFloat4x4(&scene_data.view_projection_matrix_))); 
-					scene_data.light_direction_ = { l_dir.x, l_dir.y, l_dir.z, 0.0f };
-				}
-
-				rendering->FrameBegin(&render_context, scene_data);
-				
-				if(rendering->IsRaytracing())
-				{
-					//レイトレによる描画
-					rendering->OnRaytrace(&render_context, graphics->GetGraphicsContext());
-				}
-				else
-				{
-					//ラスタライザによる描画
-					scene->Render();
-				}
-
-				//Guiへ描画
-				rendering->OnGui();
-				scene->OnGui();
-
-				rendering->FrameEnd();
+				rendering->Render(&render_context);
 
 				graphics->FrameEnd();
 			}

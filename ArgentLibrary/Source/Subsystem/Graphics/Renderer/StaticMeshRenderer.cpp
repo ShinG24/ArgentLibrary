@@ -62,7 +62,7 @@ namespace argent::graphics
 
 		for(auto& m : model_->GetMeshes())
 		{
-			m->SetVertexBufferAndIndexBuffer(command_list);
+			m->SetVertexBuffersAndIndexBuffer(command_list);
 			
 			command_list->DrawIndexedInstanced(m->GetRenderingIndexCount(), 1u, 0u, 0u, 0u);
 		}

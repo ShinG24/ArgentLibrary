@@ -60,18 +60,14 @@ namespace argent::graphics
 		 */
 		void Shutdown() override;
 
+		/**
+		 * \brief 描画命令
+		 * シーンの描画、ポストプロセス、UI描画
+		 * \param render_context Render Context
+		 */
+		void Render(const RenderContext* render_context);
+
 		void OnGui();
-
-		/**
-		 * \brief 開始命令　
-		 * 描画に必要なデータ（カメラ、ライトなど）の情報を集める。
-		 */
-		void FrameBegin(const RenderContext* render_context, const SceneConstant& scene_data);
-
-		/**
-		 * \brief 描画終了
-		 */
-		void FrameEnd() const;
 
 		/**
 		 * \brief レイトレーシングの実行

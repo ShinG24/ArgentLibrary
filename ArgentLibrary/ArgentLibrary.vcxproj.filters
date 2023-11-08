@@ -266,6 +266,8 @@
       <Filter>Library\Subsystem\Graphics\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Sprite.h" />
+    <ClInclude Include="Inc\GameObject\GameObject.h" />
+    <ClInclude Include="Inc\Subsystem\ResourceManager\ResourceManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -435,5 +437,7 @@
       <Filter>Library\Subsystem\Graphics\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Sprite.cpp" />
+    <ClCompile Include="Source\GameObject\GameObject.cpp" />
+    <ClCompile Include="Source\Subsystem\ResourceManager\ResourceManager.cpp" />
   </ItemGroup>
 </Project>

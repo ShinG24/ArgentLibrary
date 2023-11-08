@@ -164,6 +164,7 @@
     <ClInclude Include="Inc\Component\Transform.h" />
     <ClInclude Include="Inc\Core\Engine.h" />
     <ClInclude Include="Inc\Core\SubsystemLocator.h" />
+    <ClInclude Include="Inc\GameObject\GameObject.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\CommandQueue.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\API\D3D12\ConstantBuffer.h" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Inc\Subsystem\Input\Keyboard.h" />
     <ClInclude Include="Inc\Subsystem\Input\Mouse.h" />
     <ClInclude Include="Inc\Subsystem\Platform\Platform.h" />
+    <ClInclude Include="Inc\Subsystem\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Inc\Subsystem\Scene\BaseScene.h" />
     <ClInclude Include="Inc\Subsystem\Scene\SceneManager.h" />
     <ClInclude Include="Inc\Subsystem\Subsystem.h" />
@@ -228,6 +230,7 @@
     <ClCompile Include="Source\Component\Transform.cpp" />
     <ClCompile Include="Source\Core\Engine.cpp" />
     <ClCompile Include="Source\Core\SubsystemLocator.cpp" />
+    <ClCompile Include="Source\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\CommandQueue.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\API\D3D12\ConstantBuffer.cpp" />
@@ -269,6 +272,7 @@
     <ClCompile Include="Source\Subsystem\Input\Keyboard.cpp" />
     <ClCompile Include="Source\Subsystem\Input\Mouse.cpp" />
     <ClCompile Include="Source\Subsystem\Platform\Platform.cpp" />
+    <ClCompile Include="Source\Subsystem\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Subsystem\Scene\BaseScene.cpp" />
     <ClCompile Include="Source\Subsystem\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Subsystem\Timer\Timer.cpp" />

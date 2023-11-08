@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 
 #include <memory>
+#include <vector>
 
 namespace argent::graphics::dx12
 {
@@ -33,6 +34,8 @@ namespace argent::graphics
 	public:
 
 		StaticMeshRenderer() =  default;
+		StaticMeshRenderer(const char* filepath);
+
 		~StaticMeshRenderer() = default;
 
 		StaticMeshRenderer(StaticMeshRenderer&) = delete;

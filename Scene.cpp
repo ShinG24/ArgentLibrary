@@ -66,9 +66,9 @@ void DemoScene::Update()
 	}
 }
 
-void DemoScene::Render()
+void DemoScene::OnRender3D(const argent::graphics::RenderContext* render_context)
 {
-
+	BaseScene::OnRender3D(render_context);
 }
 
 void DemoScene::OnGui()

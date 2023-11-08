@@ -4,6 +4,11 @@
 
 #include <string>
 
+namespace argent::graphics
+{
+	class RenderContext;	
+}
+
 namespace argent::scene
 {
 	/**
@@ -45,12 +50,18 @@ namespace argent::scene
 		 */
 		virtual void Update() {}
 
+
 		/**
-		 * \brief 描画関数
-		 * このシーンがCurrent Sceneである限り毎フレーム一回呼ばれる
-		 * この関数はUpdate()より後に呼ばれ、OnGui()より先に呼ばれる
+		 * \brief 3D空間に描画
+		 * \param render_context RenderContext 
 		 */
-		virtual	void Render() {}
+		virtual void OnRender3D(const graphics::RenderContext* render_context) {}
+
+		/**
+		 * \brief 2Dの描画　ポストプロセスをしたくないやつ用 UIとか
+		 * \param render_context RenderContext
+		 */
+		virtual void OnRender2D(const graphics::RenderContext* render_context) {}
 
 		/**
 		 * \brief Gui上に描画する関数

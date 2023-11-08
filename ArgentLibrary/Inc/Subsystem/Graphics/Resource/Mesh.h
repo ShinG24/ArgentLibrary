@@ -109,11 +109,15 @@ namespace argent::graphics
 		Mesh& operator=(const Mesh&) = delete;
 		Mesh& operator=(const Mesh&&) = delete;
 
-		void SetVertexBufferAndIndexBuffer(ID3D12GraphicsCommandList* graphics_command_list) const;
+		/**
+		 * \brief コマンドリストに頂点バッファとインデックスバッファをセットする
+		 * \param graphics_command_list ID3D12GraphicsCommandList
+		 */
+		void SetVertexBuffersAndIndexBuffer(ID3D12GraphicsCommandList* graphics_command_list) const;
 
 	public:
 
-		//TODO 頂点バッファ取得の関数はユーザーには触れてほしくないので隠す
+		//TODO 頂点バッファ取得の関数はユーザーには触れてほしくないので隠す For Raytracing
 		dx12::VertexBuffer* GetPositionBuffer() const { return position_buffer_.get(); }
 		dx12::VertexBuffer* GetNormalBuffer() const { return normal_buffer_.get(); }
 		dx12::VertexBuffer* GetTangentBuffer() const { return tangent_buffer_.get(); }
@@ -236,7 +240,6 @@ namespace argent::graphics
 		 */
 		std::shared_ptr<Material> GetMaterial() const { return material_; }
 
-
 	private:
 
 		/**
@@ -289,6 +292,5 @@ namespace argent::graphics
 		//TODO 複数マテリアルへの対応 レイトレの場合はどうすればいいでしょうね
 		//マテリアルへのポインタ or Unique ID
 		std::shared_ptr<Material> material_{};
-
 	};
 }

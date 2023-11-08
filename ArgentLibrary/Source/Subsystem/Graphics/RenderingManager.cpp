@@ -24,6 +24,12 @@
 
 #include "Subsystem/Graphics/Loader/FbxLoader.h"
 
+
+
+#include "Subsystem/Scene/BaseScene.h"
+#include "Subsystem/Scene/SceneManager.h"
+
+
 namespace argent::graphics
 {
 	std::unique_ptr<StaticMeshRenderer> renderer;
@@ -63,15 +69,27 @@ namespace argent::graphics
 			raytracer_->Shutdown();
 	}
 
-	void RenderingManager::OnGui()
+	void RenderingManager::Render(const RenderContext* render_context)
 	{
+		auto* scene = GetEngine()->GetSubsystemLocator()->GetSubsystem<scene::SceneManager>()->GetCurrentScene();
 
-	}
-
-	void RenderingManager::FrameBegin(const RenderContext* render_context, const SceneConstant& scene_data)
-	{
+		auto update_scene_constant = [&](SceneConstant& dst)
+		{
+			auto c_pos = scene->GetCameraPosition();
+			auto l_dir = scene->GetLightDirection();
+			dst.camera_position_ = { c_pos.x, c_pos.y, c_pos.z, 1.0f };
+			dst.view_matrix_ = scene->GetViewMatrix();
+			dst.projection_matrix_ = scene->GetProjectionMatrix();
+			DirectX::XMStoreFloat4x4(&dst.view_projection_matrix_, 
+				DirectX::XMLoadFloat4x4(&dst.view_matrix_) * 
+				DirectX::XMLoadFloat4x4(&dst.projection_matrix_));
+			DirectX::XMStoreFloat4x4(&dst.inv_view_projection_matrix_, 
+				DirectX::XMMatrixInverse(nullptr, 
+					DirectX::XMLoadFloat4x4(&dst.view_projection_matrix_))); 
+			dst.light_direction_ = { l_dir.x, l_dir.y, l_dir.z, 0.0f };
+		};
 		//シーンデータをアップデート
-		scene_data_  = scene_data;
+		update_scene_constant(scene_data_);
 		scene_constant_buffer_->CopyToGpu(&scene_data_, render_context->back_buffer_index_);
 
 		//シーンコンスタントを設定
@@ -79,19 +97,41 @@ namespace argent::graphics
 			scene_constant_binding_signature_->GetRootSignatureObject());
 
 		render_context->graphics_command_list_->GetCommandList()->SetGraphicsRootConstantBufferView(0u, scene_constant_buffer_->GetGpuVirtualAddress(render_context->back_buffer_index_));
-		//render_context->graphics_command_list_->GetCommandList()->SetGraphicsRootDescriptorTable(0u, scene_constant_buffer_->GetDescriptor(
-		//	render_context->back_buffer_index_).gpu_handle_);
 
-		DirectX::XMFLOAT4X4 world;
-		DirectX::XMMATRIX S = DirectX::XMMatrixScaling(0.01f, 0.01f, 0.01f);
-		DirectX::XMStoreFloat4x4(&world, S);
-		renderer->Render(render_context, world);
-	}
+		if(IsRaytracing())
+		{
+			//レイトレによる描画
+			auto graphics = GetEngine()->GetSubsystemLocator()->GetSubsystem<GraphicsLibrary>();
+			OnRaytrace(render_context, graphics->GetGraphicsContext());
+		}
+		else
+		{
+			//ラスタライザによる描画
+			scene->OnRender3D(render_context);
 
-	void RenderingManager::FrameEnd() const
-	{
+			//TODO For Post Process
+
+			//For UI
+			scene->OnRender2D(render_context);
+
+			DirectX::XMFLOAT4X4 world;
+			DirectX::XMMATRIX S = DirectX::XMMatrixScaling(0.01f, 0.01f, 0.01f);
+			DirectX::XMStoreFloat4x4(&world, S);
+			renderer->Render(render_context, world);
+		}
+
+		//Guiへ描画
+		OnGui();
+		scene->OnGui();
+
 		if(on_raytrace_)
 			GetEngine()->GetSubsystemLocator()->GetSubsystem<graphics::GraphicsLibrary>()->CopyToBackBuffer(raytracer_->GetOutputBuffer());
+
+	}
+
+	void RenderingManager::OnGui()
+	{
+
 	}
 
 	void RenderingManager::OnRaytrace(const RenderContext* render_context, const GraphicsContext* graphics_context) const

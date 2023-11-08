@@ -12,7 +12,7 @@ public:
 	void Shutdown() override;
 
 	void Update() override;
-	void Render() override;
+	void OnRender3D(const argent::graphics::RenderContext* render_context) override;
 	void OnGui() override;
 
 	DirectX::XMFLOAT3 GetCameraPosition() const override { return camera_.GetEye(); }
@@ -27,5 +27,6 @@ private:
 
 	float rotation_speed_ = 0.004f;
 	float move_speed_ = 5.0f;
+
 };
 
