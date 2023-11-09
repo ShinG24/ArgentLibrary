@@ -18,20 +18,23 @@
 #include "Subsystem/Graphics/Wrapper/DXR/AccelerationStructureManager.h"
 #include "Subsystem/Graphics/Wrapper/ImGuiWrapper.h"
 #include "Subsystem/Graphics/Wrapper/FrameResource.h"
-
-#include "Subsystem/Graphics/GraphicsLibrary.h"
-
-#include "Subsystem/Graphics/Raytracer.h"
-
-#include "Subsystem/Graphics/RenderingManager.h"
-#include "Subsystem/Input/InputManager.h"
-#include "Subsystem/Timer/Timer.h"
-
 #include "Subsystem/Graphics/Wrapper/DXR/ShaderLibrary.h"
 #include "Subsystem/Graphics/Wrapper/DXR/ShaderLibraryManager.h"
 
+#include "Subsystem/Graphics/Resource/GameResource.h"
+
+#include "Subsystem/Graphics/Raytracer.h"
+#include "Subsystem/Graphics/RenderingManager.h"
+#include "Subsystem/Graphics/GraphicsLibrary.h"
+
+
+#include "Subsystem/Input/InputManager.h"
+#include "Subsystem/Timer/Timer.h"
+
 #include "Subsystem/Scene/BaseScene.h"
 #include "Subsystem/Scene/SceneManager.h"
+
+#include "Subsystem/ResourceManager/ResourceManager.h"
 
 
 namespace argent
@@ -40,6 +43,7 @@ namespace argent
 	{
 		AddSubsystem<platform::Platform>();
 		AddSubsystem<graphics::GraphicsLibrary>();
+		AddSubsystem<ResourceManager>();
 		AddSubsystem<graphics::RenderingManager>();
 		AddSubsystem<input::InputManager>();
 		AddSubsystem<Timer>();
@@ -51,7 +55,10 @@ namespace argent
 		GetSubsystem<scene::SceneManager>()->Shutdown();
 		GetSubsystem<Timer>()->Shutdown();
 		GetSubsystem<input::InputManager>()->Shutdown();
-		GetSubsystem<graphics::RenderingManager>();
+		GetSubsystem<graphics::RenderingManager>()->Shutdown();
+
+		GetSubsystem<ResourceManager>()->Shutdown();
+
 		GetSubsystem<graphics::GraphicsLibrary>()->Shutdown();
 		GetSubsystem<platform::Platform>()->Shutdown();
 	}

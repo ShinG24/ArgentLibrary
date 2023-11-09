@@ -88,6 +88,7 @@ namespace argent::graphics::dx12
 
 		//データ保持用
 		std::vector<D3D12_ROOT_PARAMETER> root_parameters_;
+		std::vector<D3D12_STATIC_SAMPLER_DESC> static_samplers_;
 		std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> descriptor_ranges_;
 		std::vector<UINT> range_locations_;
 

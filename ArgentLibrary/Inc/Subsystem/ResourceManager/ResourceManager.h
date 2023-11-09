@@ -22,7 +22,7 @@ namespace argent
 
 	public:
 
-		ResourceManager();
+		ResourceManager() = default;
 		~ResourceManager() override = default;
 
 		ResourceManager(const ResourceManager&) = delete;
@@ -44,7 +44,7 @@ namespace argent
 		{
 			if(resources_.contains(unique_id))
 			{
-				if (typeid(resources_[unique_id].get()) != typeid(T)) _ASSERT_EXPR(false, L"w’è‚³‚ê‚½Œ^–¼‚Æ•Û‚³‚ê‚Ä‚¢‚éŒ^–¼‚ªˆá‚¢‚Ü‚·");
+				//if (typeid(*(resources_[unique_id].get())) != typeid(T) || std::is_base_of_v<graphics::GameResource, T>) _ASSERT_EXPR(false, L"w’è‚³‚ê‚½Œ^–¼‚Æ•Û‚³‚ê‚Ä‚¢‚éŒ^–¼‚ªˆá‚¢‚Ü‚·");
 				return std::static_pointer_cast<T>(resources_[unique_id]);
 			}
 			return nullptr;
@@ -65,6 +65,17 @@ namespace argent
 			}
 			return nullptr;
 		}
+
+		/**
+		 * \brief ƒŠƒ\[ƒX‚Ì“o˜^
+		 * \param resource GameResource
+		 * \return Unique ID
+		 */
+		uint64_t Register(const std::shared_ptr<graphics::GameResource>& resource);
+
+
+		bool HasResource(uint64_t unique_id) const { return resources_.contains(unique_id); }
+		bool HasResource(const std::string& name) const;
 		
 	private:
 

@@ -149,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shader\Common.hlsli" />
+    <None Include="Assets\Shader\MeshCommon.hlsli" />
     <None Include="Assets\Shader\PixelShader.hlsl">
       <FileType>Document</FileType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

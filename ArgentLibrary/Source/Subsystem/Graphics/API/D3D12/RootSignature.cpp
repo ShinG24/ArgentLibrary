@@ -87,6 +87,26 @@ namespace argent::graphics::dx12
 		desc.pParameters = root_parameters_.data();
 		desc.Flags = flag;
 
+		//TODO Static Sampler‚È‚ñ‚Æ‚©‚µ‚Ä‚­‚¾‚³‚¢
+		D3D12_STATIC_SAMPLER_DESC sampler_desc[1];
+		sampler_desc[0].AddressU = 
+		sampler_desc[0].AddressV = 
+		sampler_desc[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler_desc[0].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+		sampler_desc[0].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		sampler_desc[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		sampler_desc[0].MaxAnisotropy = 16u;
+		sampler_desc[0].MaxLOD = D3D12_FLOAT32_MAX;
+		sampler_desc[0].MinLOD = 0u;
+		sampler_desc[0].MipLODBias = 0u;
+		sampler_desc[0].RegisterSpace = 0u;
+		sampler_desc[0].ShaderRegister = 0u;
+		sampler_desc[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+
+		desc.pStaticSamplers = sampler_desc;
+		desc.NumStaticSamplers = 1u;
+
 		graphics_device->SerializeAndCreateRootSignature(desc,
 			root_signature_object_.ReleaseAndGetAddressOf());
 

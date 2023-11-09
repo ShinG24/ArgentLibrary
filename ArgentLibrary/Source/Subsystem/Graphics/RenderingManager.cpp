@@ -54,7 +54,11 @@ namespace argent::graphics
 			0u, 0u, 1u);
 		scene_constant_binding_signature_->AddHeapRangeParameter(1u,
 			1u, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 0u);
-		scene_constant_binding_signature_->AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 2u, 0u, 61);
+	//	scene_constant_binding_signature_->AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 2u, 0u, 61);
+
+		scene_constant_binding_signature_->AddHeapRangeParameter(0u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u);
+		scene_constant_binding_signature_->AddHeapRangeParameter(1u, 1u, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0u);
+
 		scene_constant_binding_signature_->Create(graphics_context->graphics_device_, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 

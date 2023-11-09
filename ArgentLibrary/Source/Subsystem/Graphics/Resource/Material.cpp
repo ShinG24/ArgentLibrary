@@ -1,6 +1,7 @@
 #include "Subsystem/Graphics/Resource/Material.h"
 
 #include "Subsystem/Graphics/API/D3D12/ConstantBuffer.h"
+#include "Subsystem/Graphics/API/D3D12/GraphicsCommandList.h"
 
 #include "Subsystem/Graphics/Resource/Texture.h"
 

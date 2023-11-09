@@ -59,6 +59,7 @@
     <None Include="Assets\Shader\Standard.ps.hlsl">
       <Filter>Shader\Rasterizer</Filter>
     </None>
+    <None Include="Assets\Shader\MeshCommon.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h" />

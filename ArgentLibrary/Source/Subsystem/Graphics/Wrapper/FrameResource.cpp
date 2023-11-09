@@ -103,7 +103,7 @@ namespace argent::graphics
 
 	void FrameResource::Activate(const dx12::GraphicsCommandList* command_list) const
 	{
-		float clear_color[4]{0, 0, 0, 1};
+		float clear_color[4]{1, 1, 1, 1};
 
 		command_list->SetTransitionBarrier(resource_object_.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		command_list->ClearRtv(rtv_descriptor_.cpu_handle_, clear_color);

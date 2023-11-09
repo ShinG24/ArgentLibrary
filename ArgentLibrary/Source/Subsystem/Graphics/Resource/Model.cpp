@@ -29,8 +29,8 @@ namespace argent::graphics
 		std::vector<std::shared_ptr<Material>>& material_vec) :
 		GameResource(Stem(filepath))
 	,	filepath_(std::move(filepath))
-	,	mesh_vec_(std::move(mesh_vec))
-	,	material_vec_(std::move(material_vec))
+	,	mesh_vec_(mesh_vec)
+	,	material_vec_(material_vec)
 	{
 		if(mesh_vec_.empty() || material_vec_.empty())  _ASSERT_EXPR(FALSE, L"Mesh and Material can not be null");
 	}

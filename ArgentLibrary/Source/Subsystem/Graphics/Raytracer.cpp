@@ -383,7 +383,8 @@ namespace argent::graphics
 				table.shader_identifier_ = kHitGroupName.at(kNoModelGeometryCounts + i);
 				table.input_data_.resize(RootSignatureBinderCount);
 				table.input_data_.at(ObjectCbv) = reinterpret_cast<void*>(world_matrix_buffer_->GetGPUVirtualAddress() + sizeof(ObjectConstant) * (kNoModelGeometryCounts + i));
-				table.input_data_.at(TextureStart) = reinterpret_cast<void*>(graphics_model_->GetMaterials().at(0)->GetTextureGpuHandleBegin().ptr);
+				//TODO Unordered map‚ÅTexture Table‚ğì‚Á‚Ä‚¢‚é‚½‚ßA‘½•ª‚Ç‚±‚©‚Å‚¨‚©‚µ‚­‚È‚é
+				//table.input_data_.at(TextureStart) = reinterpret_cast<void*>(graphics_model_->GetMaterials().at(0)->GetTextureGpuHandleBegin().ptr);
 				table.input_data_.at(VertexBufferGpuDescriptorHandle) = reinterpret_cast<void*>(
 					graphics_model_->GetMeshes().at(0)->GetVertexPositionDescriptor().gpu_handle_.ptr);
 				table.input_data_.at(MaterialCbv) = reinterpret_cast<void*>(graphics_model_->GetMaterials().at(0)->GetConstantGpuVirtualAddress(0));

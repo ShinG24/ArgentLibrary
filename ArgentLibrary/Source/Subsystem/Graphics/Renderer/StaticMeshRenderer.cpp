@@ -11,12 +11,16 @@
 #include "Subsystem/Graphics/Resource/Mesh.h"
 #include "Subsystem/Graphics/Resource/Model.h"
 
+#include "Subsystem/Graphics/Resource/Shader.h"
 
 #include "Subsystem/Graphics/RenderingManager.h"
 
+#include "Subsystem/ResourceManager/ResourceManager.h"
+
 #include "Core/SubsystemLocator.h"
 #include "Core/Engine.h"
-#include "Subsystem/Graphics/Resource/Shader.h"
+#include "Subsystem/Graphics/Resource/Material.h"
+
 
 namespace argent::graphics
 {
@@ -42,14 +46,19 @@ namespace argent::graphics
 		desc.root_signature_ = GetEngine()->GetSubsystemLocator()->GetSubsystem<RenderingManager>()->GetRasterGlobalRootSignature();
 		desc.vertex_shader_ = vertex_shader_;
 		desc.pixel_shader_ = pixel_shader_;
+		desc.increment_input_slot_ = true;
 
 		pipeline_state_ = std::make_unique<dx12::GraphicsPipelineState>(graphics_context->graphics_device_->GetDevice(), desc);
 
 		meshes_ = model_->GetMeshes();
 
+		const auto resource_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<ResourceManager>();
 		for(const auto& m : meshes_)
 		{
+			auto material = resource_manager->GetResource<Material>(m->GetRenderingData().material_unique_id_);
+			materials_.emplace_back(material);
 		}
+		int i = 0;
 	}
 
 	void StaticMeshRenderer::Render(const RenderContext* render_context, const DirectX::XMFLOAT4X4& world_matrix)
@@ -66,8 +75,15 @@ namespace argent::graphics
 		command_list->SetGraphicsRootDescriptorTable(1u,
 			object_constant_buffer_->GetDescriptor(render_context->back_buffer_index_).gpu_handle_);
 
-		for(const auto& m : meshes_)
+		for(size_t i = 0; i < meshes_.size(); ++i)
 		{
+			const auto& m = meshes_.at(i);
+			const auto& mat = materials_.at(i);
+
+			command_list->SetGraphicsRootDescriptorTable(2u, mat->GetTexture(Material::TextureUsage::Albedo)->GetGpuHandle());
+			command_list->SetGraphicsRootDescriptorTable(3u, mat->GetTexture(Material::TextureUsage::Normal)->GetGpuHandle());
+
+			
 			m->SetVertexBuffersAndIndexBuffer(command_list);
 			command_list->DrawIndexedInstanced(static_cast<UINT>(m->GetRenderingIndexCount()),
 				1u, 0u, 0u, 0u);

@@ -46,6 +46,7 @@ namespace argent::graphics
 					resource_object_.ReleaseAndGetAddressOf());}
 			else
 			{
+				path.replace_extension(".PNG");
 				hr = DirectX::CreateWICTextureFromFile(graphics_context->graphics_device_->GetDevice(), 
 					resource_upload_batch, path.wstring().c_str(),
 					resource_object_.ReleaseAndGetAddressOf());

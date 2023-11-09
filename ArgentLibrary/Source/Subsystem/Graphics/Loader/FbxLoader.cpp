@@ -22,6 +22,9 @@
 
 #include "Subsystem/ResourceManager/ResourceManager.h"
 
+#include "Core/SubsystemLocator.h"
+#include "Core/Engine.h"
+
 
 struct Scene
 	{
@@ -104,7 +107,7 @@ namespace argent::graphics
 	};
 
 	void FetchMeshes(FbxScene* fbx_scene, const Scene& scene_view, std::vector<MeshData>& mesh_data_vec);
-	void FetchMaterials(FbxScene* fbx_scene, std::vector<MaterialData>& material_data);
+	void FetchMaterials(FbxScene* fbx_scene, std::vector<MaterialData>& material_data, const char* filepath);
 
 	std::shared_ptr<Model> LoadFbxFromFile(const char* filepath)
 	{
@@ -148,27 +151,12 @@ namespace argent::graphics
 
 		//マテリアル情報を取得
 		std::vector<MaterialData> load_material_data;
-		FetchMaterials(fbx_scene, load_material_data);
+		FetchMaterials(fbx_scene, load_material_data, filepath);
 
 		//ファイルからのロードはここまで
 		fbx_manager->Destroy();
 
 		//ロードしてきたデータをライブラリ用のデータに変換していく
-
-		//Mesh
-		std::vector<Mesh::Data> resource_mesh_data(load_mesh_data.size());
-
-		//Load用のMeshデータからリソース用のMeshデータへ変換
-		for(size_t i = 0; i < resource_mesh_data.size(); ++i)
-		{
-			resource_mesh_data.at(i) = load_mesh_data.at(i).ToResourceMeshData();
-		}
-
-		std::vector<std::shared_ptr<Mesh>> meshes(resource_mesh_data.size());
-		for(size_t i = 0; i < resource_mesh_data.size(); ++i)
-		{
-			meshes.at(i) = std::make_shared<Mesh>(load_mesh_data.at(i).name_, resource_mesh_data.at(i));
-		}
 
 		//Material
 		std::vector<std::shared_ptr<Material>> materials(load_material_data.size());
@@ -178,11 +166,45 @@ namespace argent::graphics
 			resource_material_data.at(i).filepath_map_ = std::move(load_material_data.at(i).filepath_map_); 
 		}
 
+		auto resource_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<ResourceManager>();
 		//TODO リソースマネージャからマテリアルを取ってくる
 		for(size_t i = 0; i < materials.size(); ++i)
 		{
-			materials.at(i) = std::make_shared<StandardMaterial>(load_material_data.at(i).name_, resource_material_data.at(i));
+			if(resource_manager->HasResource(load_material_data.at(i).name_))
+			{
+				materials.at(i) = resource_manager->GetResource<Material>(load_material_data.at(i).name_);
+			}
+			else
+			{
+				materials.at(i) = std::make_shared<StandardMaterial>(load_material_data.at(i).name_, resource_material_data.at(i));
+				resource_manager->Register(materials.at(i));
+			}
 		}
+
+		//Mesh
+		std::vector<Mesh::Data> resource_mesh_data(load_mesh_data.size());
+
+		//Load用のMeshデータからリソース用のMeshデータへ変換
+		for(size_t i = 0; i < resource_mesh_data.size(); ++i)
+		{
+			resource_mesh_data.at(i) = load_mesh_data.at(i).ToResourceMeshData();
+
+			//マテリアルのユニークIDを取得
+			for(size_t i = 0; i < materials.size(); ++i)
+			{
+				if(load_mesh_data.at(i).fbx_material_unique_id_ == load_material_data.at(i).fbx_unique_id_)
+				{
+					resource_mesh_data.at(i).material_unique_id_ = materials.at(i)->GetUniqueId();
+				}
+			}
+		}
+
+		std::vector<std::shared_ptr<Mesh>> meshes(resource_mesh_data.size());
+		for(size_t i = 0; i < resource_mesh_data.size(); ++i)
+		{
+			meshes.at(i) = std::make_shared<Mesh>(load_mesh_data.at(i).name_, resource_mesh_data.at(i));
+		}
+
 
 		auto model = std::make_shared<Model>(filepath, meshes, materials);
 		return model;
@@ -283,41 +305,35 @@ namespace argent::graphics
 		}
 	}
 
-	void FetchMaterials(FbxScene* fbx_scene, std::vector<MaterialData>& material_data)
+	void FetchMaterials(FbxScene* fbx_scene, std::vector<MaterialData>& material_data, const char* filepath)
 	{
 		auto fetch_material = [&](const FbxSurfaceMaterial* fbx_surface_material, MaterialData& dst)
 			{
 				dst.name_ = fbx_surface_material->GetName();
-
+				dst.fbx_unique_id_ = static_cast<int64_t>(fbx_surface_material->GetUniqueID());
 				FbxProperty fbx_property{};
 
-				//Diffuse (Albedo)
-				fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sDiffuse);
-				if (fbx_property.IsValid())
-				{
-					const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
-					dst.filepath_map_[Material::TextureUsage::Albedo] = fbx_texture ?
-						fbx_texture->GetRelativeFileName() : "";
-				}
+				auto fetch_texture = [&](const char* property_name, std::string& str_dst)
+					{
+						fbx_property = fbx_surface_material->FindProperty(property_name);
+						if(fbx_property.IsValid())
+						{
+							if(const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>())
+							{
+								std::filesystem::path path = filepath;
+								path.replace_filename(fbx_texture->GetRelativeFileName());
+								str_dst = path.string();
+							}
+							else
+							{
+								str_dst = "";
+							}
+						}
+					};
 
-				//Normal
-				fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sNormalMap);
-				if (fbx_property.IsValid())
-				{
-					const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
-					dst.filepath_map_[Material::TextureUsage::Normal] = fbx_texture ?
-						fbx_texture->GetRelativeFileName() : "";
-				}
-
-				//Emissive
-				fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sEmissive);
-				if (fbx_property.IsValid())
-				{
-					const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
-					dst.filepath_map_[Material::TextureUsage::Normal] = fbx_texture ?
-						fbx_texture->GetRelativeFileName() : "";
-				}
-
+				fetch_texture(FbxSurfaceMaterial::sDiffuse, dst.filepath_map_[Material::TextureUsage::Albedo]);
+				fetch_texture(FbxSurfaceMaterial::sNormalMap, dst.filepath_map_[Material::TextureUsage::Normal]);
+				fetch_texture(FbxSurfaceMaterial::sEmissive, dst.filepath_map_[Material::TextureUsage::Emissive]);
 			};
 
 		auto create_dummy_material = [&](MaterialData& dst)
@@ -340,37 +356,7 @@ namespace argent::graphics
 		{
 			const auto fbx_surface_material = fbx_scene->GetMaterial(i);
 			auto& data = material_data.at(i);
-			data.name_ = fbx_surface_material->GetName();
-			data.fbx_unique_id_ = fbx_surface_material->GetUniqueID();
-
-			FbxProperty fbx_property{};
-
-			//Diffuse (Albedo)
-			fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sDiffuse);
-			if(fbx_property.IsValid())
-			{
-				const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
-				data.filepath_map_[Material::TextureUsage::Albedo] = fbx_texture ? 
-					fbx_texture->GetRelativeFileName() : "";
-			}
-
-			//Normal
-			fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sNormalMap);
-			if(fbx_property.IsValid())
-			{
-				const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
-				data.filepath_map_[Material::TextureUsage::Normal] = fbx_texture ? 
-					fbx_texture->GetRelativeFileName() : "";
-			}
-
-			//Emissive
-			fbx_property = fbx_surface_material->FindProperty(FbxSurfaceMaterial::sEmissive);
-			if(fbx_property.IsValid())
-			{
-				const auto fbx_texture = fbx_property.GetSrcObject<FbxFileTexture>();
-				data.filepath_map_[Material::TextureUsage::Normal] = fbx_texture ?
-					fbx_texture->GetRelativeFileName() : "";
-			}
+			fetch_material(fbx_surface_material, data);
 		}
 	}
 }

@@ -10,6 +10,7 @@ namespace argent::graphics::dx12
 {
 	struct Descriptor;
 	class ConstantBuffer;
+	class GraphicsCommandList;
 }
 
 namespace argent::graphics
@@ -87,14 +88,6 @@ namespace argent::graphics
 		std::shared_ptr<Texture> GetTexture(TextureUsage type);
 
 		/**
-		 * \brief テクスチャのGPUハンドルを取得する
-		 * //TODO この関数はマテリアルが保持しているテクスチャが同じディスクリプタヒープ上に存在し、
-		 * かつ連続している前提で組んでいるので変更する
-		 * \return d3d12 Gpu Descriptor handle
-		 */
-		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGpuHandleBegin() const { return texture_map_.begin()->second->GetGpuHandle(); }
-
-		/**
 		 * \brief コンスタントバッファのGpuアドレスを取得
 		 * \param frame_index フレームインデックス
 		 * \return gpu address
@@ -114,5 +107,6 @@ namespace argent::graphics
 		//とりあえずおいておきます
 		std::unordered_map<TextureUsage, std::shared_ptr<Texture>> texture_map_;	//Texture map　2つ以上の使用用途が被ったテクスチャは保持できない 
 		std::unique_ptr<dx12::ConstantBuffer> constant_buffer_;
+		dx12::Descriptor texture_descriptor_;
 	};
 }
