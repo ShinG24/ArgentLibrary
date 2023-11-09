@@ -58,11 +58,6 @@ namespace argent::graphics
 		void OnGui() override;
 
 		/**
-		 * \brief テクスチャなどのGPUへのアップロードが終了するまで待つ
-		 */
-		void WaitForUploadGpuResource();
-
-		/**
 		 * \brief .exeからの相対ファイルパス取得 
 		 * \return ファイルパス
 		 */

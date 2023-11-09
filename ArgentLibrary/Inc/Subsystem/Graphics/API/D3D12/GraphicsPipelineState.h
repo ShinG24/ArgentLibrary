@@ -46,13 +46,13 @@ namespace argent::graphics::dx12
 		D3D12_FILL_MODE fill_mode_ = D3D12_FILL_MODE_SOLID;
 		D3D12_CULL_MODE cull_mode_ = D3D12_CULL_MODE_NONE;
 		bool is_front_ccw_;
-		int32_t depth_bias_;
-		float depth_bias_clamp_;
-		float slope_scaled_depth_bias_;
-		bool is_depth_clamp_enable_;
-		bool is_multi_sample_enable_;
-		bool is_antialiased_line_enable_;
-		bool is_conservative_raster_enable_;
+		int32_t depth_bias_{};
+		float depth_bias_clamp_{};
+		float slope_scaled_depth_bias_{};
+		bool is_depth_clamp_enable_{};
+		bool is_multi_sample_enable_{};
+		bool is_antialiased_line_enable_{};
+		bool is_conservative_raster_enable_{};
 	};
 
 	struct GraphicsPipelineDesc

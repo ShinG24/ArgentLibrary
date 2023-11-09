@@ -107,6 +107,5 @@ namespace argent::graphics
 		//とりあえずおいておきます
 		std::unordered_map<TextureUsage, std::shared_ptr<Texture>> texture_map_;	//Texture map　2つ以上の使用用途が被ったテクスチャは保持できない 
 		std::unique_ptr<dx12::ConstantBuffer> constant_buffer_;
-		dx12::Descriptor texture_descriptor_;
 	};
 }
