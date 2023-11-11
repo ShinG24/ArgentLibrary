@@ -1,7 +1,7 @@
 #include "Subsystem/Graphics/Resource/Texture.h"
 
 #include <filesystem>
-#include <unordered_map>
+
 
 #include <ResourceUploadBatch.h>
 #include <DDSTextureLoader.h>
@@ -12,8 +12,6 @@
 #include "Subsystem/Graphics/API/D3D12/DescriptorHeap.h"
 #include "Subsystem/Graphics/Common/GraphicsContext.h"
 
-//TODO è¡ÇµÇ‹ÇµÇÂÇ§
-std::unordered_map<std::wstring, argent::graphics::dx12::Descriptor> loaded_texture;
 
 namespace argent::graphics
 {
@@ -21,60 +19,50 @@ namespace argent::graphics
 
 	Texture::Texture(const GraphicsContext* graphics_context, const char* filename)
 	{
+		need_to_wait_ = true;
+		descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
+		DirectX::ResourceUploadBatch resource_upload_batch(graphics_context->graphics_device_->GetDevice());
+
+		resource_upload_batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+		HRESULT hr{ S_OK };
+
 		std::filesystem::path path = filename;
-		if(loaded_texture.contains(path.wstring()))
+		path.replace_extension(".DDS");
+
+		if(std::filesystem::exists(path))
 		{
-			descriptor_ = loaded_texture[path.wstring()];
-			need_to_wait_ = false;
-		}
+			hr = DirectX::CreateDDSTextureFromFile(graphics_context->graphics_device_->GetDevice(), resource_upload_batch, path.wstring().c_str(),
+				resource_object_.ReleaseAndGetAddressOf());}
 		else
 		{
-			need_to_wait_ = true;
-			descriptor_ = graphics_context->cbv_srv_uav_descriptor_heap_->PopDescriptor();
-			DirectX::ResourceUploadBatch resource_upload_batch(graphics_context->graphics_device_->GetDevice());
-
-			resource_upload_batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-			HRESULT hr{ S_OK };
-
-			std::filesystem::path path = filename;
-			path.replace_extension(".DDS");
-
-			if(std::filesystem::exists(path))
-			{
-				hr = DirectX::CreateDDSTextureFromFile(graphics_context->graphics_device_->GetDevice(), resource_upload_batch, path.wstring().c_str(),
-					resource_object_.ReleaseAndGetAddressOf());}
-			else
-			{
-				path.replace_extension(".PNG");
-				hr = DirectX::CreateWICTextureFromFile(graphics_context->graphics_device_->GetDevice(), 
-					resource_upload_batch, path.wstring().c_str(),
-					resource_object_.ReleaseAndGetAddressOf());
-			}
-
-			if(FAILED(hr))
-			{
-				CreateDummyTexture(graphics_context->graphics_device_, resource_object_.ReleaseAndGetAddressOf());	
-			}
-
-			wait_for_finish_upload_ = resource_upload_batch.End(graphics_context->resource_upload_command_queue_->GetCommandQueue());
-
-			D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
-			desc.Format = resource_object_->GetDesc().Format;
-			desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			desc.Texture2D.MipLevels = resource_object_->GetDesc().MipLevels;
-
-			graphics_context->graphics_device_->GetDevice()->CreateShaderResourceView(resource_object_.Get(), &desc,
-				descriptor_.cpu_handle_);
-
-			loaded_texture[path] = descriptor_;
-			
+			path.replace_extension(".PNG");
+			hr = DirectX::CreateWICTextureFromFile(graphics_context->graphics_device_->GetDevice(), 
+				resource_upload_batch, path.wstring().c_str(),
+				resource_object_.ReleaseAndGetAddressOf());
 		}
 
-		auto desc = resource_object_->GetDesc();
-		width_ = static_cast<UINT>(desc.Width);
-		height_ = desc.Height;
+		if(FAILED(hr))
+		{
+			CreateDummyTexture(graphics_context->graphics_device_, resource_object_.ReleaseAndGetAddressOf());	
+		}
+
+		wait_for_finish_upload_ = resource_upload_batch.End(graphics_context->resource_upload_command_queue_->GetCommandQueue());
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+		desc.Format = resource_object_->GetDesc().Format;
+		desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipLevels = resource_object_->GetDesc().MipLevels;
+
+		graphics_context->graphics_device_->CreateTexture2DSRV(resource_object_.Get(), descriptor_.cpu_handle_);
+
+		//graphics_context->graphics_device_->GetDevice()->CreateShaderResourceView(resource_object_.Get(), &desc,
+		//	descriptor_.cpu_handle_);
+
+		auto res_desc = resource_object_->GetDesc();
+		width_ = static_cast<UINT>(res_desc.Width);
+		height_ = res_desc.Height;
 	}
 
 	void Texture::WaitBeforeUse() const

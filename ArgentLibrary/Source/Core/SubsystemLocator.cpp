@@ -43,7 +43,7 @@ namespace argent
 	{
 		AddSubsystem<platform::Platform>();
 		AddSubsystem<graphics::GraphicsLibrary>();
-		AddSubsystem<ResourceManager>();
+		AddSubsystem<resource_system::ResourceManager>();
 		AddSubsystem<graphics::RenderingManager>();
 		AddSubsystem<input::InputManager>();
 		AddSubsystem<Timer>();
@@ -57,7 +57,7 @@ namespace argent
 		GetSubsystem<input::InputManager>()->Shutdown();
 		GetSubsystem<graphics::RenderingManager>()->Shutdown();
 
-		GetSubsystem<ResourceManager>()->Shutdown();
+		GetSubsystem<resource_system::ResourceManager>()->Shutdown();
 
 		GetSubsystem<graphics::GraphicsLibrary>()->Shutdown();
 		GetSubsystem<platform::Platform>()->Shutdown();

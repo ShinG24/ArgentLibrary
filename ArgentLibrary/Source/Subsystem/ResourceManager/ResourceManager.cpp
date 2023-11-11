@@ -1,7 +1,7 @@
 #include "Subsystem/ResourceManager/ResourceManager.h"
 
 
-namespace argent
+namespace argent::resource_system
 {
 	uint64_t ResourceManager::unique_id_ = 0u;
 

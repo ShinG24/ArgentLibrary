@@ -12,7 +12,6 @@ namespace argent::graphics::dx12
 {
 	class VertexBuffer;
 	class IndexBuffer;
-	//class BottomLevelAccelerationStructure;
 }
 
 namespace argent::graphics
@@ -281,5 +280,6 @@ namespace argent::graphics
 		dx12::Descriptor binormal_srv_descriptor_{};
 		dx12::Descriptor texcoord_srv_descriptor_{};
 		dx12::Descriptor index_srv_descriptor_{};
+
 	};
 }

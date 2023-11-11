@@ -2,17 +2,19 @@
 
 #include <memory>
 #include <string>
+#include <thread>
 #include <unordered_map>
 
 #include "../Subsystem.h"
 #include "Subsystem/Graphics/Resource/GameResource.h"
+
 
 namespace argent::graphics
 {
 	class GameResource;
 }
 
-namespace argent
+namespace argent::resource_system
 {
 	/**
 	 * \brief リソース管理用のクラス
@@ -76,11 +78,14 @@ namespace argent
 
 		bool HasResource(uint64_t unique_id) const { return resources_.contains(unique_id); }
 		bool HasResource(const std::string& name) const;
+
 		
 	private:
 
 		static uint64_t GenerateUniqueId();
 		static uint64_t unique_id_;
+
+	private:
 
 		std::unordered_map<uint64_t, std::shared_ptr<graphics::GameResource>> resources_;
 	};

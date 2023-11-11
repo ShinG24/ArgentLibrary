@@ -75,8 +75,6 @@ namespace argent::graphics
 			//Texture‚ÌUpload‚Ü‚¿
 			skymaps_->WaitBeforeUse();
 
-			graphics_model_->WaitForUploadGpuResource();
-
 			is_wait_ = true;
 		}
 

@@ -166,7 +166,7 @@ namespace argent::graphics
 			resource_material_data.at(i).filepath_map_ = std::move(load_material_data.at(i).filepath_map_); 
 		}
 
-		auto resource_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<ResourceManager>();
+		auto resource_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<resource_system::ResourceManager>();
 		//TODO リソースマネージャからマテリアルを取ってくる
 		for(size_t i = 0; i < materials.size(); ++i)
 		{

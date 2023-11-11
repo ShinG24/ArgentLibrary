@@ -26,10 +26,7 @@ namespace argent::graphics
 {
 	void StaticMeshRenderer::Awake(const GraphicsContext* graphics_context, std::shared_ptr<Model> model)
 	{
-		model_ = model;
-		//TODO ‚±‚±‚ÅŒÄ‚Ô‚Ì‚Í‹CŽ‚¿ˆ«‚¢‚æ
-		model_->Awake(graphics_context);
-
+		model->Awake(graphics_context);
 		object_constant_buffer_ = std::make_unique<dx12::ConstantBuffer>(graphics_context->graphics_device_, sizeof(ObjectConstant), kNumBackBuffers,
 			graphics_context->cbv_srv_uav_descriptor_heap_);
 
@@ -50,9 +47,9 @@ namespace argent::graphics
 
 		pipeline_state_ = std::make_unique<dx12::GraphicsPipelineState>(graphics_context->graphics_device_->GetDevice(), desc);
 
-		meshes_ = model_->GetMeshes();
+		meshes_ = model->GetMeshes();
 
-		const auto resource_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<ResourceManager>();
+		const auto resource_manager = GetEngine()->GetSubsystemLocator()->GetSubsystem<resource_system::ResourceManager>();
 		for(const auto& m : meshes_)
 		{
 			auto material = resource_manager->GetResource<Material>(m->GetRenderingData().material_unique_id_);

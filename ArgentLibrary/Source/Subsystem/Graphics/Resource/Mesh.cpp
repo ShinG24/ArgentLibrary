@@ -2,23 +2,15 @@
 
 #include <imgui.h>
 
-#include "Subsystem/Graphics/Wrapper/DXR/AccelerationStructureManager.h"
+
 #include "Subsystem/Graphics/API/D3D12/GraphicsDevice.h"
 #include "Subsystem/Graphics/API/D3D12/DescriptorHeap.h"
-#include "Subsystem/Graphics/API/D3D12/CommandQueue.h"
 #include "Subsystem/Graphics/API/D3D12/VertexBuffer.h"
 #include "Subsystem/Graphics/API/D3D12/IndexBuffer.h"
 	
 #include "Subsystem/Graphics/Common/GraphicsContext.h"
-		  
-#include "Subsystem/Graphics/Resource/Material.h"
 
-#include "Subsystem/ResourceManager/ResourceManager.h"
-
-#include "Core/SubsystemLocator.h"
-#include "Core/Engine.h"
-
-//#include "../Inc/BottomLevelAccelerationStructure.h"
+#include "Subsystem/Graphics/Wrapper/DXR/AccelerationStructureManager.h"
 
 namespace argent::graphics
 {
@@ -72,8 +64,8 @@ namespace argent::graphics
 		{
 			int num_vertex = static_cast<int>(data_.position_vec_.size());
 			int num_index = static_cast<int>(data_.index_vec_.size());
-			ImGui::InputInt("Rendering Vertex", &num_vertex, 0, 0, ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputInt("Rendering Index", &num_index, 0, 0, ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputInt("Vertices", &num_vertex, 0, 0, ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputInt("Indices", &num_index, 0, 0, ImGuiInputTextFlags_ReadOnly);
 			ImGui::TreePop();
 		}
 	}

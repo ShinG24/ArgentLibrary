@@ -51,8 +51,6 @@ namespace argent::graphics
 
 		std::vector<std::shared_ptr<Mesh>> meshes_;
 		std::vector<std::shared_ptr<Material>> materials_;
-
-		std::shared_ptr<Model> model_;
 		std::shared_ptr<dx12::GraphicsPipelineState> pipeline_state_;
 
 		std::unique_ptr<dx12::ConstantBuffer> object_constant_buffer_;
