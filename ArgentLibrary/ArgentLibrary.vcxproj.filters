@@ -46,9 +46,6 @@
     <Filter Include="Library\Subsystem\Graphics\Loader">
       <UniqueIdentifier>{8208ef7c-b85e-4e2e-8e69-77bf3eba04e3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Library\Subsystem\Graphics\Renderer">
-      <UniqueIdentifier>{c95d6677-937f-4023-8bfe-d0dbdaae28ec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Library\Subsystem\Graphics\Wrapper">
       <UniqueIdentifier>{ffdb9e55-c631-45dd-971e-3812f2bc2248}</UniqueIdentifier>
     </Filter>
@@ -75,6 +72,9 @@
     </Filter>
     <Filter Include="Library\Subsystem\ResourceManager">
       <UniqueIdentifier>{9f32c3a8-e221-4299-bfd8-46c5126e3f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Subsystem\Graphics\RenderPath">
+      <UniqueIdentifier>{c95d6677-937f-4023-8bfe-d0dbdaae28ec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -214,9 +214,6 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Wrapper\ShaderCompiler.h">
       <Filter>Library\Subsystem\Graphics\Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\StaticMeshRenderer.h">
-      <Filter>Library\Subsystem\Graphics\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Inc\Subsystem\Graphics\GraphicsLibrary.h">
       <Filter>Library\Subsystem\Graphics</Filter>
     </ClInclude>
@@ -262,12 +259,21 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Shader.h">
       <Filter>Library\Subsystem\Graphics\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\SpriteRenderer.h">
-      <Filter>Library\Subsystem\Graphics\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Sprite.h" />
     <ClInclude Include="Inc\GameObject\GameObject.h" />
     <ClInclude Include="Inc\Subsystem\ResourceManager\ResourceManager.h" />
+    <ClInclude Include="Source\CerealHelper.h">
+      <Filter>Library</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\SpriteRenderer.h">
+      <Filter>Library\Subsystem\Graphics\RenderPath</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\StaticMeshRenderPath.h">
+      <Filter>Library\Subsystem\Graphics\RenderPath</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\RenderPath.h">
+      <Filter>Library\Subsystem\Graphics\RenderPath</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp">
@@ -385,9 +391,6 @@
     <ClCompile Include="Source\Subsystem\Graphics\Wrapper\ShaderCompiler.cpp">
       <Filter>Library\Subsystem\Graphics\Wrapper</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Subsystem\Graphics\Renderer\StaticMeshRenderer.cpp">
-      <Filter>Library\Subsystem\Graphics\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Subsystem\Graphics\GraphicsLibrary.cpp">
       <Filter>Library\Subsystem\Graphics</Filter>
     </ClCompile>
@@ -433,11 +436,17 @@
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Shader.cpp">
       <Filter>Library\Subsystem\Graphics\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Subsystem\Graphics\Renderer\SpriteRenderer.cpp">
-      <Filter>Library\Subsystem\Graphics\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Sprite.cpp" />
     <ClCompile Include="Source\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Subsystem\ResourceManager\ResourceManager.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Renderer\SpriteRenderer.cpp">
+      <Filter>Library\Subsystem\Graphics\RenderPath</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\Renderer\StaticMeshRenderPath.cpp">
+      <Filter>Library\Subsystem\Graphics\RenderPath</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystem\Graphics\Renderer\RenderPath.cpp">
+      <Filter>Library\Subsystem\Graphics\RenderPath</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

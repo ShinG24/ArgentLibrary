@@ -343,20 +343,21 @@ namespace argent::graphics
 				dst.filepath_map_.clear();
 			};
 
-
 		const auto material_counts = fbx_scene->GetMaterialCount();
 		if(material_counts <= 0)
 		{
 			auto& m = material_data.emplace_back();
 			create_dummy_material(m);
 		}
-
-		material_data.resize(material_counts);
-		for(int i = 0; i < material_counts; ++i)
+		else
 		{
-			const auto fbx_surface_material = fbx_scene->GetMaterial(i);
-			auto& data = material_data.at(i);
-			fetch_material(fbx_surface_material, data);
+			material_data.resize(material_counts);
+			for(int i = 0; i < material_counts; ++i)
+			{
+				const auto fbx_surface_material = fbx_scene->GetMaterial(i);
+				auto& data = material_data.at(i);
+				fetch_material(fbx_surface_material, data);
+			}
 		}
 	}
 }

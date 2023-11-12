@@ -188,8 +188,9 @@
     <ClInclude Include="Inc\Subsystem\Graphics\Loader\FbxLoader.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\RasterRenderer.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Raytracer.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\RenderPath.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Renderer\SpriteRenderer.h" />
-    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\StaticMeshRenderer.h" />
+    <ClInclude Include="Inc\Subsystem\Graphics\Renderer\StaticMeshRenderPath.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\RenderingManager.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\GameResource.h" />
     <ClInclude Include="Inc\Subsystem\Graphics\Resource\Material.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Inc\Subsystem\Scene\SceneManager.h" />
     <ClInclude Include="Inc\Subsystem\Subsystem.h" />
     <ClInclude Include="Inc\Subsystem\Timer\Timer.h" />
+    <ClInclude Include="Source\CerealHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Imgui\imgui.cpp" />
@@ -250,8 +252,9 @@
     <ClCompile Include="Source\Subsystem\Graphics\Loader\FbxLoader.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\RasterRenderer.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Raytracer.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Renderer\RenderPath.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Renderer\SpriteRenderer.cpp" />
-    <ClCompile Include="Source\Subsystem\Graphics\Renderer\StaticMeshRenderer.cpp" />
+    <ClCompile Include="Source\Subsystem\Graphics\Renderer\StaticMeshRenderPath.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\RenderingManager.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\GameResource.cpp" />
     <ClCompile Include="Source\Subsystem\Graphics\Resource\Material.cpp" />

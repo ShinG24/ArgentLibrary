@@ -1,4 +1,4 @@
-#include "Subsystem/Graphics/Renderer/StaticMeshRenderer.h"
+#include "Subsystem/Graphics/Renderer/StaticMeshRenderPath.h"
 
 #include "Subsystem/Graphics/API/D3D12/ConstantBuffer.h"
 #include "Subsystem/Graphics/API/D3D12/VertexBuffer.h"
@@ -24,7 +24,7 @@
 
 namespace argent::graphics
 {
-	void StaticMeshRenderer::Awake(const GraphicsContext* graphics_context, std::shared_ptr<Model> model)
+	void StaticMeshRenderPath::Awake(const GraphicsContext* graphics_context, std::shared_ptr<Model> model)
 	{
 		model->Awake(graphics_context);
 		object_constant_buffer_ = std::make_unique<dx12::ConstantBuffer>(graphics_context->graphics_device_, sizeof(ObjectConstant), kNumBackBuffers,
@@ -55,33 +55,36 @@ namespace argent::graphics
 			auto material = resource_manager->GetResource<Material>(m->GetRenderingData().material_unique_id_);
 			materials_.emplace_back(material);
 		}
-		int i = 0;
 	}
 
-	void StaticMeshRenderer::Render(const RenderContext* render_context, const DirectX::XMFLOAT4X4& world_matrix)
+	void StaticMeshRenderPath::Render(const RenderContext* render_context, const DirectX::XMFLOAT4X4& world_matrix)
 	{
 		const auto command_list = render_context->graphics_command_list_->GetCommandList();
 
+		//描画パイプライン&トポロジのセット
 		pipeline_state_->SetOnCommandList(command_list);
 		command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+		//Object Constant
 		ObjectConstant data;
 		data.world_ = world_matrix;
 		object_constant_buffer_->CopyToGpu(&data, render_context->back_buffer_index_);
-
 		command_list->SetGraphicsRootDescriptorTable(1u,
 			object_constant_buffer_->GetDescriptor(render_context->back_buffer_index_).gpu_handle_);
 
+		//Loop for Mesh counts
 		for(size_t i = 0; i < meshes_.size(); ++i)
 		{
 			const auto& m = meshes_.at(i);
 			const auto& mat = materials_.at(i);
 
+			//TODO これを全てマテリアルで行うようにする
 			command_list->SetGraphicsRootDescriptorTable(2u, mat->GetTexture(Material::TextureUsage::Albedo)->GetGpuHandle());
 			command_list->SetGraphicsRootDescriptorTable(3u, mat->GetTexture(Material::TextureUsage::Normal)->GetGpuHandle());
 
-			
+			//For Mesh(Vertex & Index)
 			m->SetVertexBuffersAndIndexBuffer(command_list);
+
 			command_list->DrawIndexedInstanced(static_cast<UINT>(m->GetRenderingIndexCount()),
 				1u, 0u, 0u, 0u);
 		}
