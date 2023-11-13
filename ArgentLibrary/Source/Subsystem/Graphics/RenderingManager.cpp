@@ -20,7 +20,7 @@
 #include "Subsystem/Graphics/Resource/Shader.h"
 
 
-#include "Subsystem/Graphics/Renderer/StaticMeshRenderer.h"
+#include "Subsystem/Graphics/Renderer/StaticMeshRenderPath.h"
 
 #include "Subsystem/Graphics/Loader/FbxLoader.h"
 
@@ -32,7 +32,7 @@
 
 namespace argent::graphics
 {
-	std::unique_ptr<StaticMeshRenderer> renderer;
+	std::unique_ptr<StaticMeshRenderPath> renderer;
 	void RenderingManager::Awake()
 	{
 		auto graphics_context = GetEngine()->GetSubsystemLocator()->GetSubsystem<graphics::GraphicsLibrary>()->GetGraphicsContext();
@@ -63,7 +63,7 @@ namespace argent::graphics
 
 
 		std::shared_ptr<Model> model = LoadFbxFromFile("./Assets/Model/Plantune.fbx");
-		renderer = std::make_unique<StaticMeshRenderer>();
+		renderer = std::make_unique<StaticMeshRenderPath>();
 		renderer->Awake(graphics_context, model);
 	}
 
